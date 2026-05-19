@@ -1,0 +1,33 @@
+﻿@model CS4760GrantApplication.Models.College
+
+@{
+    ViewData["Title"] = "Add College";
+}
+
+<h1>Add College</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Add">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label for="deanId" class="control-label">Dean</label>
+                <select name="deanId" class="form-control" asp-items="ViewBag.Deans">
+                    <option value="">Select a Dean</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Add College" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
