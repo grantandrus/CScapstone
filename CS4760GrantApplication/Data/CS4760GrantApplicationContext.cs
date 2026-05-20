@@ -16,5 +16,6 @@ namespace CS4760GrantApplication.Data
 
         public DbSet<CS4760GrantApplication.Models.User> Users { get; set; } = default!;
         public DbSet<Department> Departments { get; set; } = default!;
+        public DbSet<Grant> Grants { get; set; } = default!;
     }
 }
