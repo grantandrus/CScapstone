@@ -1,0 +1,37 @@
+﻿@model IEnumerable<CS4760GrantApplication.Models.Grant>
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Grant Title
+            </th>
+            <th>
+                Description
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.title
+                </td>
+                <td>
+                    @item.description
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button type="button"
+    class="btn btn-primary" 
+    onclick="location.href='@Url.Action("Create", "Grant")'">
+    Create Grant
+</button>
