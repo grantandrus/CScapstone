@@ -20,9 +20,8 @@ namespace CS4760GrantApplication.Controllers
         // GET: College/Add
         public IActionResult Add()
         {
-            // Without the database set up, these lines are causing an error. Will add back in when we have our DB
-            //var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
-            //ViewData["Deans"] = new SelectList(users, "Id", "FullName");
+            var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
+            ViewData["Deans"] = new SelectList(users, "Id", "FullName");
             return View();
         }
 
@@ -47,9 +46,8 @@ namespace CS4760GrantApplication.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // again, add these lines back in when DB is set up
-            //var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
-            //ViewData["Deans"] = new SelectList(users, "Id", "FullName", newCollege.DeanId);
+            var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
+            ViewData["Deans"] = new SelectList(users, "Id", "FullName", newCollege.DeanId);
             return View(college);
         }
     }
