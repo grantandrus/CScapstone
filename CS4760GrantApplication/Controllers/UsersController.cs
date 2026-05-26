@@ -22,6 +22,30 @@ namespace CS4760GrantApplication.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult Login() => View();
+
+        [HttpPost]
+        public async Task<IActionResult> Login(string email, string password)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null || user.PasswordHash != password)
+            {
+                ViewBag.Error = "Invalid email or password.";
+                return View();
+            }
+
+            string role = user.IsAdmin ? "admin" : "regular";
+
+            // Store user info in session
+            HttpContext.Session.SetInt32("UserID", user.Id);
+            HttpContext.Session.SetString("UserRole", role);
+            HttpContext.Session.SetString("Name", $"{user.FirstName} {user.LastName}");
+
+            return View("Index", "Home");
+        }
+
         // GET: Users/Create
         public IActionResult Create()
         {
