@@ -5,12 +5,14 @@ using CS4760GrantApplication.Models;
 namespace CS4760GrantApplication.Filters
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-    public class AuthorizeAttribute : Attribute, IAuthorizationFilter
+    public class SessionAuthorizeAttribute : Attribute, IAuthorizationFilter
     {
 
-        public AuthorizeAttribute()
+        private readonly string? _requiredRole;
+
+        public SessionAuthorizeAttribute(string? requiredRole = null)
         {
-            
+            _requiredRole = requiredRole;
         }
 
         public void OnAuthorization(AuthorizationFilterContext context)
@@ -21,19 +23,19 @@ namespace CS4760GrantApplication.Filters
 
             if (!userId.HasValue)
             {
-                context.Result = new RedirectToActionResult("Login", "Account", null);
+                context.Result = new RedirectToActionResult("Login", "Users", null);
                 return;
             }
 
-            var userRole = session.GetString("UserRole");
-            if (string.IsNullOrEmpty(userRole))
+            if (_requiredRole != null)
             {
-                context.Result = new RedirectToActionResult("AccessDenied", "Account", null);
-                return;
+                var userRole = session.GetString("UserRole");
+                if (userRole != _requiredRole)
+                {
+                    context.Result = new RedirectToActionResult("AccessDenied", "Home", null);
+                    return;
+                }
             }
-
-            if (userRole == "Admin")
-                return;
 
         }
     }

@@ -1,4 +1,5 @@
 ﻿using CS4760GrantApplication.Data;
+using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -16,21 +17,31 @@ namespace CS4760GrantApplication.Controllers
             _context = context;
         }
 
-        // GET: People
         public async Task<IActionResult> Index()
         {
             return View();
         }
 
         [HttpGet]
+        [GuestOnly]
         public IActionResult Login() => View();
 
         [HttpPost]
+        [GuestOnly]
         public async Task<IActionResult> Login(string email, string password)
         {
+            var hasher = new PasswordHasher<User>();
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-            if (user == null || user.PasswordHash != password)
+            if (user == null)
+            {
+                ViewBag.Error = "Invalid email or password.";
+                return View();
+            }
+
+            var result = hasher.VerifyHashedPassword(user, user.PasswordHash, password);
+
+            if (result == PasswordVerificationResult.Failed)
             {
                 ViewBag.Error = "Invalid email or password.";
                 return View();
@@ -43,10 +54,17 @@ namespace CS4760GrantApplication.Controllers
             HttpContext.Session.SetString("UserRole", role);
             HttpContext.Session.SetString("Name", $"{user.FirstName} {user.LastName}");
 
-            return View("Index", "Home");
+            return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login");
         }
 
         // GET: Users/Create
+        [GuestOnly]
         public IActionResult Create()
         {
             return View();
@@ -55,6 +73,7 @@ namespace CS4760GrantApplication.Controllers
         // POST: Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [GuestOnly]
         public async Task<IActionResult> Create(RegisterViewModel regUser)
         {
 

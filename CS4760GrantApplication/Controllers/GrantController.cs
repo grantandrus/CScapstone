@@ -1,4 +1,5 @@
 ﻿using CS4760GrantApplication.Data;
+using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,7 @@ namespace CS4760GrantApplication.Controllers
         }
 
         // GET
+        [SessionAuthorize]
         [HttpGet]
         public IActionResult Create()
         {
@@ -22,6 +24,8 @@ namespace CS4760GrantApplication.Controllers
 
         // POST
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [SessionAuthorize]
         public async Task<IActionResult> Create(Grant grant)
         {
             if (ModelState.IsValid)
