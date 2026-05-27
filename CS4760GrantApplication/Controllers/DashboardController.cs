@@ -1,4 +1,5 @@
 ﻿using CS4760GrantApplication.Data;
+using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,8 @@ namespace CS4760GrantApplication.Controllers
         {
             _context = context;
         }
+
+        [SessionAuthorize]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Grants.ToListAsync()); 
