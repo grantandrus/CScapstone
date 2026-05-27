@@ -14,6 +14,21 @@
                 Description
             </th>
             <th>
+                Project Summary
+            </th>
+            <th>
+                Justification
+            </th>
+            <th>
+                Project Impact
+            </th>
+            <th>
+                Multiple Departments
+            </th>
+            <th>
+                Department Name
+            </th>
+            <th>
                 Actions
             </th>
         </tr>
@@ -23,10 +38,30 @@
         {
             <tr>
                 <td>
-                    @item.title
+                    @item.Title
                 </td>
                 <td>
-                    @item.description
+                    @item.Description
+                </td>
+                
+                <td>
+                    @item.ProjectSummary
+                </td>
+                
+                <td>
+                    @item.Justification
+                </td>
+                
+                <td>
+                    @item.ProjectImpact
+                </td>
+                
+                <td>
+                    @item.isMultipleDepartments
+                </td>
+                
+                <td>
+                    @item.Department?.DepartmentName
                 </td>
                 <td>
                     <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">Edit</button>
