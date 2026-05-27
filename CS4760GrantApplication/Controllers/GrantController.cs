@@ -155,6 +155,9 @@ namespace CS4760GrantApplication.Controllers
                 return NotFound();
             }
 
+            ViewBag.Departments = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Departments, "Id", "DepartmentName", grant.DepartmentId);
+            ViewBag.Users = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Users, "Id", "Email", grant.UserId);
+
             // Return view with grant data
             return View(grant);
         }
@@ -162,7 +165,7 @@ namespace CS4760GrantApplication.Controllers
         // POST: e.g.: Grant/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,title,description,UserId")] Grant grant)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,ProjectSummary,Justification,ProjectImpact,isMultipleDepartments,DepartmentId,UserId,InvolvesHumanOrAnimalSubjects")] Grant grant, IFormFile? approvalFile, List<IFormFile> attachments)
         {
             // Validate id in url matches grant id
             if (id != grant.Id)
@@ -193,6 +196,8 @@ namespace CS4760GrantApplication.Controllers
                 }
                 return RedirectToAction("Index", "Dashboard");
             }
+            ViewBag.Departments = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Departments, "Id", "DepartmentName", grant.DepartmentId);
+            ViewBag.Users = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Users, "Id", "Email", grant.UserId);
             return View(grant);
         }
 
