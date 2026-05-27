@@ -8,23 +8,87 @@
 
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group mb-3">
-                <label asp-for="title" class="control-label"></label>
-                <input asp-for="title" class="form-control" />
-                <span asp-validation-for="title" class="text-danger"></span>
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="description" class="control-label"></label>
-                <textarea asp-for="description" class="form-control"></textarea>
-                <span asp-validation-for="description" class="text-danger"></span>
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ProjectSummary" class="control-label"></label>
+                <textarea asp-for="ProjectSummary" class="form-control"></textarea>
+                <span asp-validation-for="ProjectSummary" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Justification" class="control-label"></label>
+                <textarea asp-for="Justification" class="form-control"></textarea>
+                <span asp-validation-for="Justification" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ProjectImpact" class="control-label"></label>
+                <input asp-for="ProjectImpact" class="form-control"/>
+                <span asp-validation-for="ProjectImpact" class="text-danger"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="isMultipleDepartments" class="form-check-input" />
+                <label asp-for="isMultipleDepartments" class="form-check-label"></label>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="DepartmentId" class="control-label"></label>
+
+                <select asp-for="DepartmentId"
+                        asp-items="ViewBag.Departments"
+                        class="form-control">
+                    <option value="">-- Select Department --</option>
+                </select>
+                <span asp-validation-for="DepartmentId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Project Director</label>
+                <select asp-for="UserId"
+                        asp-items="ViewBag.Users"
+                        class="form-control">
+                    <option value="">-- Select Project Director --</option>
+                </select>
+                <span asp-validation-for="UserId"
+                      class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
 
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Attachments (up to 3 files)</label>
+                <input type="file" name="attachments" class="form-control" multiple />
+                <span class="text-danger">@Html.ValidationMessage("attachments")</span>
+            </div>
+
+            <div class="form-group mb-3 form-check">
+                <input asp-for="InvolvesHumanOrAnimalSubjects" class="form-check-input" />
+                <label asp-for="InvolvesHumanOrAnimalSubjects" class="form-check-label">
+                    Does this grant involve human or animal subjects?
+                </label>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Approval File</label>
+                <input type="file" name="approvalFile" class="form-control" />
+                <span class="text-danger">@Html.ValidationMessage("approvalFile")</span>
             </div>
 
             <div class="form-group">

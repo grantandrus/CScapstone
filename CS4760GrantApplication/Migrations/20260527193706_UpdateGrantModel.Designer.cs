@@ -3,6 +3,7 @@ using CS4760GrantApplication.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CS4760GrantApplication.Migrations
 {
     [DbContext(typeof(CS4760GrantApplicationContext))]
-    partial class CS4760GrantApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260527193706_UpdateGrantModel")]
+    partial class UpdateGrantModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,9 +158,6 @@ namespace CS4760GrantApplication.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("DepartmentId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -171,9 +171,6 @@ namespace CS4760GrantApplication.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsCommitteeMember")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -185,8 +182,6 @@ namespace CS4760GrantApplication.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Users");
                 });
@@ -234,15 +229,6 @@ namespace CS4760GrantApplication.Migrations
             modelBuilder.Entity("CS4760GrantApplication.Models.Grant", b =>
                 {
                     b.Navigation("Attachments");
-                });
-
-            modelBuilder.Entity("CS4760GrantApplication.Models.User", b =>
-                {
-                    b.HasOne("CS4760GrantApplication.Models.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId");
-
-                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("CS4760GrantApplication.Models.User", b =>

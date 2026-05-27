@@ -18,5 +18,6 @@ namespace CS4760GrantApplication.Data
         public DbSet<CS4760GrantApplication.Models.College> Colleges { get; set; } = default!;
         public DbSet<Department> Departments { get; set; } = default!;
         public DbSet<Grant> Grants { get; set; } = default!;
+        public DbSet<GrantAttachment> GrantAttachments { get; set; } = default!;
     }
 }

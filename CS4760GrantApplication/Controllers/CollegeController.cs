@@ -1,4 +1,5 @@
 ﻿using CS4760GrantApplication.Data;
+using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,7 @@ namespace CS4760GrantApplication.Controllers
         }
 
         // GET: College/Add
+        [SessionAuthorize("admin")]
         public IActionResult Add()
         {
             var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
@@ -28,6 +30,7 @@ namespace CS4760GrantApplication.Controllers
         // POST: College/Add
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [SessionAuthorize("admin")]
         public async Task<IActionResult> Add(CollegeAddViewModel newCollege)
         {
             College college = new College();

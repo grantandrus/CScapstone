@@ -1,4 +1,5 @@
 ﻿using CS4760GrantApplication.Data;
+using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,12 +16,14 @@ namespace CS4760GrantApplication.Controllers
         }
 
         // GET: Departments
+        [SessionAuthorize("admin")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Departments.ToListAsync());
         }
 
         // Get: Departments/Create
+        [SessionAuthorize("admin")]
         public IActionResult Create()
         {
             return View();
@@ -29,6 +32,7 @@ namespace CS4760GrantApplication.Controllers
         // POST: Departments/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [SessionAuthorize("admin")]
         public async Task<IActionResult> Create(Department department)
         {
             if (ModelState.IsValid)
