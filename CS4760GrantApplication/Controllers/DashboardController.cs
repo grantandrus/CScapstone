@@ -19,7 +19,10 @@ namespace CS4760GrantApplication.Controllers
         [SessionAuthorize]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Grants.ToListAsync()); 
+            return View(await _context.Grants
+                .Include(g => g.Department)
+                .Where(g => g.UserId == HttpContext.Session.GetInt32("UserID"))
+                .ToListAsync());
         }
     }
 }

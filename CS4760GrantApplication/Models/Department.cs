@@ -12,5 +12,6 @@ namespace CS4760GrantApplication.Models
 
         [StringLength(500)]
         public string? Description {  get; set; }
+        public List<Grant> Grants { get; set; } = new();
     }
 }

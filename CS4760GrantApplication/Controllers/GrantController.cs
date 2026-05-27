@@ -2,6 +2,8 @@
 using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace CS4760GrantApplication.Controllers
 {
@@ -19,8 +21,19 @@ namespace CS4760GrantApplication.Controllers
         // GET
         [SessionAuthorize]
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            ViewBag.Departments = new SelectList(
+                await _context.Departments.ToListAsync(),
+                "Id",
+                "DepartmentName"
+            );
+            ViewBag.Users = new SelectList(
+                await _context.Users.ToListAsync(),
+                "Id",
+                "Email",
+                HttpContext.Session.GetInt32("UserID")
+            );
             return View();
         }
 
@@ -31,6 +44,22 @@ namespace CS4760GrantApplication.Controllers
             List<IFormFile>? attachments,
             IFormFile? approvalFile)
         {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Departments = new SelectList(
+                    await _context.Departments.ToListAsync(),
+                    "Id",
+                    "DepartmentName"
+                );
+                ViewBag.Users = new SelectList(
+                    await _context.Users.ToListAsync(),
+                    "Id",
+                    "Email",
+                    HttpContext.Session.GetInt32("UserID")
+                );
+
+                return View(grant);
+            }
             if (attachments != null && attachments.Count > 3)
             {
                 ModelState.AddModelError("attachments", "You can upload up to 3 files.");
