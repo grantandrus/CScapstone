@@ -21,11 +21,15 @@
             <tr>
                 <td>@member.FirstName</td>
                 <td>@member.LastName</td>
-                <td>@member.Department.DepartmentName</td>
                 <td>
-                    @using (Html.BeginForm("Remove", "Members", new { id = member.Id }, FormMethod.Post))
+                    @if(!(member.Department is null)){
+                        @member.Department.DepartmentName
+                    
+                    }</td>
+                <td>
+                    @using (Html.BeginForm("Remove", "ARCC", new { id = member.Id }, FormMethod.Post))
                     {
-                        <button type="submit" class="btn btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        <button type="submit" class="btn btn-outline-danger">Remove</button>
                     }
                 </td>
             </tr>
@@ -49,11 +53,15 @@
             <tr>
                 <td>@user.FirstName</td>
                 <td>@user.LastName</td>
-                <td>@user.Department.DepartmentName</td>
                 <td>
-                    @using (Html.BeginForm("Add", "OtherUsers", new { id = user.Id }, FormMethod.Post))
+                    @if(!(user.Department is null)) {                       
+                        @user.Department.DepartmentName
+                    }
+                </td>
+                <td>
+                    @using (Html.BeginForm("Add", "ARCC", new { id = user.Id }, FormMethod.Post))
                     {
-                        <button type="submit" class="btn btn-outline-success"><i class="bi bi-plus-lg"></i></button>
+                        <button type="submit" class="btn btn-outline-success">Add</button>
                     }
                 </td>
             </tr>
