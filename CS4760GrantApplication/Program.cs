@@ -9,6 +9,12 @@ builder.Services.AddDbContext<CS4760GrantApplicationContext>(options =>
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddRazorPages();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(90);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
@@ -22,6 +28,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseSession();
 
 app.UseAuthorization();
 
