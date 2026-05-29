@@ -41,6 +41,18 @@
                 <span asp-validation-for="ProjectImpact" class="text-danger"></span>
             </div>
 
+            <div class="form-group mb-3">
+                <label asp-for="ProjectTimeline" class="control-label"></label>
+                <textarea asp-for="ProjectTimeline" class="form-control"></textarea>
+                <span asp-validation-for="ProjectTimeline" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="SuccessEvaluation" class="control-label"></label>
+                <textarea asp-for="SuccessEvaluation" class="form-control"></textarea>
+                <span asp-validation-for="SuccessEvaluation" class="text-danger"></span>
+            </div>
+
             <div class="form-check mb-3">
                 <input asp-for="isMultipleDepartments" class="form-check-input" />
                 <label asp-for="isMultipleDepartments" class="form-check-label"></label>
