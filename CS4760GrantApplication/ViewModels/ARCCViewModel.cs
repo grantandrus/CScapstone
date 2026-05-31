@@ -6,5 +6,6 @@ namespace CS4760GrantApplication.ViewModels
     {
         public List<User> Members { get; set; }
         public List<User> OtherUsers { get; set; }
+        public int? CurrentChairId { get; set; }
     }
 }
