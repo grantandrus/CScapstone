@@ -26,6 +26,14 @@ namespace CS4760GrantApplication.Models
         [Required]
         public int ProjectImpact { get; set; }
 
+        [Required]
+        [StringLength(2000)]
+        public string ProjectTimeline { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(2000)]
+        public string SuccessEvaluation { get; set; } = string.Empty;
+
         public bool isMultipleDepartments { get; set; }
 
         public int DepartmentId { get; set; }

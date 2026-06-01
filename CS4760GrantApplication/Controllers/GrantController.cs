@@ -165,7 +165,7 @@ namespace CS4760GrantApplication.Controllers
         // POST: e.g.: Grant/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,ProjectSummary,Justification,ProjectImpact,isMultipleDepartments,DepartmentId,UserId,InvolvesHumanOrAnimalSubjects")] Grant grant, IFormFile? approvalFile, List<IFormFile> attachments)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,ProjectSummary,Justification,ProjectImpact,ProjectTimeline,SuccessEvaluation,isMultipleDepartments,DepartmentId,UserId,InvolvesHumanOrAnimalSubjects")] Grant grant, IFormFile? approvalFile, List<IFormFile> attachments)
         {
             // Validate id in url matches grant id
             if (id != grant.Id)
