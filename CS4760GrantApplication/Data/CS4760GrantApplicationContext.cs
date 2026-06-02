@@ -19,5 +19,23 @@ namespace CS4760GrantApplication.Data
         public DbSet<Department> Departments { get; set; } = default!;
         public DbSet<Grant> Grants { get; set; } = default!;
         public DbSet<GrantAttachment> GrantAttachments { get; set; } = default!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<College>()
+                .HasOne(c => c.Dean)
+                .WithMany()
+                .HasForeignKey(c => c.DeanId);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.College)
+                .WithMany()
+                .HasForeignKey(u => u.CollegeId);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Department)
+                .WithMany()
+                .HasForeignKey(u => u.DepartmentId);
+        }
     }
 }

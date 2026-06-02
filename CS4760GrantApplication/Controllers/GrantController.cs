@@ -39,6 +39,8 @@ namespace CS4760GrantApplication.Controllers
 
         // POST
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [SessionAuthorize]
         public async Task<IActionResult> Create(
             Grant grant,
             List<IFormFile>? attachments,
@@ -140,6 +142,7 @@ namespace CS4760GrantApplication.Controllers
 
         // GET: e.g.: Grant/Edit/5
         [HttpGet]
+        [SessionAuthorize]
         public async Task<IActionResult> Edit(int? id)
         {
             // Validate id is passed
@@ -164,6 +167,7 @@ namespace CS4760GrantApplication.Controllers
 
         // POST: e.g.: Grant/Edit/5
         [HttpPost]
+        [SessionAuthorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,ProjectSummary,Justification,ProjectImpact,ProjectTimeline,SuccessEvaluation,isMultipleDepartments,DepartmentId,UserId,InvolvesHumanOrAnimalSubjects")] Grant grant, IFormFile? approvalFile, List<IFormFile> attachments)
         {
