@@ -3,6 +3,7 @@ using CS4760GrantApplication.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CS4760GrantApplication.Migrations
 {
     [DbContext(typeof(CS4760GrantApplicationContext))]
-    partial class CS4760GrantApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260526230856_UserUpdate")]
+    partial class UserUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -74,118 +77,25 @@ namespace CS4760GrantApplication.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DepartmentId")
+                    b.Property<int?>("UserId")
+                        .HasMaxLength(400)
                         .HasColumnType("int");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("description")
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
-                    b.Property<bool>("InvolvesHumanOrAnimalSubjects")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Justification")
-                        .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProjectImpact")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ProjectSummary")
-                        .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProjectTimeline")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<string>("SuccessEvaluation")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<string>("Title")
+                    b.Property<string>("title")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("isMultipleDepartments")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Grants");
-                });
-
-            modelBuilder.Entity("CS4760GrantApplication.Models.GrantAttachment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("GrantId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsApprovalFile")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GrantId");
-
-                    b.ToTable("GrantAttachments");
-                });
-
-            modelBuilder.Entity("CS4760GrantApplication.Models.RubricCriterion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<int>("MaxScore")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("RatingSuggestion")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RubricCriteria");
                 });
 
             modelBuilder.Entity("CS4760GrantApplication.Models.User", b =>
@@ -195,9 +105,6 @@ namespace CS4760GrantApplication.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CollegeId")
-                        .HasColumnType("int");
 
                     b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
@@ -215,9 +122,6 @@ namespace CS4760GrantApplication.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsCommitteeChair")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsCommitteeMember")
                         .HasColumnType("bit");
 
@@ -232,8 +136,6 @@ namespace CS4760GrantApplication.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CollegeId");
 
                     b.HasIndex("DepartmentId");
 
@@ -251,57 +153,20 @@ namespace CS4760GrantApplication.Migrations
 
             modelBuilder.Entity("CS4760GrantApplication.Models.Grant", b =>
                 {
-                    b.HasOne("CS4760GrantApplication.Models.Department", "Department")
-                        .WithMany("Grants")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("CS4760GrantApplication.Models.User", "User")
                         .WithMany("Grants")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Department");
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CS4760GrantApplication.Models.GrantAttachment", b =>
-                {
-                    b.HasOne("CS4760GrantApplication.Models.Grant", "Grant")
-                        .WithMany("Attachments")
-                        .HasForeignKey("GrantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Grant");
-                });
-
             modelBuilder.Entity("CS4760GrantApplication.Models.User", b =>
                 {
-                    b.HasOne("CS4760GrantApplication.Models.College", "College")
-                        .WithMany()
-                        .HasForeignKey("CollegeId");
-
                     b.HasOne("CS4760GrantApplication.Models.Department", "Department")
                         .WithMany()
                         .HasForeignKey("DepartmentId");
 
-                    b.Navigation("College");
-
                     b.Navigation("Department");
-                });
-
-            modelBuilder.Entity("CS4760GrantApplication.Models.Department", b =>
-                {
-                    b.Navigation("Grants");
-                });
-
-            modelBuilder.Entity("CS4760GrantApplication.Models.Grant", b =>
-                {
-                    b.Navigation("Attachments");
                 });
 
             modelBuilder.Entity("CS4760GrantApplication.Models.User", b =>

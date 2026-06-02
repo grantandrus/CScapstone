@@ -1,5 +1,4 @@
-﻿using Microsoft.Identity.Client;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CS4760GrantApplication.Models
 {
@@ -19,9 +18,14 @@ namespace CS4760GrantApplication.Models
         [Required]
         [StringLength(255)]
         public string PasswordHash { get; set; } = string.Empty;
-        [Required]
         public bool IsAdmin { get; set; } = false;
         public bool IsCommitteeChair { get; set; } = false;
         public List<Grant> Grants { get; set; } = new();
+        public bool IsCommitteeMember { get; set; } = false;
+        public bool IsCommitteeChair { get; set; } = false;
+        public int? CollegeId { get; set; }
+        public College? College { get; set; }
+        public int? DepartmentId { get; set; }
+        public Department? Department { get; set; }
     }
 }
