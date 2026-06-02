@@ -1,9 +1,11 @@
 ﻿using CS4760GrantApplication.Data;
 using CS4760GrantApplication.Filters;
+using CS4760GrantApplication.Migrations;
 using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace CS4760GrantApplication.Controllers
@@ -67,6 +69,15 @@ namespace CS4760GrantApplication.Controllers
         [GuestOnly]
         public IActionResult Create()
         {
+            var colleges = _context.Colleges.ToList();
+            var departments = _context.Departments.ToList();
+
+            colleges.Insert(0, new Models.College() { Id = 0, Name = "None" });
+            departments.Insert(0, new Department() { Id = 0, DepartmentName = "None" });
+
+            ViewBag.CollegeList = new SelectList(colleges, "Id", "Name");
+            ViewBag.DepartmentList = new SelectList(departments, "Id", "DepartmentName");
+
             return View();
         }
 
@@ -94,6 +105,16 @@ namespace CS4760GrantApplication.Controllers
                 user.Email = regUser.Email;
                 user.PasswordHash = hasher.HashPassword(user, regUser.Password);
                 user.IsAdmin = false;
+                
+                if (regUser.CollegeId != null && regUser.CollegeId != 0)
+                {
+                    user.CollegeId = regUser.CollegeId;
+                }
+
+                if (regUser.DepartmentId != null && regUser.DepartmentId != 0)
+                {
+                    user.DepartmentId = regUser.DepartmentId;
+                }
 
                 _context.Add(user);
                 await _context.SaveChangesAsync();

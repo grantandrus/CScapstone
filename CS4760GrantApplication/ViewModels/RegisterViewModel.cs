@@ -29,5 +29,8 @@ namespace CS4760GrantApplication.ViewModels
         [Required]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
+
+        public int? CollegeId { get; set; }
+        public int? DepartmentId { get; set; }
     }
 }
