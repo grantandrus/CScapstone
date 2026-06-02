@@ -1,6 +1,5 @@
 ﻿using CS4760GrantApplication.Data;
 using CS4760GrantApplication.Filters;
-using CS4760GrantApplication.Migrations;
 using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
 using Microsoft.AspNetCore.Identity;
