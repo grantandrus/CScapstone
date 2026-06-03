@@ -107,7 +107,8 @@ namespace CS4760GrantApplication.Controllers
                     SuccessEvaluation = vm.SuccessEvaluation,
                     isMultipleDepartments = vm.isMultipleDepartments,
                     InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects,
-                    UserId = vm.UserId
+                    UserId = vm.UserId,
+                    IsSaved = vm.IsSaved
                 };
 
                 grant.Departments = await _context.Departments.Where(
@@ -213,6 +214,7 @@ namespace CS4760GrantApplication.Controllers
                 isMultipleDepartments = grant.isMultipleDepartments,
                 UserId = grant.UserId,
                 InvolvesHumanOrAnimalSubjects = grant.InvolvesHumanOrAnimalSubjects,
+                IsSaved = grant.IsSaved,
 
                 SelectedDepartmentIds = grant.Departments
                     .Select(d => d.Id)
@@ -292,6 +294,7 @@ namespace CS4760GrantApplication.Controllers
             grant.isMultipleDepartments = vm.isMultipleDepartments;
             grant.UserId = vm.UserId;
             grant.InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects;
+            grant.IsSaved = vm.IsSaved;
 
             // Update many-to-many Departments
             grant.Departments = await _context.Departments

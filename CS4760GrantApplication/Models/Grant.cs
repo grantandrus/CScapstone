@@ -43,7 +43,7 @@ namespace CS4760GrantApplication.Models
         public User? User { get; set; }
 
         public bool InvolvesHumanOrAnimalSubjects { get; set; }
-
+        public bool IsSaved { get; set; }
         public List<GrantAttachment> Attachments { get; set; } = new();
     }
 }
