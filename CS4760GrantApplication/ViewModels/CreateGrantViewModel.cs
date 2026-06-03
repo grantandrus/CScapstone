@@ -41,6 +41,7 @@ namespace CS4760GrantApplication.ViewModels
         public int? UserId { get; set; }
 
         public bool InvolvesHumanOrAnimalSubjects { get; set; }
+        public bool IsSaved { get; set; }
 
         public List<GrantAttachment> Attachments { get; set; } = new();
         public List<int> SelectedDepartmentIds { get; set; } = new();

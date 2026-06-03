@@ -63,9 +63,12 @@
                 <td>
                     @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
                 </td>
-                <td>
-                    <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">Edit</button>
-                </td>
+                @if (item.IsSaved)
+                {
+                    <td>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">Edit</button>
+                    </td>
+                }
             </tr>
         }
     </tbody>
