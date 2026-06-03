@@ -21,6 +21,7 @@ namespace CS4760GrantApplication.Models
         public bool IsAdmin { get; set; } = false;
         public List<Grant> Grants { get; set; } = new();
         public bool IsCommitteeMember { get; set; } = false;
+        public bool IsCommitteeChair { get; set; } = false;
         public int? CollegeId { get; set; }
         public College? College { get; set; }
         public int? DepartmentId { get; set; }
