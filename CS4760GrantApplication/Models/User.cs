@@ -19,7 +19,6 @@ namespace CS4760GrantApplication.Models
         [StringLength(255)]
         public string PasswordHash { get; set; } = string.Empty;
         public bool IsAdmin { get; set; } = false;
-        public bool IsCommitteeChair { get; set; } = false;
         public List<Grant> Grants { get; set; } = new();
         public bool IsCommitteeMember { get; set; } = false;
         public bool IsCommitteeChair { get; set; } = false;
