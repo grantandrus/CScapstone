@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "Profile";
+}
+
+@model CS4760GrantApplication.Models.User
+
+<h3>@Model.FirstName @Model.LastName</h3>
+<p><b>Email:</b> @Model.Email</p>
+<p><b>Admin?:</b> @(Model.IsAdmin ? "Yes" : "No")</p>
+<p><b>College:</b> @(Model.College?.Name ?? "None")</p>
+<p><b>Department:</b> @(Model.Department?.DepartmentName ?? "None")</p>
+<p><b>Committee Member?:</b> @(Model.IsCommitteeMember ? "Yes" : "No")</p>
+<p><b>Committee Chair?:</b> @(Model.IsCommitteeChair ? "Yes" : "No")</p>
+
+<a asp-controller="Users" asp-action="Edit"><input type="button" class="btn btn-primary" value="Edit Info"></a>
+<a asp-controller="Users" asp-action="EditPassword"><input type="button" class="btn btn-danger" value="Edit Password"></a>

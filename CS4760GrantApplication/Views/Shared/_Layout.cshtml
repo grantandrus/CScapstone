@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CS4760GrantApplication.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://jsdelivr.net" />
+    @* <link rel="stylesheet" href="https://jsdelivr.net" /> *@
 </head>
 <body>
     <header>
@@ -55,6 +55,9 @@
                                 <span class="nav-link text-muted">@Context.Session.GetString("Name") - @Context.Session.GetString("UserRole")</span>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Index">Profile</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Users" asp-action="Logout">Logout</a>
                             </li>
                         }
@@ -62,6 +65,9 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Users" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Create">Register</a>
                             </li>
                         }
                     </ul>
