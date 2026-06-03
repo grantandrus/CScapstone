@@ -4,6 +4,7 @@ using CS4760GrantApplication.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using CS4760GrantApplication.ViewModels;
 
 namespace CS4760GrantApplication.Controllers
 {
@@ -23,18 +24,26 @@ namespace CS4760GrantApplication.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ViewBag.Departments = new SelectList(
-                await _context.Departments.ToListAsync(),
-                "Id",
-                "DepartmentName"
-            );
-            ViewBag.Users = new SelectList(
-                await _context.Users.ToListAsync(),
-                "Id",
-                "Email",
-                HttpContext.Session.GetInt32("UserID")
-            );
-            return View();
+            var vm = new CreateGrantViewModel();
+
+            vm.Departments = _context.Departments
+                .Select(d => new SelectListItem
+                {
+                    Value = d.Id.ToString(),
+                    Text = d.DepartmentName
+                })
+                .ToList();
+
+            vm.Users = _context.Users
+                .Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.FirstName + " " + u.LastName,
+                    Selected = u.Id == HttpContext.Session.GetInt32("UserID")
+                })
+                .ToList();
+
+            return View(vm);
         }
 
         // POST
@@ -42,38 +51,70 @@ namespace CS4760GrantApplication.Controllers
         [ValidateAntiForgeryToken]
         [SessionAuthorize]
         public async Task<IActionResult> Create(
-            Grant grant,
+            CreateGrantViewModel vm,
             List<IFormFile>? attachments,
             IFormFile? approvalFile)
         {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Departments = new SelectList(
-                    await _context.Departments.ToListAsync(),
-                    "Id",
-                    "DepartmentName"
-                );
-                ViewBag.Users = new SelectList(
-                    await _context.Users.ToListAsync(),
-                    "Id",
-                    "Email",
-                    HttpContext.Session.GetInt32("UserID")
-                );
-
-                return View(grant);
-            }
             if (attachments != null && attachments.Count > 3)
             {
                 ModelState.AddModelError("attachments", "You can upload up to 3 files.");
             }
 
-            if (grant.InvolvesHumanOrAnimalSubjects && approvalFile == null)
+            if (vm.InvolvesHumanOrAnimalSubjects && approvalFile == null)
             {
                 ModelState.AddModelError("approvalFile", "An approval file is required when human or animal subjects are involved.");
+            }
+            if (!vm.isMultipleDepartments &&
+                vm.SelectedDepartmentIds.Count > 1)
+            {
+                ModelState.AddModelError(
+                    nameof(vm.SelectedDepartmentIds),
+                    "Only one department may be selected unless Multiple Departments is checked."
+                );
+            }
+
+            if (!ModelState.IsValid)
+            {
+                vm.Departments = _context.Departments
+                     .Select(d => new SelectListItem
+                     {
+                         Value = d.Id.ToString(),
+                         Text = d.DepartmentName
+                     })
+                     .ToList();
+
+                vm.Users = _context.Users
+                    .Select(u => new SelectListItem
+                    {
+                        Value = u.Id.ToString(),
+                        Text = u.FirstName + " " + u.LastName
+                    })
+                    .ToList();
+
+                return View(vm);
             }
 
             if (ModelState.IsValid)
             {
+                var grant = new Grant
+                {
+                    Title = vm.Title,
+                    Description = vm.Description,
+                    ProjectSummary = vm.ProjectSummary,
+                    Justification = vm.Justification,
+                    ProjectImpact = vm.ProjectImpact,
+                    ProjectTimeline = vm.ProjectTimeline,
+                    SuccessEvaluation = vm.SuccessEvaluation,
+                    isMultipleDepartments = vm.isMultipleDepartments,
+                    InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects,
+                    UserId = vm.UserId
+                };
+
+                grant.Departments = await _context.Departments.Where(
+                    d => vm.SelectedDepartmentIds.Contains(d.Id)
+                    ).ToListAsync();
+
+
                 _context.Add(grant);
                 await _context.SaveChangesAsync();
 
@@ -137,7 +178,7 @@ namespace CS4760GrantApplication.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            return View(grant);
+            return View(vm);
         }
 
         // GET: e.g.: Grant/Edit/5
@@ -145,64 +186,133 @@ namespace CS4760GrantApplication.Controllers
         [SessionAuthorize]
         public async Task<IActionResult> Edit(int? id)
         {
-            // Validate id is passed
             if (id == null)
             {
                 return NotFound();
             }
 
-            // Find grant in database by id
-            var grant = await _context.Grants.FindAsync(id);
+            var grant = await _context.Grants
+                .Include(g => g.Departments)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
             if (grant == null)
             {
                 return NotFound();
             }
 
-            ViewBag.Departments = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Departments, "Id", "DepartmentName", grant.DepartmentId);
-            ViewBag.Users = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Users, "Id", "Email", grant.UserId);
+            var vm = new CreateGrantViewModel
+            {
+                Id = grant.Id,
+                Title = grant.Title,
+                Description = grant.Description,
+                ProjectSummary = grant.ProjectSummary,
+                Justification = grant.Justification,
+                ProjectImpact = grant.ProjectImpact,
+                ProjectTimeline = grant.ProjectTimeline,
+                SuccessEvaluation = grant.SuccessEvaluation,
+                isMultipleDepartments = grant.isMultipleDepartments,
+                UserId = grant.UserId,
+                InvolvesHumanOrAnimalSubjects = grant.InvolvesHumanOrAnimalSubjects,
 
-            // Return view with grant data
-            return View(grant);
+                SelectedDepartmentIds = grant.Departments
+                    .Select(d => d.Id)
+                    .ToList()
+            };
+
+            vm.Departments = _context.Departments
+                .Select(d => new SelectListItem
+                {
+                    Value = d.Id.ToString(),
+                    Text = d.DepartmentName
+                })
+                .ToList();
+
+            vm.Users = _context.Users
+                .Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.FirstName + " " + u.LastName
+                })
+                .ToList();
+
+            return View(vm);
         }
 
         // POST: e.g.: Grant/Edit/5
         [HttpPost]
         [SessionAuthorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,ProjectSummary,Justification,ProjectImpact,ProjectTimeline,SuccessEvaluation,isMultipleDepartments,DepartmentId,UserId,InvolvesHumanOrAnimalSubjects")] Grant grant, IFormFile? approvalFile, List<IFormFile> attachments)
+        public async Task<IActionResult> Edit(
+            int id,
+            CreateGrantViewModel vm)
         {
-            // Validate id in url matches grant id
-            if (id != grant.Id)
+            if (id != vm.Id)
             {
                 return NotFound();
             }
 
-            // Validate model state
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    // Update grant in database
-                    _context.Update(grant);
-                    await _context.SaveChangesAsync();
-                }
-                catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
-                {
-                    // If grant does not exist, return not found
-                    if (!GrantExists(grant.Id))
+                vm.Departments = _context.Departments
+                    .Select(d => new SelectListItem
                     {
-                        return NotFound();
-                    }
-                    else
+                        Value = d.Id.ToString(),
+                        Text = d.DepartmentName
+                    })
+                    .ToList();
+
+                vm.Users = _context.Users
+                    .Select(u => new SelectListItem
                     {
-                        throw;
-                    }
-                }
-                return RedirectToAction("Index", "Dashboard");
+                        Value = u.Id.ToString(),
+                        Text = u.FirstName + " " + u.LastName
+                    })
+                    .ToList();
+
+                return View(vm);
             }
-            ViewBag.Departments = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Departments, "Id", "DepartmentName", grant.DepartmentId);
-            ViewBag.Users = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Users, "Id", "Email", grant.UserId);
-            return View(grant);
+
+            var grant = await _context.Grants
+                .Include(g => g.Departments)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (grant == null)
+            {
+                return NotFound();
+            }
+
+            // Update scalar properties
+            grant.Title = vm.Title;
+            grant.Description = vm.Description;
+            grant.ProjectSummary = vm.ProjectSummary;
+            grant.Justification = vm.Justification;
+            grant.ProjectImpact = vm.ProjectImpact;
+            grant.ProjectTimeline = vm.ProjectTimeline;
+            grant.SuccessEvaluation = vm.SuccessEvaluation;
+            grant.isMultipleDepartments = vm.isMultipleDepartments;
+            grant.UserId = vm.UserId;
+            grant.InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects;
+
+            // Update many-to-many Departments
+            grant.Departments = await _context.Departments
+                .Where(d => vm.SelectedDepartmentIds.Contains(d.Id))
+                .ToListAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!GrantExists(id))
+                {
+                    return NotFound();
+                }
+
+                throw;
+            }
+
+            return RedirectToAction("Index", "Dashboard");
         }
 
         private bool GrantExists(int id)

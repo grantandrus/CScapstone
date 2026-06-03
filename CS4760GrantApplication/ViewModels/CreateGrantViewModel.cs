@@ -1,9 +1,11 @@
-﻿using Microsoft.Identity.Client;
+﻿using CS4760GrantApplication.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Identity.Client;
 using System.ComponentModel.DataAnnotations;
 
-namespace CS4760GrantApplication.Models
+namespace CS4760GrantApplication.ViewModels
 {
-    public class Grant
+    public class CreateGrantViewModel
     {
         public int Id { get; set; }
 
@@ -36,14 +38,13 @@ namespace CS4760GrantApplication.Models
 
         public bool isMultipleDepartments { get; set; }
 
-        public List<Department> Departments { get; set; } = new();
-
         public int? UserId { get; set; }
-
-        public User? User { get; set; }
 
         public bool InvolvesHumanOrAnimalSubjects { get; set; }
 
         public List<GrantAttachment> Attachments { get; set; } = new();
+        public List<int> SelectedDepartmentIds { get; set; } = new();
+        public List<SelectListItem> Departments { get; set; } = new();
+        public List<SelectListItem> Users { get; set; } = new(); 
     }
 }
