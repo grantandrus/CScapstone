@@ -89,6 +89,23 @@
 
 			<div class="form-group mb-3">
 				<label class="control-label">Attachments (up to 3 files)</label>
+
+				@if (Model.Attachments != null && Model.Attachments.Any(a => !a.IsApprovalFile))
+				{
+					<div class="mb-3">
+						<p class="mb-1 text-muted">Currently Uploaded Files:</p>
+						<ul class="list-group mb-2">
+							@foreach (var attachment in Model.Attachments.Where(a => !a.IsApprovalFile))
+							{
+								<li class="list-group-item">
+									<a href="@attachment.FilePath" target="_blank" rel="noopener noreferrer">@attachment.FileName</a>
+								</li>
+							}
+						</ul>
+					</div>
+				}
+				<p class="mb-1 text-muted">Upload additional files:</p>
+
 				<div class="mb-2">
 					<input type="file" name="attachments" class="form-control" />
 				</div>

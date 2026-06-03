@@ -1,0 +1,35 @@
+void Update() // Run each frame
+{
+    if (Time.frameCount % 10 == 0)
+    {
+        // Is only run every 10 frames
+        this.Update10();
+    }
+}
+
+void Update10()
+{
+    // Code here
+}
+
+//Source:
+//EphiTV's analyse of Hollow Knight
+//https://www.youtube.com/@EphiTV/videos
+//EntropyPhiTV@gmail.com
+
+    void FixedUpdate()
+    {
+        fixedTime += 1;
+        if (fixedTime > 25)
+        {
+            fixedTime = 0;
+
+            FixedUpdate25();
+        }
+    }
+
+    // Is only run every 25 FixedUpdate (every 0.5s)
+    void FixedUpdate25()
+    {
+        // Code here
+    }

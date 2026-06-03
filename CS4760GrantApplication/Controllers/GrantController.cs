@@ -201,6 +201,11 @@ namespace CS4760GrantApplication.Controllers
                 return NotFound();
             }
 
+            // Retrieve attached files associated with this grant
+            var attachments = await _context.GrantAttachments
+                .Where(ga => ga.GrantId == grant.Id)
+                .ToListAsync();
+
             var vm = new CreateGrantViewModel
             {
                 Id = grant.Id,
@@ -215,6 +220,7 @@ namespace CS4760GrantApplication.Controllers
                 UserId = grant.UserId,
                 InvolvesHumanOrAnimalSubjects = grant.InvolvesHumanOrAnimalSubjects,
                 IsSaved = grant.IsSaved,
+                Attachments = attachments, // Include attachments in the view model
 
                 SelectedDepartmentIds = grant.Departments
                     .Select(d => d.Id)
@@ -246,11 +252,31 @@ namespace CS4760GrantApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            CreateGrantViewModel vm)
+            CreateGrantViewModel vm,
+            List<IFormFile>? attachments,
+            IFormFile? approvalFile)
         {
             if (id != vm.Id)
             {
                 return NotFound();
+            }
+
+            // Validate attachments and approval file
+            if (attachments != null && attachments.Count > 3)
+            {
+                ModelState.AddModelError("attachments", "You can upload up to 3 files.");
+            }
+
+            if (vm.InvolvesHumanOrAnimalSubjects && approvalFile == null)
+            {
+                // Check if approval file already exists for this grant
+                var existingApproval = await _context.GrantAttachments
+                    .AnyAsync(ga => ga.GrantId == id && ga.IsApprovalFile);
+
+                if (!existingApproval)
+                {
+                    ModelState.AddModelError("approvalFile", "An approval file is required when human or animal subjects are involved.");
+                }
             }
 
             if (!ModelState.IsValid)
@@ -270,6 +296,11 @@ namespace CS4760GrantApplication.Controllers
                         Text = u.FirstName + " " + u.LastName
                     })
                     .ToList();
+
+                // Ensure attachments are re-populated on validation failure
+                vm.Attachments = await _context.GrantAttachments
+                    .Where(ga => ga.GrantId == id)
+                    .ToListAsync();
 
                 return View(vm);
             }
@@ -303,6 +334,62 @@ namespace CS4760GrantApplication.Controllers
 
             try
             {
+                // Process Attachments
+                string uploadFolder = Path.Combine(_environment.WebRootPath, "uploads");
+
+                if (!Directory.Exists(uploadFolder))
+                {
+                    Directory.CreateDirectory(uploadFolder);
+                }
+
+                if (attachments != null)
+                {
+                    foreach (var file in attachments)
+                    {
+                        if (file.Length > 0)
+                        {
+                            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+                            string filePath = Path.Combine(uploadFolder, uniqueFileName);
+
+                            using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(fileStream);
+                            }
+
+                            var grantAttachment = new GrantAttachment
+                            {
+                                GrantId = grant.Id,
+                                FileName = file.FileName,
+                                FilePath = "/uploads/" + uniqueFileName,
+                                IsApprovalFile = false
+                            };
+
+                            _context.GrantAttachments.Add(grantAttachment);
+                        }
+                    }
+                }
+
+                if (approvalFile != null && approvalFile.Length > 0)
+                {
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(approvalFile.FileName);
+                    string filePath = Path.Combine(uploadFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await approvalFile.CopyToAsync(fileStream);
+                    }
+
+                    var approvalAttachment = new GrantAttachment
+                    {
+                        GrantId = grant.Id,
+                        FileName = approvalFile.FileName,
+                        FilePath = "/uploads/" + uniqueFileName,
+                        IsApprovalFile = true
+                    };
+
+                    _context.GrantAttachments.Add(approvalAttachment);
+                }
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
