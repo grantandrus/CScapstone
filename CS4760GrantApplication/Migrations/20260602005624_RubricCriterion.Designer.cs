@@ -3,6 +3,7 @@ using CS4760GrantApplication.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CS4760GrantApplication.Migrations
 {
     [DbContext(typeof(CS4760GrantApplicationContext))]
-    partial class CS4760GrantApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260602005624_RubricCriterion")]
+    partial class RubricCriterion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -196,12 +199,6 @@ namespace CS4760GrantApplication.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CollegeId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("DepartmentId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -215,12 +212,6 @@ namespace CS4760GrantApplication.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsCommitteeChair")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsCommitteeMember")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -232,10 +223,6 @@ namespace CS4760GrantApplication.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CollegeId");
-
-                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Users");
                 });
@@ -277,21 +264,6 @@ namespace CS4760GrantApplication.Migrations
                         .IsRequired();
 
                     b.Navigation("Grant");
-                });
-
-            modelBuilder.Entity("CS4760GrantApplication.Models.User", b =>
-                {
-                    b.HasOne("CS4760GrantApplication.Models.College", "College")
-                        .WithMany()
-                        .HasForeignKey("CollegeId");
-
-                    b.HasOne("CS4760GrantApplication.Models.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId");
-
-                    b.Navigation("College");
-
-                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("CS4760GrantApplication.Models.Department", b =>

@@ -37,5 +37,6 @@ namespace CS4760GrantApplication.Data
                 .WithMany()
                 .HasForeignKey(u => u.DepartmentId);
         }
+        public DbSet<RubricCriterion> RubricCriteria { get; set; } = default!;
     }
 }

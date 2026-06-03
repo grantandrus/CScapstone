@@ -2,6 +2,7 @@
 @{
     var userId = Context.Session.GetInt32("UserID");
     var userRole = Context.Session.GetString("UserRole");
+    var isCommitteeChair = Context.Session.GetString("IsCommitteeChair") == "True";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -43,6 +44,12 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="ARCC" asp-action="Index">ARCC Committee</a>
+                            </li>
+                        }
+                        @if (userId.HasValue && isCommitteeChair)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Rubric" asp-action="Create">Rubric Management</a>
                             </li>
                         }
                         

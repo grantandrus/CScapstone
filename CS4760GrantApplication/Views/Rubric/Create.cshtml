@@ -1,0 +1,122 @@
+﻿@model CS4760GrantApplication.ViewModels.RubricCreateViewModel;
+
+@{
+    ViewData["Title"] = "Create Rubric";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://jsdelivr.net">
+}
+
+<h1>Create Rubric</h1>
+
+<table class="table mb-4">
+    <thead>
+        <tr>
+            <th>Criterion Name</th>
+            <th>Description</th>
+            <th>Maximum Score</th>
+            <th>Rating Suggestion</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var criterion in Model.RubricCriteria)
+        {
+            <form id="edit-form-@criterion.Id" method="post" action="@Url.Action("EditCriterion", "Rubric", new { id = criterion.Id })" class="d-none"></form>
+            <tr>
+                <td>
+                    <span class="view-mode-@criterion.Id">@criterion.Name</span>
+                        <input type="text" name="Name" class="form-control edit-mode-@criterion.Id d-none" value="@criterion.Name" form="edit-form-@criterion.Id" />
+                    </td>
+                    <td>
+                        <span class="view-mode-@criterion.Id">@criterion.Description</span>
+                        <input type="text" name="Description" class="form-control edit-mode-@criterion.Id d-none" value="@criterion.Description" form="edit-form-@criterion.Id" />
+                    </td>
+                    <td>
+                        <span class="view-mode-@criterion.Id">@criterion.MaxScore</span>
+                        <input type="number" name="MaxScore" class="form-control edit-mode-@criterion.Id d-none" value="@criterion.MaxScore" form="edit-form-@criterion.Id" />
+                    </td>
+                    <td>
+                        <span class="view-mode-@criterion.Id">@criterion.RatingSuggestion</span>
+                        <input type="text" name="RatingSuggestion" class="form-control edit-mode-@criterion.Id d-none" value="@criterion.RatingSuggestion" form="edit-form-@criterion.Id" />
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary edit-btn view-mode-@criterion.Id" data-id="@criterion.Id">Edit</button>
+                        <button type="submit" class="btn btn-outline-success save-btn edit-mode-@criterion.Id d-none" data-id="@criterion.Id" form="edit-form-@criterion.Id">Save</button>
+                        <button type="button" class="btn btn-outline-secondary cancel-btn edit-mode-@criterion.Id d-none" data-id="@criterion.Id">Cancel</button>
+                    </td>
+                    <td>
+                        @using (Html.BeginForm("RemoveCriterion", "Rubric", new { id = criterion.Id }, FormMethod.Post))
+                        {
+                            <button type="submit" class="btn btn-outline-danger">Delete</button>
+                        }
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>
+
+<h2>Add Criterion</h2>
+
+<form id="add-form" method="post" action="@Url.Action("AddCriterion", "Rubric")">
+    <table class="table mb-4">
+        <thead>
+            <tr>
+                <th>Criterion Name</th>
+                <th>Description</th>
+                <th>Maximum Score</th>
+                <th>Rating Suggestion</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <input type="text" name="Name" class="form-control" required />
+                </td>
+                <td>
+                    <input type="text" name="Description" class="form-control" required />
+                </td>
+                <td>
+                    <input type="number" name="MaxScore" class="form-control" required />
+                </td>
+                <td>
+                    <input type="text" name="RatingSuggestion" class="form-control" required />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-outline-success">Add</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // this code allows for the edit functionality to work on the page without having to open a new page
+        // toggles between readonly fields and text input fields when edit button or cancel button is clicked
+        document.addEventListener('DOMContentLoaded', function (){
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+
+                    document.querySelectorAll(`.view-mode-${id}`).forEach(el => el.classList.add('d-none'));
+
+                    document.querySelectorAll(`.edit-mode-${id}`).forEach(el => el.classList.remove('d-none'));
+                });
+            });
+
+            document.querySelectorAll('.cancel-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+
+                    document.querySelectorAll(`.edit-mode-${id}`).forEach(el => el.classList.add('d-none'));
+
+                    document.querySelectorAll(`.view-mode-${id}`).forEach(el => el.classList.remove('d-none'));
+                });
+            });
+        });
+    </script>
+}
