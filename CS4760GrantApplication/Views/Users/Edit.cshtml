@@ -1,0 +1,54 @@
+﻿@model CS4760GrantApplication.ViewModels.EditProfileViewModel;
+
+@{
+    ViewData["Title"] = "Edit Details";
+}
+
+<div style="max-width: 400px; margin: 80px auto;">
+    <h2>Edit User Details</h2>
+
+    <!-- Display error if there is one -->
+    @if (ViewBag.Error != null)
+    {
+        <div style="color: red; margin-bottom: 12px;">@ViewBag.Error</div>
+    }
+
+    <form asp-action="Edit" method="post" autocomplete="off" AutoCompleteType="Disabled">
+
+        <input type="hidden" asp-for="UserID" />
+
+        <div class="form-group">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" class="form-control" type="email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="FirstName">First Name</label>
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="LastName">Last Name</label>
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="CollegeId">College (optional)</label>
+            <select asp-for="CollegeId" class="form-control" asp-items="ViewBag.CollegeList"></select>
+            <span asp-validation-for="CollegeId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="DepartmentId">Department (optional)</label>
+            <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentList"></select>
+            <span asp-validation-for="DepartmentId" class="text-danger"></span>
+        </div>
+
+        <br />
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
