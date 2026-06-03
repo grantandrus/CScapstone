@@ -20,7 +20,7 @@ namespace CS4760GrantApplication.Controllers
         public async Task<IActionResult> Index()
         {
             return View(await _context.Grants
-                .Include(g => g.Department)
+                .Include(g => g.Departments)
                 .Where(g => g.UserId == HttpContext.Session.GetInt32("UserID"))
                 .ToListAsync());
         }
