@@ -90,31 +90,43 @@
 			<div class="form-group mb-3">
 				<label class="control-label">Attachments (up to 3 files)</label>
 
-				@if (Model.Attachments != null && Model.Attachments.Any(a => !a.IsApprovalFile))
+				@{
+					var existingRegularFiles = Model.Attachments != null
+						? Model.Attachments.Where(a => !a.IsApprovalFile).ToList()
+						: new List<CS4760GrantApplication.Models.GrantAttachment>();
+				}
+
+				@for (int i = 0; i < 3; i++)
 				{
-					<div class="mb-3">
-						<p class="mb-1 text-muted">Currently Uploaded Files:</p>
-						<ul class="list-group mb-2">
-							@foreach (var attachment in Model.Attachments.Where(a => !a.IsApprovalFile))
-							{
-								<li class="list-group-item">
-									<a href="@attachment.FilePath" target="_blank" rel="noopener noreferrer">@attachment.FileName</a>
-								</li>
-							}
-						</ul>
+					<div class="mb-2">
+						@if (i < existingRegularFiles.Count)
+						{
+							var attachment = existingRegularFiles[i];
+							<div id="file-slot-@i" class="d-flex align-items-center mb-1">
+								<span>File @(i + 1): <a href="@attachment.FilePath" target="_blank">@attachment.FileName</a></span>
+
+								<button type="button" class="btn btn-sm btn-outline-warning ms-2" onclick="replaceFile(@i, @attachment.Id)">Replace</button>
+								<button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeFile(@i, @attachment.Id)">Remove</button>
+							</div>
+
+							<!-- Hidden input that will be shown if user clicks Replace or Remove -->
+							<div id="file-input-wrapper-@i" style="display:none;">
+								<input type="file" name="attachments" class="form-control" />
+								<button type="button" class="btn btn-sm btn-link text-danger" onclick="cancelReplace(@i)">Cancel</button>
+							</div>
+						}
+						else
+						{
+							<!-- Empty slot -->
+							<label class="text-muted small">File @(i + 1)</label>
+							<input type="file" name="attachments" class="form-control" />
+						}
 					</div>
 				}
-				<p class="mb-1 text-muted">Upload additional files:</p>
 
-				<div class="mb-2">
-					<input type="file" name="attachments" class="form-control" />
-				</div>
-				<div class="mb-2">
-					<input type="file" name="attachments" class="form-control" />
-				</div>
-				<div>
-					<input type="file" name="attachments" class="form-control" />
-				</div>
+				<!-- Container to hold IDs of files to remove -->
+				<div id="removed-files-container"></div>
+
 				<span class="text-danger">@Html.ValidationMessage("attachments")</span>
 			</div>
 
@@ -127,9 +139,27 @@
 
 			<div class="form-group mb-3">
 				<label class="control-label">Approval File</label>
-				<input type="file" name="approvalFile" class="form-control" />
+				@{
+					var existingApproval = Model.Attachments?.FirstOrDefault(a => a.IsApprovalFile);
+				}
+				@if (existingApproval != null)
+				{
+					<div id="approval-slot" class="mb-2">
+						<span>Current: <a href="@existingApproval.FilePath" target="_blank">@existingApproval.FileName</a></span>
+						<button type="button" class="btn btn-sm btn-outline-warning ms-2" onclick="replaceApproval(@existingApproval.Id)">Replace</button>
+					</div>
+					<div id="approval-input-wrapper" style="display:none;">
+						<input type="file" name="approvalFile" class="form-control" />
+						<button type="button" class="btn btn-sm btn-link text-danger" onclick="cancelApprovalReplace()">Cancel</button>
+					</div>
+				}
+				else
+				{
+					<input type="file" name="approvalFile" class="form-control" />
+				}
 				<span class="text-danger">@Html.ValidationMessage("approvalFile")</span>
 			</div>
+
 			<div class="form-group">
 				<button type="submit"
 						class="btn btn-primary"
@@ -148,3 +178,71 @@
 		</form>
 	</div>
 </div>
+
+@section Scripts
+{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+
+	<script>
+		function replaceFile(index, attachmentId)
+		{
+			document.getElementById('file-slot-' + index).style.display = 'none';
+			document.getElementById('file-input-wrapper-' + index).style.display = 'block';
+			markForRemoval(attachmentId, 'remove-input-' + index);
+		}
+
+		function removeFile(index, attachmentId)
+		{
+			document.getElementById('file-slot-' + index).style.display = 'none';
+			document.getElementById('file-input-wrapper-' + index).style.display = 'block';
+			// Clear the file input immediately so no new file is submitted
+			document.querySelector('#file-input-wrapper-' + index + ' input[type="file"]').value = '';
+			markForRemoval(attachmentId, 'remove-input-' + index);
+		}
+
+		function cancelReplace(index)
+		{
+			document.getElementById('file-slot-' + index).style.display = 'flex';
+			document.getElementById('file-input-wrapper-' + index).style.display = 'none';
+			document.querySelector('#file-input-wrapper-' + index + ' input[type="file"]').value = '';
+			unmarkForRemoval('remove-input-' + index);
+		}
+
+		function markForRemoval(attachmentId, inputId)
+		{
+			if (!document.getElementById(inputId)) {
+				let input = document.createElement("input");
+				input.type = "hidden";
+				input.name = "AttachmentsToRemove";
+				input.value = attachmentId;
+				input.id = inputId;
+				document.getElementById('removed-files-container').appendChild(input);
+			}
+		}
+
+		function unmarkForRemoval(inputId)
+		{
+			let input = document.getElementById(inputId);
+			if (input) {
+				input.remove();
+			}
+		}
+
+		// Approval File logic
+		function replaceApproval(attachmentId)
+		{
+			document.getElementById('approval-slot').style.display = 'none';
+			document.getElementById('approval-input-wrapper').style.display = 'block';
+			markForRemoval(attachmentId, 'remove-approval-input');
+		}
+		function cancelApprovalReplace()
+		{
+			document.getElementById('approval-slot').style.display = 'block';
+			document.getElementById('approval-input-wrapper').style.display = 'none';
+			document.querySelector('#approval-input-wrapper input[type="file"]').value = '';
+			unmarkForRemoval('remove-approval-input');
+		}
+	</script>
+}

@@ -46,6 +46,9 @@ namespace CS4760GrantApplication.ViewModels
         public List<GrantAttachment> Attachments { get; set; } = new();
         public List<int> SelectedDepartmentIds { get; set; } = new();
         public List<SelectListItem> Departments { get; set; } = new();
-        public List<SelectListItem> Users { get; set; } = new(); 
+        public List<SelectListItem> Users { get; set; } = new();
+
+        // Tracking IDs for attachments that should be deleted
+        public List<int> AttachmentsToRemove { get; set; } = new();
     }
 }

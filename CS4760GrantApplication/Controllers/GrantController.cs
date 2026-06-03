@@ -261,22 +261,28 @@ namespace CS4760GrantApplication.Controllers
                 return NotFound();
             }
 
-            // Validate attachments and approval file
-            if (attachments != null && attachments.Count > 3)
+            var existingAttachments = await _context.GrantAttachments
+                .Where(ga => ga.GrantId == id)
+                .ToListAsync();
+
+            var existingRegularCount = existingAttachments.Count(ga => !ga.IsApprovalFile);
+            var removedRegularCount = existingAttachments.Count(ga => vm.AttachmentsToRemove.Contains(ga.Id) && !ga.IsApprovalFile);
+            var incomingRegularCount = attachments?.Count(a => a.Length > 0) ?? 0;
+
+            var resultingFileCount = (existingRegularCount - removedRegularCount) + incomingRegularCount;
+
+            // Enforce limit of 3
+            if (resultingFileCount > 3)
             {
-                ModelState.AddModelError("attachments", "You can upload up to 3 files.");
+                ModelState.AddModelError("attachments", "You can only have up to 3 attached files.");
             }
 
-            if (vm.InvolvesHumanOrAnimalSubjects && approvalFile == null)
-            {
-                // Check if approval file already exists for this grant
-                var existingApproval = await _context.GrantAttachments
-                    .AnyAsync(ga => ga.GrantId == id && ga.IsApprovalFile);
+            bool removingApproval = existingAttachments.Any(ga => vm.AttachmentsToRemove.Contains(ga.Id) && ga.IsApprovalFile);
+            bool hasExistingApproval = existingAttachments.Any(ga => ga.IsApprovalFile) && !removingApproval;
 
-                if (!existingApproval)
-                {
-                    ModelState.AddModelError("approvalFile", "An approval file is required when human or animal subjects are involved.");
-                }
+            if (vm.InvolvesHumanOrAnimalSubjects && !hasExistingApproval && (approvalFile == null || approvalFile.Length == 0))
+            {
+                ModelState.AddModelError("approvalFile", "An approval file is required when human or animal subjects are involved.");
             }
 
             if (!ModelState.IsValid)
@@ -297,11 +303,7 @@ namespace CS4760GrantApplication.Controllers
                     })
                     .ToList();
 
-                // Ensure attachments are re-populated on validation failure
-                vm.Attachments = await _context.GrantAttachments
-                    .Where(ga => ga.GrantId == id)
-                    .ToListAsync();
-
+                vm.Attachments = existingAttachments;
                 return View(vm);
             }
 
@@ -309,10 +311,7 @@ namespace CS4760GrantApplication.Controllers
                 .Include(g => g.Departments)
                 .FirstOrDefaultAsync(g => g.Id == id);
 
-            if (grant == null)
-            {
-                return NotFound();
-            }
+            if (grant == null) return NotFound();
 
             // Update scalar properties
             grant.Title = vm.Title;
@@ -327,21 +326,35 @@ namespace CS4760GrantApplication.Controllers
             grant.InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects;
             grant.IsSaved = vm.IsSaved;
 
-            // Update many-to-many Departments
             grant.Departments = await _context.Departments
                 .Where(d => vm.SelectedDepartmentIds.Contains(d.Id))
                 .ToListAsync();
 
             try
             {
-                // Process Attachments
                 string uploadFolder = Path.Combine(_environment.WebRootPath, "uploads");
+                if (!Directory.Exists(uploadFolder)) Directory.CreateDirectory(uploadFolder);
 
-                if (!Directory.Exists(uploadFolder))
+                // 1. Process Removals
+                if (vm.AttachmentsToRemove != null && vm.AttachmentsToRemove.Any())
                 {
-                    Directory.CreateDirectory(uploadFolder);
+                    var filesToDelete = existingAttachments.Where(ga => vm.AttachmentsToRemove.Contains(ga.Id)).ToList();
+
+                    foreach (var file in filesToDelete)
+                    {
+                        // Remove from filesystem
+                        string physicalPath = Path.Combine(_environment.WebRootPath, file.FilePath.TrimStart('/'));
+                        if (System.IO.File.Exists(physicalPath))
+                        {
+                            System.IO.File.Delete(physicalPath);
+                        }
+
+                        // Remove from DB
+                        _context.GrantAttachments.Remove(file);
+                    }
                 }
 
+                // 2. Process New Incoming Files
                 if (attachments != null)
                 {
                     foreach (var file in attachments)
@@ -356,15 +369,13 @@ namespace CS4760GrantApplication.Controllers
                                 await file.CopyToAsync(fileStream);
                             }
 
-                            var grantAttachment = new GrantAttachment
+                            _context.GrantAttachments.Add(new GrantAttachment
                             {
                                 GrantId = grant.Id,
                                 FileName = file.FileName,
                                 FilePath = "/uploads/" + uniqueFileName,
                                 IsApprovalFile = false
-                            };
-
-                            _context.GrantAttachments.Add(grantAttachment);
+                            });
                         }
                     }
                 }
@@ -379,26 +390,20 @@ namespace CS4760GrantApplication.Controllers
                         await approvalFile.CopyToAsync(fileStream);
                     }
 
-                    var approvalAttachment = new GrantAttachment
+                    _context.GrantAttachments.Add(new GrantAttachment
                     {
                         GrantId = grant.Id,
                         FileName = approvalFile.FileName,
                         FilePath = "/uploads/" + uniqueFileName,
                         IsApprovalFile = true
-                    };
-
-                    _context.GrantAttachments.Add(approvalAttachment);
+                    });
                 }
 
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!GrantExists(id))
-                {
-                    return NotFound();
-                }
-
+                if (!GrantExists(id)) return NotFound();
                 throw;
             }
 
