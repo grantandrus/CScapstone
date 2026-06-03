@@ -15,6 +15,7 @@
 			<!-- Hidden inputs for IDs -->
 			<input type="hidden" asp-for="Id" />
 			<input type="hidden" asp-for="UserId" />
+			<input type="hidden" asp-for="IsSaved"/>
 
 			<div class="form-group mb-3">
 				<label asp-for="Title" class="control-label"></label>
@@ -112,12 +113,20 @@
 				<input type="file" name="approvalFile" class="form-control" />
 				<span class="text-danger">@Html.ValidationMessage("approvalFile")</span>
 			</div>
-
 			<div class="form-group">
-				<!-- Save button -->
-				<input type="submit" value="Save" class="btn btn-primary" />
-				<!-- Return to dashboard button -->
-				<a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+				<button type="submit"
+						class="btn btn-primary"
+						onclick="document.getElementById('IsSaved').value='false';">
+					Submit
+				</button>
+
+				<button type="submit"
+						class="btn btn-secondary"
+						onclick="document.getElementById('IsSaved').value='true';">
+					Save Draft
+				</button>
+
+				<a asp-controller="Dashboard" asp-action="Index" class="btn btn-danger ms-2">Cancel</a>
 			</div>
 		</form>
 	</div>
