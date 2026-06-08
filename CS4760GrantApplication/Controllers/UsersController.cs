@@ -140,6 +140,8 @@ namespace CS4760GrantApplication.Controllers
             return View(regUser);
         }
 
+        // GET: Users/Edit
+        [HttpGet]
         [SessionAuthorize]
         public async Task<IActionResult> Edit()
         {
@@ -176,6 +178,7 @@ namespace CS4760GrantApplication.Controllers
             return View(viewModel);
         }
 
+        // POST: Users/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         [SessionAuthorize]
@@ -229,6 +232,8 @@ namespace CS4760GrantApplication.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: Users/EditPassword
+        [HttpGet]
         [SessionAuthorize]
         public async Task<IActionResult> EditPassword()
         {
@@ -250,6 +255,7 @@ namespace CS4760GrantApplication.Controllers
             return View(viewModel);
         }
 
+        // POST: Users/EditPassword
         [HttpPost]
         [ValidateAntiForgeryToken]
         [SessionAuthorize]

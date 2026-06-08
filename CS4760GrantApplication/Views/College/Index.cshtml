@@ -1,0 +1,43 @@
+﻿@model IEnumerable<CS4760GrantApplication.Models.College>
+
+@{
+    ViewData["Title"] = "Colleges";
+}
+
+<h1>Colleges</h1>
+
+<p>
+    <a asp-action="Add" class="btn btn-primary">Create New College</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                College Name
+            </th>
+            <th>
+                Dean
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Name
+                </td>
+                <td>
+                    @(@item.Dean == null ? "None" : @item.Dean.FirstName + " " + @item.Dean.LastName)
+                </td>
+                <td>
+                    <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Edit", "College", new { id = item.Id })'">Edit</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
