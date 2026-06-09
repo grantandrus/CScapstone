@@ -50,5 +50,6 @@ namespace CS4760GrantApplication.ViewModels
 
         // Tracking IDs for attachments that should be deleted
         public List<int> AttachmentsToRemove { get; set; } = new();
+        public List<BudgetItem> BudgetItems { get; set; } = new();
     }
 }
