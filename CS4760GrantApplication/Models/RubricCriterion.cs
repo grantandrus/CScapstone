@@ -13,8 +13,6 @@ namespace CS4760GrantApplication.Models
         public string Description { get; set; } = string.Empty;
         [Required]
         public int MaxScore { get; set; }
-        [Required]
-        [StringLength(250)]
-        public string RatingSuggestion { get; set; } = string.Empty;
+        public List<RatingSuggestion> RatingSuggestions { get; set; } = new();
     }
 }
