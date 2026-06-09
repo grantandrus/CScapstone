@@ -1,0 +1,42 @@
+@model CS4760GrantApplication.ViewModels.CollegeAddViewModel
+
+@{
+	ViewData["Title"] = "Edit College";
+}
+
+<h1>Edit College</h1>
+
+<div class="row">
+	<div class="col-md-6">
+		<form asp-action="Edit" enctype="multipart/form-data">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+			<!-- Hidden input for ID -->
+			<input type="hidden" asp-for="Id" />
+			
+			<div class="form-group mb-3">
+				<label asp-for="Name" class="control-label"></label>
+				<input asp-for="Name" class="form-control" />
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
+
+			<div class="form-group mb-3">
+				<label for="deanId" class="control-label">Dean</label>
+				<select name="deanId" class="form-control" asp-items="ViewBag.Deans">
+					<option value="">Select a Dean</option>
+				</select>
+			</div>
+
+			<div class="form-group">
+				<input type="submit" value="Update College" class="btn btn-primary" />
+				<a asp-controller="College" asp-action="Index" class="btn btn-danger ms-2">Cancel</a>
+			</div>
+		</form>
+	</div>
+</div>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

@@ -18,6 +18,13 @@ namespace CS4760GrantApplication.Controllers
             _context = context;
         }
 
+        // GET: Colleges
+        [SessionAuthorize("admin")]
+        public async Task<IActionResult> Index()
+        {
+            return View(await _context.Colleges.Include(c => c.Dean).ToListAsync());
+        }
+
         // GET: College/Add
         [SessionAuthorize("admin")]
         public IActionResult Add()
@@ -52,6 +59,50 @@ namespace CS4760GrantApplication.Controllers
             var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
             ViewData["Deans"] = new SelectList(users, "Id", "FullName", newCollege.DeanId);
             return View(college);
+        }
+
+        // GET: College/Edit/5
+        [HttpGet]
+        [SessionAuthorize]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var college = await _context.Colleges.FindAsync(id);
+
+            if (college == null)
+                return NotFound();
+
+            var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
+            ViewData["Deans"] = new SelectList(users, "Id", "FullName", college.DeanId);
+
+            var viewModel = new CollegeAddViewModel
+            {
+                Id = college.Id,
+                Name = college.Name,
+                DeanId = college.DeanId,
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: College/Edit/5
+        [HttpPost]
+        [SessionAuthorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(CollegeAddViewModel viewModel)
+        {
+            var college = await _context.Colleges.FindAsync(viewModel.Id);
+
+            if (college == null) return NotFound();
+
+            college.Name = viewModel.Name;
+            college.DeanId = viewModel.DeanId;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -1,22 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CS4760GrantApplication.Models
+namespace CS4760GrantApplication.ViewModels
 {
-    public class Department
+    public class DepartmentCreateViewModel
     {
         public int Id { get; set; }
-
         [Required]
-        [StringLength(100)]
+        [StringLength(50)]
         public string DepartmentName { get; set; } = string.Empty;
-
         [StringLength(500)]
-        public string? Description {  get; set; }
-        public List<Grant> Grants { get; set; } = new();
+        public string? Description { get; set; }
         public int? ChairId { get; set; }
-        public User? Chair { get; set; }
         [Required]
         public int CollegeId { get; set; }
-        public College? College { get; set; }
     }
 }

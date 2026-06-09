@@ -1,18 +1,19 @@
-﻿@model CS4760GrantApplication.Models.Department
+@model CS4760GrantApplication.ViewModels.DepartmentCreateViewModel
 
 @{
-    ViewData["Title"] = "Create Department";
+	ViewData["Title"] = "Edit Department";
 }
 
-<h1>Create Department</h1>
-
-<hr />
+<h1>Edit Department</h1>
 
 <div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+	<div class="col-md-6">
+		<form asp-action="Edit" enctype="multipart/form-data">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+			<!-- Hidden input for ID -->
+			<input type="hidden" asp-for="Id" />
+			
             <div class="form-group mb-3">
                 <label asp-for="DepartmentName" class="control-label"></label>
                 <input asp-for="DepartmentName" class="form-control" />
@@ -39,19 +40,16 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="mt-3">
-    <a asp-action="Index">Back to List</a>
+			<div class="form-group">
+				<input type="submit" value="Update College" class="btn btn-primary" />
+				<a asp-controller="College" asp-action="Index" class="btn btn-danger ms-2">Cancel</a>
+			</div>
+		</form>
+	</div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
 }

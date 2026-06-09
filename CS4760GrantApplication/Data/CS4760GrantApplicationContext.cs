@@ -37,6 +37,16 @@ namespace CS4760GrantApplication.Data
                 .HasOne(u => u.Department)
                 .WithMany()
                 .HasForeignKey(u => u.DepartmentId);
+
+            modelBuilder.Entity<Department>()
+                .HasOne(c => c.Chair)
+                .WithMany()
+                .HasForeignKey(c => c.ChairId);
+
+            modelBuilder.Entity<Department>()
+                .HasOne(d => d.College)
+                .WithMany()
+                .HasForeignKey(d => d.CollegeId);
         }
         public DbSet<RubricCriterion> RubricCriteria { get; set; } = default!;
     }
