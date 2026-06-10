@@ -5,6 +5,6 @@ namespace CS4760GrantApplication.ViewModels
 {
     public class RubricCreateViewModel
     {
-        public List<RubricCriterion> RubricCriteria { get; set; }
+        public List<RubricCriterion> RubricCriteria { get; set; } = [];
     }
 }

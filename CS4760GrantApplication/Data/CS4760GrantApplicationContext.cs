@@ -48,5 +48,6 @@ namespace CS4760GrantApplication.Data
                 .HasForeignKey(d => d.CollegeId);
         }
         public DbSet<RubricCriterion> RubricCriteria { get; set; } = default!;
+        public DbSet<RatingSuggestion> RatingSuggestions { get; set; } = default!;
     }
 }

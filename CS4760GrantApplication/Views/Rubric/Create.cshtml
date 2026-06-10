@@ -12,7 +12,7 @@
             <th>Criterion Name</th>
             <th>Description</th>
             <th>Maximum Score</th>
-            <th>Rating Suggestion</th>
+            <th>Rating Suggestions</th>
             <th>Edit</th>
             <th>Delete</th>
         </tr>
@@ -28,25 +28,62 @@
                     </td>
                     <td>
                         <span class="view-mode-@criterion.Id">@criterion.Description</span>
-                        <input type="text" name="Description" class="form-control edit-mode-@criterion.Id d-none" value="@criterion.Description" form="edit-form-@criterion.Id" />
+                        <textarea name="Description" class="form-control edit-mode-@criterion.Id d-none" form="edit-form-@criterion.Id" rows="2">@criterion.Description</textarea>
                     </td>
                     <td>
                         <span class="view-mode-@criterion.Id">@criterion.MaxScore</span>
                         <input type="number" name="MaxScore" class="form-control edit-mode-@criterion.Id d-none" value="@criterion.MaxScore" form="edit-form-@criterion.Id" />
                     </td>
                     <td>
-                        <span class="view-mode-@criterion.Id">@criterion.RatingSuggestion</span>
-                        <input type="text" name="RatingSuggestion" class="form-control edit-mode-@criterion.Id d-none" value="@criterion.RatingSuggestion" form="edit-form-@criterion.Id" />
+                        <div class="view-mode-@criterion.Id container">
+                            @foreach (var suggestion in criterion.RatingSuggestions)
+                            {
+                                <div class="row">
+                                    <div class="col-2">@suggestion.Score</div>
+                                    <div class="col-10">@suggestion.Description</div>
+                                </div>
+                            }
+                        </div>
+                        <div class="edit-mode-@criterion.Id d-none container" id="suggestions-container-@criterion.Id">
+                            @foreach (var suggestion in criterion.RatingSuggestions)
+                            {
+                                <div class="input-group mb-2 row gx-1 suggestion-row-@criterion.Id">
+                                    <div class="col-3">
+                                        <input type="number" name="SuggestionScores" class="form-control" value="@suggestion.Score" placeholder="Score" form="edit-form-@criterion.Id" />
+                                    </div>
+                                    <div class="col-7">
+                                        <textarea name="SuggestionDescriptions" class="form-control" placeholder="Description" form="edit-form-@criterion.Id" rows="1">@suggestion.Description</textarea>
+                                    </div>
+                                    <div class="col-2">
+                                        <button type="button" class="btn btn-outline-danger remove-suggestion-btn">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    
+                                </div>
+                            }
+                            <button type="button" class="btn btn-outline-info btn-sm add-suggestion-btn" data-id="@criterion.Id" form-id="edit-form-@criterion.Id">
+                                <i class="bi bi-plus-circle"></i>
+                            </button>
+                        </div>
                     </td>
                     <td>
-                        <button type="button" class="btn btn-outline-primary edit-btn view-mode-@criterion.Id" data-id="@criterion.Id">Edit</button>
-                        <button type="submit" class="btn btn-outline-success save-btn edit-mode-@criterion.Id d-none" data-id="@criterion.Id" form="edit-form-@criterion.Id">Save</button>
-                        <button type="button" class="btn btn-outline-secondary cancel-btn edit-mode-@criterion.Id d-none" data-id="@criterion.Id">Cancel</button>
+                        <button type="button" class="btn btn-outline-primary edit-btn view-mode-@criterion.Id" data-id="@criterion.Id">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button type="submit" class="btn btn-outline-success save-btn edit-mode-@criterion.Id d-none" data-id="@criterion.Id" form="edit-form-@criterion.Id">
+                            <i class="bi bi-check-lg"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary cancel-btn edit-mode-@criterion.Id d-none" data-id="@criterion.Id">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
                     </td>
                     <td>
                         @using (Html.BeginForm("RemoveCriterion", "Rubric", new { id = criterion.Id }, FormMethod.Post))
                         {
-                            <button type="submit" class="btn btn-outline-danger">Delete</button>
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         }
                     </td>
                 </tr>
@@ -63,7 +100,7 @@
                 <th>Criterion Name</th>
                 <th>Description</th>
                 <th>Maximum Score</th>
-                <th>Rating Suggestion</th>
+                <th>Rating Suggestions</th>
             </tr>
         </thead>
         <tbody>
@@ -72,18 +109,38 @@
                     <input type="text" name="Name" class="form-control" required />
                 </td>
                 <td>
-                    <input type="text" name="Description" class="form-control" required />
+                    <textarea name="Description" class="form-control" required rows="2"></textarea>
                 </td>
                 <td>
                     <input type="number" name="MaxScore" class="form-control" required />
                 </td>
                 <td>
-                    <input type="text" name="RatingSuggestion" class="form-control" required />
+                    <div id="add-suggestions-container" class="container">
+                        <div class="input-group mb-2 row gx-1">
+                            <div class="col-3">
+                                <input type="number" name="SuggestionScores" class="form-control" placeholder="Score" required />
+                            </div>
+                            <div class="col-7">
+                                <textarea name="SuggestionDescriptions" class="form-control" placeholder="Description" required rows="1"></textarea>
+                            </div>
+                            <div class="col-2">
+                                <button type="button" class="btn btn-outline-danger remove-suggestion-btn">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-info btn-sm" id="btn-add-suggestion">
+                        <i class="bi bi-plus-circle"></i>
+                    </button>
                 </td>
             </tr>
         </tbody>
     </table>
-    <button type="submit" class="btn btn-outline-success">Add</button>
+    <button type="submit" class="btn btn-outline-success">
+        Add
+    </button>
 </form>
 
 @section Scripts {
@@ -112,6 +169,76 @@
 
                     document.querySelectorAll(`.view-mode-${id}`).forEach(el => el.classList.remove('d-none'));
                 });
+            });
+
+            document.addEventListener('click', function (e) {
+                if (e.target && e.target.closest('.remove-suggestion-btn')) {
+                    e.target.closest('.input-group').remove();
+                }
+            });
+
+            // this code is for handling adding new suggestion to existing criterion in edit mode
+            document.querySelectorAll('.add-suggestion-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    // unique IDs associated with the specific criterion
+                    const id = this.getAttribute('data-id');
+                    const formId = this.getAttribute('form-id');
+
+                    // container div where the new inputs need to be put
+                    const container = document.getElementById(`suggestions-container-${id}`);
+                    const btnElement = this;
+
+                    // new empty div to hold new suggestion inputs
+                    const div = document.createElement('div');
+                    div.className = `input-group mb-2 suggestion-row-${id} row gx-1`;
+
+                    // put the input fields into the new div
+                    div.innerHTML = `
+
+                        <div class="col-3">
+                            <input type="number" name="SuggestionScores" class="form-control" placeholder="Score" form="${formId}" />
+                        </div>
+                        <div class="col-7">
+                            <textarea name="SuggestionDescriptions" class="form-control" placeholder="Description" form="${formId}" rows="1"></textarea>
+                        </div>
+                        <div class="col-2">
+                            <button type="button" class="btn btn-outline-danger remove-suggestion-btn">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    `;
+
+                    // the new row goes just above the add suggestion button (the one the user would've just clicked)
+                    container.insertBefore(div, btnElement);
+                });
+            });
+
+            // this code handles adding new suggestions when adding a completely new criterion
+            document.getElementById('btn-add-suggestion').addEventListener('click', function() {
+                // container where new suggestions should be put
+                const container = document.getElementById('add-suggestions-container');
+
+                // new empty div
+                const div = document.createElement('div');
+                div.className = 'input-group mb-2 row gx-1';
+
+                // input fields for new suggestion
+                div.innerHTML = `
+                    <div class="col-3">
+                        <input type="number" name="SuggestionScores" class="form-control" placeholder="Score" required/>
+                    </div>
+                    <div class="col-7">
+                        <textarea name="SuggestionDescriptions" class="form-control" placeholder="Description" required rows="1"></textarea>
+                    </div>
+                    <div class="col-2">
+                        <button type="button" class="btn btn-outline-danger remove-suggestion-btn">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+
+                // add to end of container
+                container.appendChild(div);
             });
         });
     </script>
