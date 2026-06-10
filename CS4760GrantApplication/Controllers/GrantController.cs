@@ -119,6 +119,23 @@ namespace CS4760GrantApplication.Controllers
                 _context.Add(grant);
                 await _context.SaveChangesAsync();
 
+                if (!string.IsNullOrWhiteSpace(vm.BudgetDescription) ||
+                    !string.IsNullOrWhiteSpace(vm.BudgetItemType) ||
+                    !string.IsNullOrWhiteSpace(vm.BudgetFundingSource) ||
+                    vm.BudgetAmount.HasValue)
+                                {
+                    var budgetItem = new BudgetItem
+                    {
+                        GrantId = grant.Id,
+                        Description = vm.BudgetDescription,
+                        ItemType = vm.BudgetItemType,
+                        FundingSource = vm.BudgetFundingSource,
+                        Amount = vm.BudgetAmount ?? 0
+                    };
+
+                    _context.BudgetItems.Add(budgetItem);
+                }
+
                 string uploadFolder = Path.Combine(_environment.WebRootPath, "uploads");
 
                 if (!Directory.Exists(uploadFolder))
@@ -206,6 +223,9 @@ namespace CS4760GrantApplication.Controllers
                 .Where(ga => ga.GrantId == grant.Id)
                 .ToListAsync();
 
+            var budgetItem = await _context.BudgetItems
+            .FirstOrDefaultAsync(b => b.GrantId == grant.Id);
+
             var vm = new CreateGrantViewModel
             {
                 Id = grant.Id,
@@ -216,6 +236,10 @@ namespace CS4760GrantApplication.Controllers
                 ProjectImpact = grant.ProjectImpact,
                 ProjectTimeline = grant.ProjectTimeline,
                 SuccessEvaluation = grant.SuccessEvaluation,
+                BudgetDescription = budgetItem?.Description ?? string.Empty,
+                BudgetItemType = budgetItem?.ItemType ?? string.Empty,
+                BudgetFundingSource = budgetItem?.FundingSource ?? string.Empty,
+                BudgetAmount = budgetItem?.Amount,
                 isMultipleDepartments = grant.isMultipleDepartments,
                 UserId = grant.UserId,
                 InvolvesHumanOrAnimalSubjects = grant.InvolvesHumanOrAnimalSubjects,
@@ -329,6 +353,34 @@ namespace CS4760GrantApplication.Controllers
             grant.Departments = await _context.Departments
                 .Where(d => vm.SelectedDepartmentIds.Contains(d.Id))
                 .ToListAsync();
+
+            var budgetItem = await _context.BudgetItems
+    .FirstOrDefaultAsync(b => b.GrantId == grant.Id);
+
+            if (!string.IsNullOrWhiteSpace(vm.BudgetDescription)
+                || !string.IsNullOrWhiteSpace(vm.BudgetItemType)
+                || !string.IsNullOrWhiteSpace(vm.BudgetFundingSource)
+                || vm.BudgetAmount.HasValue)
+            {
+                if (budgetItem == null)
+                {
+                    budgetItem = new BudgetItem
+                    {
+                        GrantId = grant.Id
+                    };
+
+                    _context.BudgetItems.Add(budgetItem);
+                }
+
+                budgetItem.Description = vm.BudgetDescription;
+                budgetItem.ItemType = vm.BudgetItemType;
+                budgetItem.FundingSource = vm.BudgetFundingSource;
+                budgetItem.Amount = vm.BudgetAmount ?? 0;
+            }
+            else if (budgetItem != null)
+            {
+                _context.BudgetItems.Remove(budgetItem);
+            }
 
             try
             {

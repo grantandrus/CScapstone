@@ -47,6 +47,13 @@ namespace CS4760GrantApplication.ViewModels
         public List<int> SelectedDepartmentIds { get; set; } = new();
         public List<SelectListItem> Departments { get; set; } = new();
         public List<SelectListItem> Users { get; set; } = new();
+        public string BudgetDescription { get; set; } = string.Empty;
+
+        public string BudgetItemType { get; set; } = string.Empty;
+
+        public string BudgetFundingSource { get; set; } = string.Empty;
+
+        public decimal? BudgetAmount { get; set; }
 
         // Tracking IDs for attachments that should be deleted
         public List<int> AttachmentsToRemove { get; set; } = new();

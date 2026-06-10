@@ -62,12 +62,12 @@
             <div class="border rounded p-3 mb-3">
                 <div class="form-group mb-3">
                     <label class="control-label">Item Description</label>
-                    <input name="BudgetItems[0].Description" class="form-control" placeholder="Example: Laptops, software license, projector" />
+                    <input name="BudgetDescription" class="form-control" placeholder="Example: Laptops, software license, projector" />
                 </div>
 
                 <div class="form-group mb-3">
                     <label class="control-label">Item Type</label>
-                    <select name="BudgetItems[0].ItemType" class="form-control">
+                    <select name="BudgetItemType" class="form-control">
                         <option value="">-- Select Type --</option>
                         <option value="Hardware">Hardware</option>
                         <option value="Software">Software</option>
@@ -76,7 +76,7 @@
 
                 <div class="form-group mb-3">
                     <label class="control-label">Funding Source</label>
-                    <select name="BudgetItems[0].FundingSource" class="form-control">
+                    <select name="BudgetFundingSource" class="form-control">
                         <option value="">-- Select Funding Source --</option>
                         <option value="ARCC">ARCC</option>
                         <option value="College">College</option>
@@ -87,7 +87,7 @@
 
                 <div class="form-group mb-3">
                     <label class="control-label">Amount</label>
-                    <input name="BudgetItems[0].Amount" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
+                    <input name="BudgetAmount" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
                 </div>
             </div>
 
