@@ -13,5 +13,7 @@ namespace CS4760GrantApplication.Models
         // project requirements from Sprint 1 allow College to be created without a dean, so this is nullable
         public int? DeanId { get; set; }
         public User? Dean { get; set; }
+
+        public List<Grant> Grants { get; set; } = new();
     }
 }

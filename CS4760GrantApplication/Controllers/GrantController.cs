@@ -43,6 +43,14 @@ namespace CS4760GrantApplication.Controllers
                 })
                 .ToList();
 
+            vm.Colleges = _context.Colleges.
+                Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.Name
+                }
+                ).ToList();
+
             return View(vm);
         }
 
@@ -91,6 +99,14 @@ namespace CS4760GrantApplication.Controllers
                     })
                     .ToList();
 
+                vm.Colleges = _context.Colleges.
+                    Select(c => new SelectListItem
+                    {
+                        Value = c.Id.ToString(),
+                        Text = c.Name
+                    }
+                    ).ToList();
+
                 return View(vm);
             }
 
@@ -108,6 +124,7 @@ namespace CS4760GrantApplication.Controllers
                     isMultipleDepartments = vm.isMultipleDepartments,
                     InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects,
                     UserId = vm.UserId,
+                    CollegeId = vm.CollegeId,
                     IsSaved = vm.IsSaved
                 };
 
