@@ -41,13 +41,19 @@
                     @item.Description
                 </td>
                 <td>
-                    @(@item.Chair == null ? "None" : @item.Chair.FirstName + @item.Chair.LastName)
+                    @(@item.Chair == null ? "None" : @item.Chair.FirstName + " " + @item.Chair.LastName)
                 </td>
                 <td>
                     @(@item.College == null ? "None" : @item.College.Name)
                 </td>
                 <td>
-                    <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Edit", "Departments", new { id = item.Id })'">Edit</button>
+                    <div>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Edit", "Departments", new { id = item.Id })'">Edit</button>
+                    </div>
+                    <br />
+                    <div>
+                        <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Delete", "Departments", new { id = item.Id })'">Delete</button>
+                    </div>
                 </td>
             </tr>
         }

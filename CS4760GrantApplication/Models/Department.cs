@@ -15,7 +15,6 @@ namespace CS4760GrantApplication.Models
         public List<Grant> Grants { get; set; } = new();
         public int? ChairId { get; set; }
         public User? Chair { get; set; }
-        [Required]
         public int? CollegeId { get; set; }
         public College? College { get; set; }
     }

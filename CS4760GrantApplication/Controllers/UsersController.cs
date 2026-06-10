@@ -215,15 +215,8 @@ namespace CS4760GrantApplication.Controllers
                 return View();
             }
 
-            if (user.CollegeId != null && user.CollegeId != 0)
-            {
-                existing.CollegeId = user.CollegeId;
-            }
-
-            if (user.DepartmentId != null && user.DepartmentId != 0)
-            {
-                existing.DepartmentId = user.DepartmentId;
-            }
+            existing.CollegeId = (user.CollegeId == 0) ? null : user.CollegeId;
+            existing.DepartmentId = (user.DepartmentId == 0) ? null : user.DepartmentId;
 
             await _context.SaveChangesAsync();
 

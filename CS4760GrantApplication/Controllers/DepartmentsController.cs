@@ -22,9 +22,8 @@ namespace CS4760GrantApplication.Controllers
         [SessionAuthorize("admin")]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Departments
+            return View(await _context.Departments.Include(d => d.Chair)
                 .Include(d => d.College)
-                .AsNoTracking()
                 .ToListAsync());
         }
 
