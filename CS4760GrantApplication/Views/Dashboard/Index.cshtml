@@ -26,6 +26,9 @@
                 Multiple Departments
             </th>
             <th>
+                College
+            </th>
+            <th>
                 Department Name
             </th>
             <th>
@@ -59,6 +62,19 @@
                 <td>
                     @item.isMultipleDepartments
                 </td>
+               
+                @if (item.College == null)
+                {
+                    <td>
+                        None
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        @item.College.Name
+                    </td>
+                }
                 
                 <td>
                     @string.Join(", ", item.Departments.Select(d => d.DepartmentName))

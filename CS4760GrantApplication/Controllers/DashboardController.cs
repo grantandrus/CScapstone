@@ -21,6 +21,7 @@ namespace CS4760GrantApplication.Controllers
         {
             return View(await _context.Grants
                 .Include(g => g.Departments)
+                .Include(g => g.College)
                 .Where(g => g.UserId == HttpContext.Session.GetInt32("UserID"))
                 .ToListAsync());
         }

@@ -39,6 +39,7 @@ namespace CS4760GrantApplication.ViewModels
         public bool isMultipleDepartments { get; set; }
 
         public int? UserId { get; set; }
+        public int CollegeId { get; set; }
 
         public bool InvolvesHumanOrAnimalSubjects { get; set; }
         public bool IsSaved { get; set; }
@@ -47,6 +48,7 @@ namespace CS4760GrantApplication.ViewModels
         public List<int> SelectedDepartmentIds { get; set; } = new();
         public List<SelectListItem> Departments { get; set; } = new();
         public List<SelectListItem> Users { get; set; } = new();
+        public List<SelectListItem> Colleges { get; set; } = new();
         public string BudgetDescription { get; set; } = string.Empty;
 
         public string BudgetItemType { get; set; } = string.Empty;
