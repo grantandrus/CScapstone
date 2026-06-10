@@ -2,6 +2,7 @@
 using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -102,6 +103,29 @@ namespace CS4760GrantApplication.Controllers
 
             await _context.SaveChangesAsync();
 
+            return RedirectToAction(nameof(Index));
+        }
+
+        [SessionAuthorize]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+            var college = await _context.Colleges.FirstOrDefaultAsync(m => m.Id == id);
+            if (college == null) return NotFound();
+            return View(college);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [SessionAuthorize]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var college = await _context.Colleges.FindAsync(id);
+            if (college != null)
+            {
+                _context.Colleges.Remove(college);
+                await _context.SaveChangesAsync();
+            }
             return RedirectToAction(nameof(Index));
         }
     }

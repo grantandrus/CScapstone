@@ -35,7 +35,13 @@
                     @(@item.Dean == null ? "None" : @item.Dean.FirstName + " " + @item.Dean.LastName)
                 </td>
                 <td>
-                    <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Edit", "College", new { id = item.Id })'">Edit</button>
+                    <div>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Edit", "College", new { id = item.Id })'">Edit</button>
+                    </div>
+                    <br />
+                    <div>
+                        <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Delete", "College", new { id = item.Id })'">Delete</button>
+                    </div>
                 </td>
             </tr>
         }

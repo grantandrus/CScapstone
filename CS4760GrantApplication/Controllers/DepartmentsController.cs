@@ -120,5 +120,28 @@ namespace CS4760GrantApplication.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [SessionAuthorize]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+            var department = await _context.Departments.FirstOrDefaultAsync(m => m.Id == id);
+            if (department == null) return NotFound();
+            return View(department);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [SessionAuthorize]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var department = await _context.Departments.FindAsync(id);
+            if (department != null)
+            {
+                _context.Departments.Remove(department);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

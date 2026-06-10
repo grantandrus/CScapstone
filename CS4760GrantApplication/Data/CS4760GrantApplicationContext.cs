@@ -26,27 +26,32 @@ namespace CS4760GrantApplication.Data
             modelBuilder.Entity<College>()
                 .HasOne(c => c.Dean)
                 .WithMany()
-                .HasForeignKey(c => c.DeanId);
+                .HasForeignKey(c => c.DeanId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.College)
                 .WithMany()
-                .HasForeignKey(u => u.CollegeId);
+                .HasForeignKey(u => u.CollegeId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Department)
                 .WithMany()
-                .HasForeignKey(u => u.DepartmentId);
+                .HasForeignKey(u => u.DepartmentId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Department>()
                 .HasOne(c => c.Chair)
                 .WithMany()
-                .HasForeignKey(c => c.ChairId);
+                .HasForeignKey(c => c.ChairId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Department>()
                 .HasOne(d => d.College)
                 .WithMany()
-                .HasForeignKey(d => d.CollegeId);
+                .HasForeignKey(d => d.CollegeId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
         public DbSet<RubricCriterion> RubricCriteria { get; set; } = default!;
         public DbSet<RatingSuggestion> RatingSuggestions { get; set; } = default!;
