@@ -63,7 +63,7 @@
 </table>
 
 <h2>Add Members</h2>
-<table class="table">
+<table class="table mb-4">
     <thead>
         <tr>
             <th>First Name</th>
@@ -89,6 +89,41 @@
                         <button type="submit" class="btn btn-outline-success">Add</button>
                     }
                 </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Display grants saved for review -->
+<h2>Submitted Grants for Review</h2>
+<table class="table mb-4">
+    <thead>
+        <tr>
+            <th>Grant Title</th>
+            <th>Principal Investigator</th>
+            <th>Amount Requested</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.SubmittedGrants != null && Model.SubmittedGrants.Any())
+        {
+            @foreach (var grant in Model.SubmittedGrants)
+            {
+                <tr>
+                    <td>@grant.Title</td>
+                    <td>@grant.User?.FirstName @grant.User?.LastName</td>
+                    <td>@grant.BudgetItems.Sum(b => b.Amount).ToString("C")</td>
+                    <td>
+                        <a asp-controller="Grant" asp-action="Details" asp-route-id="@grant.Id" class="btn btn-outline-primary">Review</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center">No grants pending review.</td>
             </tr>
         }
     </tbody>
