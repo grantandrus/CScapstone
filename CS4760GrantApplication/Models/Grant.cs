@@ -45,5 +45,6 @@ namespace CS4760GrantApplication.Models
         public bool InvolvesHumanOrAnimalSubjects { get; set; }
         public bool IsSaved { get; set; }
         public List<GrantAttachment> Attachments { get; set; } = new();
+        public List<BudgetItem> BudgetItems { get; set; } = new();
     }
 }
