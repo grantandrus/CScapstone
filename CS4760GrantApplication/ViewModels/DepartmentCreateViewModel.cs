@@ -12,6 +12,6 @@ namespace CS4760GrantApplication.ViewModels
         public string? Description { get; set; }
         public int? ChairId { get; set; }
         [Required]
-        public int CollegeId { get; set; }
+        public int? CollegeId { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using CS4760GrantApplication.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CS4760GrantApplication.Migrations
 {
     [DbContext(typeof(CS4760GrantApplicationContext))]
-    partial class CS4760GrantApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260610065555_MakeCollegeIdNullable")]
+    partial class MakeCollegeIdNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -20,41 +23,6 @@ namespace CS4760GrantApplication.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("CS4760GrantApplication.Models.BudgetItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("FundingSource")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("GrantId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ItemType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GrantId");
-
-                    b.ToTable("BudgetItems");
-                });
 
             modelBuilder.Entity("CS4760GrantApplication.Models.College", b =>
                 {
@@ -200,32 +168,6 @@ namespace CS4760GrantApplication.Migrations
                     b.ToTable("GrantAttachments");
                 });
 
-            modelBuilder.Entity("CS4760GrantApplication.Models.RatingSuggestion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int?>("RubricCriterionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Score")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RubricCriterionId");
-
-                    b.ToTable("RatingSuggestions");
-                });
-
             modelBuilder.Entity("CS4760GrantApplication.Models.RubricCriterion", b =>
                 {
                     b.Property<int>("Id")
@@ -246,6 +188,11 @@ namespace CS4760GrantApplication.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("RatingSuggestion")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.HasKey("Id");
 
@@ -319,17 +266,6 @@ namespace CS4760GrantApplication.Migrations
                     b.ToTable("DepartmentGrant");
                 });
 
-            modelBuilder.Entity("CS4760GrantApplication.Models.BudgetItem", b =>
-                {
-                    b.HasOne("CS4760GrantApplication.Models.Grant", "Grant")
-                        .WithMany("BudgetItems")
-                        .HasForeignKey("GrantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Grant");
-                });
-
             modelBuilder.Entity("CS4760GrantApplication.Models.College", b =>
                 {
                     b.HasOne("CS4760GrantApplication.Models.User", "Dean")
@@ -378,13 +314,6 @@ namespace CS4760GrantApplication.Migrations
                     b.Navigation("Grant");
                 });
 
-            modelBuilder.Entity("CS4760GrantApplication.Models.RatingSuggestion", b =>
-                {
-                    b.HasOne("CS4760GrantApplication.Models.RubricCriterion", null)
-                        .WithMany("RatingSuggestions")
-                        .HasForeignKey("RubricCriterionId");
-                });
-
             modelBuilder.Entity("CS4760GrantApplication.Models.User", b =>
                 {
                     b.HasOne("CS4760GrantApplication.Models.College", "College")
@@ -420,13 +349,6 @@ namespace CS4760GrantApplication.Migrations
             modelBuilder.Entity("CS4760GrantApplication.Models.Grant", b =>
                 {
                     b.Navigation("Attachments");
-
-                    b.Navigation("BudgetItems");
-                });
-
-            modelBuilder.Entity("CS4760GrantApplication.Models.RubricCriterion", b =>
-                {
-                    b.Navigation("RatingSuggestions");
                 });
 
             modelBuilder.Entity("CS4760GrantApplication.Models.User", b =>
