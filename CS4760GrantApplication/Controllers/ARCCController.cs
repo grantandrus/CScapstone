@@ -21,10 +21,10 @@ namespace CS4760GrantApplication.Controllers
                 OtherUsers = _context.Users.Where(u => !u.IsCommitteeMember).ToList(),
                 CurrentChairId = _context.Users.Where(u => u.IsCommitteeChair).Select(u => (int?)u.Id).FirstOrDefault(),
                 SubmittedGrants = _context.Grants // Fetch submitted grants
-                    .Include(g => g.Title)
+                    //.Include(g => g.Title)
                     .Include(g => g.User)
                     .Include(g => g.BudgetItems)
-                    .Where(g => g.IsSaved)
+                    .Where(g => !g.IsSaved) // Note: !IsSaved is submitted, IsSaved is a draft
                     .ToList()
             };
             return View(model);

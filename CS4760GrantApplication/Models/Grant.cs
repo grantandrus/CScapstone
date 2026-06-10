@@ -43,7 +43,7 @@ namespace CS4760GrantApplication.Models
         public User? User { get; set; }
 
         public bool InvolvesHumanOrAnimalSubjects { get; set; }
-        public bool IsSaved { get; set; } // When true, the grant is submitted and ready for review. When false, it's still a draft.
+        public bool IsSaved { get; set; } // When false, the grant is submitted and ready for review. When true, it's still a draft?
         public List<GrantAttachment> Attachments { get; set; } = new();
         public List<BudgetItem> BudgetItems { get; set; } = new();
     }
