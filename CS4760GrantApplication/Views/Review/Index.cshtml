@@ -1,0 +1,54 @@
+﻿@model IEnumerable<CS4760GrantApplication.Models.Grant>
+@{
+    ViewData["Title"] = "Review";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Grant Title
+            </th>
+            <th>
+                Project Director
+            </th>
+            <th>
+                Requested Funds
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Title
+                </td>
+                <td>
+                    @(item.User.FirstName + " " + item.User.LastName)
+                </td>
+                <td>
+                    @{
+                        decimal total = 0;
+                    }
+                    @foreach (var budgetItem in item.BudgetItems)
+                    {
+                        @if (budgetItem.FundingSource == "ARCC")
+                        {
+                        
+                            total += budgetItem.Amount;
+                       
+                        }
+                    }
+                    @total
+                </td>
+                <td>
+                    <button type="button" class="btn btn-secondary" onclick="">Review</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
