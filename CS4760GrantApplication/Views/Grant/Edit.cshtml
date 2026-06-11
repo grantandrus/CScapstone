@@ -2,283 +2,361 @@
 @model CS4760GrantApplication.ViewModels.CreateGrantViewModel
 
 @{
-	ViewData["Title"] = "Edit Grant Request";
+    ViewData["Title"] = "Edit Grant Request";
 }
 
 <h1>Edit Grant Request</h1>
 
 <div class="row">
-	<div class="col-md-6">
-		<form asp-action="Edit" enctype="multipart/form-data">
-			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-6">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-			<!-- Hidden inputs for IDs -->
-			<input type="hidden" asp-for="Id" />
-			<input type="hidden" asp-for="UserId" />
-			<input type="hidden" asp-for="IsSaved"/>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="UserId" />
+            <input type="hidden" asp-for="IsSaved" />
 
-			<div class="form-group mb-3">
-				<label asp-for="Title" class="control-label"></label>
-				<input asp-for="Title" class="form-control" />
-				<span asp-validation-for="Title" class="text-danger"></span>
-			</div>
+            <div class="form-group mb-3">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
 
-			<div class="form-group mb-3">
-				<label asp-for="Description" class="control-label"></label>
-				<textarea asp-for="Description" class="form-control"></textarea>
-				<span asp-validation-for="Description" class="text-danger"></span>
-			</div>
+            <div class="form-group mb-3">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
 
-			<div class="form-group mb-3">
-				<label asp-for="ProjectSummary" class="control-label"></label>
-				<textarea asp-for="ProjectSummary" class="form-control"></textarea>
-				<span asp-validation-for="ProjectSummary" class="text-danger"></span>
-			</div>
+            <div class="form-group mb-3">
+                <label asp-for="ProjectSummary" class="control-label"></label>
+                <textarea asp-for="ProjectSummary" class="form-control"></textarea>
+                <span asp-validation-for="ProjectSummary" class="text-danger"></span>
+            </div>
 
-			<div class="form-group mb-3">
-				<label asp-for="Justification" class="control-label"></label>
-				<textarea asp-for="Justification" class="form-control"></textarea>
-				<span asp-validation-for="Justification" class="text-danger"></span>
-			</div>
+            <div class="form-group mb-3">
+                <label asp-for="Justification" class="control-label"></label>
+                <textarea asp-for="Justification" class="form-control"></textarea>
+                <span asp-validation-for="Justification" class="text-danger"></span>
+            </div>
 
-			<div class="form-group mb-3">
-				<label asp-for="ProjectImpact" class="control-label"></label>
-				<input asp-for="ProjectImpact" class="form-control"/>
-				<span asp-validation-for="ProjectImpact" class="text-danger"></span>
-			</div>
+            <div class="form-group mb-3">
+                <label asp-for="ProjectImpact" class="control-label"></label>
+                <input asp-for="ProjectImpact" class="form-control" />
+                <span asp-validation-for="ProjectImpact" class="text-danger"></span>
+            </div>
 
-			<div class="form-group mb-3">
-				<label asp-for="ProjectTimeline" class="control-label"></label>
-				<textarea asp-for="ProjectTimeline" class="form-control"></textarea>
-				<span asp-validation-for="ProjectTimeline" class="text-danger"></span>
-			</div>
+            <div class="form-group mb-3">
+                <label asp-for="ProjectTimeline" class="control-label"></label>
+                <textarea asp-for="ProjectTimeline" class="form-control"></textarea>
+                <span asp-validation-for="ProjectTimeline" class="text-danger"></span>
+            </div>
 
-			<div class="form-group mb-3">
-				<label asp-for="SuccessEvaluation" class="control-label"></label>
-				<textarea asp-for="SuccessEvaluation" class="form-control"></textarea>
-				<span asp-validation-for="SuccessEvaluation" class="text-danger"></span>
-			</div>
+            <div class="form-group mb-3">
+                <label asp-for="SuccessEvaluation" class="control-label"></label>
+                <textarea asp-for="SuccessEvaluation" class="form-control"></textarea>
+                <span asp-validation-for="SuccessEvaluation" class="text-danger"></span>
+            </div>
 
-			<hr />
+            <hr />
 
-			<h3>Budget Item</h3>
+            <h3>Budget Items</h3>
 
-			<div class="border rounded p-3 mb-3">
-				<div class="form-group mb-3">
-					<label asp-for="BudgetDescription" class="control-label">Item Description</label>
-					<input asp-for="BudgetDescription" class="form-control" placeholder="Example: Laptops, software license, projector" />
-				</div>
+            <div id="budgetItemsContainer">
+                @for (int i = 0; i < Model.BudgetItems.Count; i++)
+                {
+                    <div class="border rounded p-3 mb-3 budget-item">
+                        <h5>Budget Item @(i + 1)</h5>
 
-				<div class="form-group mb-3">
-					<label asp-for="BudgetItemType" class="control-label">Item Type</label>
-					<select asp-for="BudgetItemType" class="form-control">
-						<option value="">-- Select Type --</option>
-						<option value="Hardware">Hardware</option>
-						<option value="Software">Software</option>
-					</select>
-				</div>
+                        <input type="hidden" asp-for="BudgetItems[i].Id" />
+                        <input type="hidden" asp-for="BudgetItems[i].GrantId" />
 
-				<div class="form-group mb-3">
-					<label asp-for="BudgetFundingSource" class="control-label">Funding Source</label>
-					<select asp-for="BudgetFundingSource" class="form-control">
-						<option value="">-- Select Funding Source --</option>
-						<option value="ARCC">ARCC</option>
-						<option value="College">College</option>
-						<option value="Department">Department</option>
-						<option value="Other">Other</option>
-					</select>
-				</div>
+                        <div class="form-group mb-3">
+                            <label>Item Description</label>
+                            <input asp-for="BudgetItems[i].Description"
+                                   class="form-control"
+                                   placeholder="Example: Laptops, software license, projector" />
+                        </div>
 
-				<div class="form-group mb-3">
-					<label asp-for="BudgetAmount" class="control-label">Amount</label>
-					<input asp-for="BudgetAmount" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
-				</div>
-			</div>
+                        <div class="form-group mb-3">
+                            <label>Item Type</label>
+                            <select asp-for="BudgetItems[i].ItemType" class="form-control">
+                                <option value="">-- Select Type --</option>
+                                <option value="Hardware">Hardware</option>
+                                <option value="Software">Software</option>
+                            </select>
+                        </div>
 
-			<div class="form-check mb-3">
-				<input asp-for="isMultipleDepartments" class="form-check-input" />
-				<label asp-for="isMultipleDepartments" class="form-check-label"></label>
-			</div>
+                        <div class="form-group mb-3">
+                            <label>Funding Source</label>
+                            <select asp-for="BudgetItems[i].FundingSource" class="form-control">
+                                <option value="">-- Select Funding Source --</option>
+                                <option value="ARCC">ARCC</option>
+                                <option value="College">College</option>
+                                <option value="Department">Department</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
 
-			<div class="form-group mb-3">
+                        <div class="form-group mb-3">
+                            <label>Amount</label>
+                            <input asp-for="BudgetItems[i].Amount"
+                                   type="number"
+                                   step="0.01"
+                                   min="0"
+                                   class="form-control"
+                                   placeholder="0.00" />
+                        </div>
+                    </div>
+                }
+            </div>
 
-				<label>Departments</label>
+            <button type="button" id="addBudgetItem" class="btn btn-outline-primary mb-3">
+                Add Budget Item
+            </button>
 
-				<select asp-for="SelectedDepartmentIds"
-						asp-items="Model.Departments"
-						class="form-control"
-						multiple>
-				</select>
+            <div class="form-check mb-3">
+                <input asp-for="isMultipleDepartments" class="form-check-input" />
+                <label asp-for="isMultipleDepartments" class="form-check-label"></label>
+            </div>
 
-			</div>
+            <div class="form-group mb-3">
+                <label>Departments</label>
 
-			<div class="form-group mb-3">
-				<label class="control-label">Project Director</label>
-				<select asp-for="UserId"
-						asp-items="ViewBag.Users"
-						class="form-control">
-					<option value="">-- Select Project Director --</option>
-				</select>
-				<span asp-validation-for="UserId"
-					  class="text-danger"></span>
-			</div>
+                <select asp-for="SelectedDepartmentIds"
+                        asp-items="Model.Departments"
+                        class="form-control"
+                        multiple>
+                </select>
+            </div>
 
-			<div class="form-group mb-3">
-				<label class="control-label">Attachments (up to 3 files)</label>
+            <div class="form-group mb-3">
+                <label class="control-label">Project Director</label>
+                <select asp-for="UserId"
+                        asp-items="Model.Users"
+                        class="form-control">
+                    <option value="">-- Select Project Director --</option>
+                </select>
+                <span asp-validation-for="UserId"
+                      class="text-danger"></span>
+            </div>
 
-				@{
-					var existingRegularFiles = Model.Attachments != null
-						? Model.Attachments.Where(a => !a.IsApprovalFile).ToList()
-						: new List<CS4760GrantApplication.Models.GrantAttachment>();
-				}
+            <div class="form-group mb-3">
+                <label class="control-label">Attachments (up to 3 files)</label>
 
-				@for (int i = 0; i < 3; i++)
-				{
-					<div class="mb-2">
-						@if (i < existingRegularFiles.Count)
-						{
-							var attachment = existingRegularFiles[i];
-							<div id="file-slot-@i" class="d-flex align-items-center mb-1">
-								<span>File @(i + 1): <a href="@attachment.FilePath" target="_blank">@attachment.FileName</a></span>
+                @{
+                    var existingRegularFiles = Model.Attachments != null
+                        ? Model.Attachments.Where(a => !a.IsApprovalFile).ToList()
+                        : new List<CS4760GrantApplication.Models.GrantAttachment>();
+                }
 
-								<button type="button" class="btn btn-sm btn-outline-warning ms-2" onclick="replaceFile(@i, @attachment.Id)">Replace</button>
-								<button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeFile(@i, @attachment.Id)">Remove</button>
-							</div>
+                @for (int i = 0; i < 3; i++)
+                {
+                    <div class="mb-2">
+                        @if (i < existingRegularFiles.Count)
+                        {
+                            var attachment = existingRegularFiles[i];
 
-							<!-- Hidden input that will be shown if user clicks Replace or Remove -->
-							<div id="file-input-wrapper-@i" style="display:none;">
-								<input type="file" name="attachments" class="form-control" />
-								<button type="button" class="btn btn-sm btn-link text-danger" onclick="cancelReplace(@i)">Cancel</button>
-							</div>
-						}
-						else
-						{
-							<!-- Empty slot -->
-							<label class="text-muted small">File @(i + 1)</label>
-							<input type="file" name="attachments" class="form-control" />
-						}
-					</div>
-				}
+                            <div id="file-slot-@i" class="d-flex align-items-center mb-1">
+                                <span>File @(i + 1): <a href="@attachment.FilePath" target="_blank">@attachment.FileName</a></span>
 
-				<!-- Container to hold IDs of files to remove -->
-				<div id="removed-files-container"></div>
+                                <button type="button" class="btn btn-sm btn-outline-warning ms-2" onclick="replaceFile(@i, @attachment.Id)">Replace</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeFile(@i, @attachment.Id)">Remove</button>
+                            </div>
 
-				<span class="text-danger">@Html.ValidationMessage("attachments")</span>
-			</div>
+                            <div id="file-input-wrapper-@i" style="display:none;">
+                                <input type="file" name="attachments" class="form-control" />
+                                <button type="button" class="btn btn-sm btn-link text-danger" onclick="cancelReplace(@i)">Cancel</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <label class="text-muted small">File @(i + 1)</label>
+                            <input type="file" name="attachments" class="form-control" />
+                        }
+                    </div>
+                }
 
-			<div class="form-group mb-3 form-check">
-				<input asp-for="InvolvesHumanOrAnimalSubjects" class="form-check-input" />
-				<label asp-for="InvolvesHumanOrAnimalSubjects" class="form-check-label">
-					Does this grant involve human or animal subjects?
-				</label>
-			</div>
+                <div id="removed-files-container"></div>
 
-			<div class="form-group mb-3">
-				<label class="control-label">Approval File</label>
-				@{
-					var existingApproval = Model.Attachments?.FirstOrDefault(a => a.IsApprovalFile);
-				}
-				@if (existingApproval != null)
-				{
-					<div id="approval-slot" class="mb-2">
-						<span>Current: <a href="@existingApproval.FilePath" target="_blank">@existingApproval.FileName</a></span>
-						<button type="button" class="btn btn-sm btn-outline-warning ms-2" onclick="replaceApproval(@existingApproval.Id)">Replace</button>
-					</div>
-					<div id="approval-input-wrapper" style="display:none;">
-						<input type="file" name="approvalFile" class="form-control" />
-						<button type="button" class="btn btn-sm btn-link text-danger" onclick="cancelApprovalReplace()">Cancel</button>
-					</div>
-				}
-				else
-				{
-					<input type="file" name="approvalFile" class="form-control" />
-				}
-				<span class="text-danger">@Html.ValidationMessage("approvalFile")</span>
-			</div>
+                <span class="text-danger">@Html.ValidationMessage("attachments")</span>
+            </div>
 
-			<div class="form-group">
-				<button type="submit"
-						class="btn btn-primary"
-						onclick="document.getElementById('IsSaved').value='false';">
-					Submit
-				</button>
+            <div class="form-group mb-3 form-check">
+                <input asp-for="InvolvesHumanOrAnimalSubjects" class="form-check-input" />
+                <label asp-for="InvolvesHumanOrAnimalSubjects" class="form-check-label">
+                    Does this grant involve human or animal subjects?
+                </label>
+            </div>
 
-				<button type="submit"
-						class="btn btn-secondary"
-						onclick="document.getElementById('IsSaved').value='true';">
-					Save Draft
-				</button>
+            <div class="form-group mb-3">
+                <label class="control-label">Approval File</label>
 
-				<a asp-controller="Dashboard" asp-action="Index" class="btn btn-danger ms-2">Cancel</a>
-			</div>
-		</form>
-	</div>
+                @{
+                    var existingApproval = Model.Attachments?.FirstOrDefault(a => a.IsApprovalFile);
+                }
+
+                @if (existingApproval != null)
+                {
+                    <div id="approval-slot" class="mb-2">
+                        <span>Current: <a href="@existingApproval.FilePath" target="_blank">@existingApproval.FileName</a></span>
+                        <button type="button" class="btn btn-sm btn-outline-warning ms-2" onclick="replaceApproval(@existingApproval.Id)">Replace</button>
+                    </div>
+
+                    <div id="approval-input-wrapper" style="display:none;">
+                        <input type="file" name="approvalFile" class="form-control" />
+                        <button type="button" class="btn btn-sm btn-link text-danger" onclick="cancelApprovalReplace()">Cancel</button>
+                    </div>
+                }
+                else
+                {
+                    <input type="file" name="approvalFile" class="form-control" />
+                }
+
+                <span class="text-danger">@Html.ValidationMessage("approvalFile")</span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit"
+                        class="btn btn-primary"
+                        onclick="document.getElementById('IsSaved').value='false';">
+                    Submit
+                </button>
+
+                <button type="submit"
+                        class="btn btn-secondary"
+                        onclick="document.getElementById('IsSaved').value='true';">
+                    Save Draft
+                </button>
+
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-danger ms-2">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts
 {
-	@{
-		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
-	<script>
-		function replaceFile(index, attachmentId)
-		{
-			document.getElementById('file-slot-' + index).style.display = 'none';
-			document.getElementById('file-input-wrapper-' + index).style.display = 'block';
-			markForRemoval(attachmentId, 'remove-input-' + index);
-		}
+    <script>
+        let budgetIndex = @Model.BudgetItems.Count;
 
-		function removeFile(index, attachmentId)
-		{
-			document.getElementById('file-slot-' + index).style.display = 'none';
-			document.getElementById('file-input-wrapper-' + index).style.display = 'block';
-			// Clear the file input immediately so no new file is submitted
-			document.querySelector('#file-input-wrapper-' + index + ' input[type="file"]').value = '';
-			markForRemoval(attachmentId, 'remove-input-' + index);
-		}
+        document.getElementById('addBudgetItem').addEventListener('click', function () {
+            const container = document.getElementById('budgetItemsContainer');
 
-		function cancelReplace(index)
-		{
-			document.getElementById('file-slot-' + index).style.display = 'flex';
-			document.getElementById('file-input-wrapper-' + index).style.display = 'none';
-			document.querySelector('#file-input-wrapper-' + index + ' input[type="file"]').value = '';
-			unmarkForRemoval('remove-input-' + index);
-		}
+            const html = `
+                <div class="border rounded p-3 mb-3 budget-item">
+                    <h5>Budget Item ${budgetIndex + 1}</h5>
 
-		function markForRemoval(attachmentId, inputId)
-		{
-			if (!document.getElementById(inputId)) {
-				let input = document.createElement("input");
-				input.type = "hidden";
-				input.name = "AttachmentsToRemove";
-				input.value = attachmentId;
-				input.id = inputId;
-				document.getElementById('removed-files-container').appendChild(input);
-			}
-		}
+                    <input type="hidden" name="BudgetItems[${budgetIndex}].Id" value="0" />
+                    <input type="hidden" name="BudgetItems[${budgetIndex}].GrantId" value="@Model.Id" />
 
-		function unmarkForRemoval(inputId)
-		{
-			let input = document.getElementById(inputId);
-			if (input) {
-				input.remove();
-			}
-		}
+                    <div class="form-group mb-3">
+                        <label>Item Description</label>
+                        <input name="BudgetItems[${budgetIndex}].Description"
+                               class="form-control"
+                               placeholder="Example: Laptops, software license, projector" />
+                    </div>
 
-		// Approval File logic
-		function replaceApproval(attachmentId)
-		{
-			document.getElementById('approval-slot').style.display = 'none';
-			document.getElementById('approval-input-wrapper').style.display = 'block';
-			markForRemoval(attachmentId, 'remove-approval-input');
-		}
-		function cancelApprovalReplace()
-		{
-			document.getElementById('approval-slot').style.display = 'block';
-			document.getElementById('approval-input-wrapper').style.display = 'none';
-			document.querySelector('#approval-input-wrapper input[type="file"]').value = '';
-			unmarkForRemoval('remove-approval-input');
-		}
-	</script>
+                    <div class="form-group mb-3">
+                        <label>Item Type</label>
+                        <select name="BudgetItems[${budgetIndex}].ItemType" class="form-control">
+                            <option value="">-- Select Type --</option>
+                            <option value="Hardware">Hardware</option>
+                            <option value="Software">Software</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>Funding Source</label>
+                        <select name="BudgetItems[${budgetIndex}].FundingSource" class="form-control">
+                            <option value="">-- Select Funding Source --</option>
+                            <option value="ARCC">ARCC</option>
+                            <option value="College">College</option>
+                            <option value="Department">Department</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>Amount</label>
+                        <input name="BudgetItems[${budgetIndex}].Amount"
+                               type="number"
+                               step="0.01"
+                               min="0"
+                               class="form-control"
+                               placeholder="0.00" />
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', html);
+            budgetIndex++;
+        });
+
+        function replaceFile(index, attachmentId)
+        {
+            document.getElementById('file-slot-' + index).style.display = 'none';
+            document.getElementById('file-input-wrapper-' + index).style.display = 'block';
+            markForRemoval(attachmentId, 'remove-input-' + index);
+        }
+
+        function removeFile(index, attachmentId)
+        {
+            document.getElementById('file-slot-' + index).style.display = 'none';
+            document.getElementById('file-input-wrapper-' + index).style.display = 'block';
+
+            document.querySelector('#file-input-wrapper-' + index + ' input[type="file"]').value = '';
+            markForRemoval(attachmentId, 'remove-input-' + index);
+        }
+
+        function cancelReplace(index)
+        {
+            document.getElementById('file-slot-' + index).style.display = 'flex';
+            document.getElementById('file-input-wrapper-' + index).style.display = 'none';
+
+            document.querySelector('#file-input-wrapper-' + index + ' input[type="file"]').value = '';
+            unmarkForRemoval('remove-input-' + index);
+        }
+
+        function markForRemoval(attachmentId, inputId)
+        {
+            if (!document.getElementById(inputId)) {
+                let input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "AttachmentsToRemove";
+                input.value = attachmentId;
+                input.id = inputId;
+                document.getElementById('removed-files-container').appendChild(input);
+            }
+        }
+
+        function unmarkForRemoval(inputId)
+        {
+            let input = document.getElementById(inputId);
+
+            if (input) {
+                input.remove();
+            }
+        }
+
+        function replaceApproval(attachmentId)
+        {
+            document.getElementById('approval-slot').style.display = 'none';
+            document.getElementById('approval-input-wrapper').style.display = 'block';
+            markForRemoval(attachmentId, 'remove-approval-input');
+        }
+
+        function cancelApprovalReplace()
+        {
+            document.getElementById('approval-slot').style.display = 'block';
+            document.getElementById('approval-input-wrapper').style.display = 'none';
+
+            document.querySelector('#approval-input-wrapper input[type="file"]').value = '';
+            unmarkForRemoval('remove-approval-input');
+        }
+    </script>
 }
