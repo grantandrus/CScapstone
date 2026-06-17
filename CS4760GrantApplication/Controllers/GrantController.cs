@@ -1,10 +1,11 @@
 ﻿using CS4760GrantApplication.Data;
 using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
+using CS4760GrantApplication.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CS4760GrantApplication.ViewModels;
+using System.Security.Cryptography.Xml;
 
 namespace CS4760GrantApplication.Controllers
 {
@@ -81,6 +82,30 @@ namespace CS4760GrantApplication.Controllers
                 );
             }
 
+            if (!vm.IsSaved)
+            {
+                if (!vm.Acknowledgement1 || !vm.Acknowledgement2 || !vm.Acknowledgement3 || !vm.Acknowledgement4)
+                {
+                    ModelState.AddModelError("", "All acknowledgements must be accepted to submit.");
+                }
+
+                if (string.IsNullOrWhiteSpace(vm.Signature))
+                {
+                    ModelState.AddModelError("", "Signature is required to submit.");
+                }
+
+                if (vm.SignatureDate.Date != DateTime.Today)
+                {
+                    ModelState.AddModelError("", "Signature Date must match today's date to submit.");
+                }
+            }
+
+            // signature should be inputted right before submission, not when saved
+            if(vm.IsSaved)
+            {
+                ModelState.Remove("Signature");
+            }
+
             if (!ModelState.IsValid)
             {
                 vm.Departments = _context.Departments
@@ -125,7 +150,13 @@ namespace CS4760GrantApplication.Controllers
                     InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects,
                     UserId = vm.UserId,
                     CollegeId = vm.CollegeId,
-                    IsSaved = vm.IsSaved
+                    IsSaved = vm.IsSaved,
+                    Acknowledgement1 = vm.Acknowledgement1,
+                    Acknowledgement2 = vm.Acknowledgement2,
+                    Acknowledgement3 = vm.Acknowledgement3,
+                    Acknowledgement4 = vm.Acknowledgement4,
+                    Signature = vm.Signature == null ? "" : vm.Signature,
+                    SignatureDate = vm.SignatureDate
                 };
 
                 grant.Departments = await _context.Departments.Where(
@@ -319,6 +350,30 @@ namespace CS4760GrantApplication.Controllers
                 ModelState.AddModelError("approvalFile", "An approval file is required when human or animal subjects are involved.");
             }
 
+            if (!vm.IsSaved)
+            {
+                if (!vm.Acknowledgement1 || !vm.Acknowledgement2 || !vm.Acknowledgement3 || !vm.Acknowledgement4)
+                {
+                    ModelState.AddModelError("", "All acknowledgements must be accepted to submit.");
+                }
+
+                if (string.IsNullOrWhiteSpace(vm.Signature))
+                {
+                    ModelState.AddModelError("", "Signature is required to submit.");
+                }
+
+                if (vm.SignatureDate.Date != DateTime.Today)
+                {
+                    ModelState.AddModelError("", "Signature Date must match today's date to submit.");
+                }
+            }
+
+            // signature should be inputted right before submission, not when saved
+            if (vm.IsSaved)
+            {
+                ModelState.Remove("Signature");
+            }
+
             if (!ModelState.IsValid)
             {
                 vm.Departments = _context.Departments
@@ -359,6 +414,12 @@ namespace CS4760GrantApplication.Controllers
             grant.UserId = vm.UserId;
             grant.InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects;
             grant.IsSaved = vm.IsSaved;
+            grant.Acknowledgement1 = vm.Acknowledgement1;
+            grant.Acknowledgement2 = vm.Acknowledgement2;
+            grant.Acknowledgement3 = vm.Acknowledgement3;
+            grant.Acknowledgement4 = vm.Acknowledgement4;
+            grant.Signature = vm.Signature == null ? "" : vm.Signature;
+            grant.SignatureDate = vm.SignatureDate;
 
             grant.Departments = await _context.Departments
                 .Where(d => vm.SelectedDepartmentIds.Contains(d.Id))

@@ -36,5 +36,16 @@ namespace CS4760GrantApplication.Models
         public bool IsSaved { get; set; } // When false, the grant is submitted and ready for review. When true, it's still a draft?
         public List<GrantAttachment> Attachments { get; set; } = new();
         public List<BudgetItem> BudgetItems { get; set; } = new();
+        public bool Acknowledgement1 { get; set; }
+        public bool Acknowledgement2 { get; set; }
+        public bool Acknowledgement3 { get; set; }
+        public bool Acknowledgement4 { get; set; }
+
+        [Required(AllowEmptyStrings = true)]
+        public string Signature { get; set; } = string.Empty;
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public DateTime SignatureDate { get; set; }
     }
 }
