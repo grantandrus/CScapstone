@@ -1,250 +1,291 @@
-@model CS4760GrantApplication.ViewModels.CreateGrantViewModel
-
+@model CS4760GrantApplication.Models.Grant
 @{
-    ViewData["Title"] = "Review Grant Request";
+    ViewData["Title"] = "Review Grant";
+
+    // Option 3 - Access ID directly from route
+    var grantId = Context.Request.RouteValues["id"];
 }
 
-<h1>Review Grant Request</h1>
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="DeptReview" enctype="multipart/form-data">
+<div class="container mt-4">
+    <h2>Grant Review</h2>
 
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="UserId" />
-            <input type="hidden" asp-for="IsSaved" />
-            <input type="hidden" asp-for="DeptReviewStatus" id="DeptReviewStatus" />
-
-            <div class="form-group mb-3">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" readonly disabled/>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Description" class="control-label"></label>
-                <textarea asp-for="Description" class="form-control" readonly disabled></textarea>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="ProjectSummary" class="control-label"></label>
-                <textarea asp-for="ProjectSummary" class="form-control" readonly disabled></textarea>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Justification" class="control-label"></label>
-                <textarea asp-for="Justification" class="form-control" readonly disabled></textarea>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="ProjectImpact" class="control-label"></label>
-                <input asp-for="ProjectImpact" class="form-control" readonly disabled />
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="ProjectTimeline" class="control-label"></label>
-                <textarea asp-for="ProjectTimeline" class="form-control" readonly disabled></textarea>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="SuccessEvaluation" class="control-label"></label>
-                <textarea asp-for="SuccessEvaluation" class="form-control" readonly disabled></textarea>
-            </div>
-
-            <hr />
-
-            <h3>Budget Items</h3>
-
-            <div id="budgetItemsContainer">
-                @for (int i = 0; i < Model.BudgetItems.Count; i++)
-                {
-                    <div class="border rounded p-3 mb-3 budget-item">
-                        <h5>Budget Item @(i + 1)</h5>
-
-                        <input type="hidden" asp-for="BudgetItems[i].Id" />
-                        <input type="hidden" asp-for="BudgetItems[i].GrantId" />
-
-                        <div class="form-group mb-3">
-                            <label>Item Description</label>
-                            <input asp-for="BudgetItems[i].Description"
-                                   class="form-control"
-                                   placeholder="Example: Laptops, software license, projector" readonly disabled />
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label>Item Type</label>
-                            <select asp-for="BudgetItems[i].ItemType" class="form-control" disabled>
-                                <option value="">-- Select Type --</option>
-                                <option value="Hardware">Hardware</option>
-                                <option value="Software">Software</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label>Funding Source</label>
-                            <select asp-for="BudgetItems[i].FundingSource" class="form-control" disabled>
-                                <option value="">-- Select Funding Source --</option>
-                                <option value="ARCC">ARCC</option>
-                                <option value="College">College</option>
-                                <option value="Department">Department</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label>Amount</label>
-                            <input asp-for="BudgetItems[i].Amount"
-                                   type="number"
-                                   step="0.01"
-                                   min="0"
-                                   class="form-control"
-                                   placeholder="0.00" readonly disabled />
-                        </div>
-                    </div>
-                }
-            </div>
-
-            <div class="form-check mb-3">
-                <input asp-for="isMultipleDepartments" class="form-check-input" readonly disabled />
-                <label asp-for="isMultipleDepartments" class="form-check-label"></label>
-            </div>
-
-            <div class="form-group mb-3">
-                <label>Departments</label>
-
-                <select asp-for="SelectedDepartmentIds"
-                        asp-items="Model.Departments"
-                        class="form-control"
-                        multiple disabled>
-                </select>
-            </div>
-
-            <div class="form-group mb-3">
-                <label class="control-label">Project Director</label>
-                <select asp-for="UserId"
-                        asp-items="Model.Users"
-                        class="form-control"
-                        disabled>
-                    <option value="">-- Select Project Director --</option>
-                </select>
-            </div>
-
-            <div class="form-group mb-3">
-                <label class="control-label">Attachments (up to 3 files)</label>
-
-                @{
-                    var existingRegularFiles = Model.Attachments != null
-                        ? Model.Attachments.Where(a => !a.IsApprovalFile).ToList()
-                        : new List<CS4760GrantApplication.Models.GrantAttachment>();
-                }
-
-                @for (int i = 0; i < 3; i++)
-                {
-                    <div class="mb-2">
-                        @if (i < existingRegularFiles.Count)
-                        {
-                            var attachment = existingRegularFiles[i];
-
-                            <div id="file-slot-@i" class="d-flex align-items-center mb-1">
-                                <span>File @(i + 1): <a href="@attachment.FilePath" target="_blank">@attachment.FileName</a></span>
-                            </div>
-
-                            <div id="file-input-wrapper-@i" style="display:none;">
-                                <input type="file" name="attachments" class="form-control" readonly disabled />
-                            </div>
-                        }
-                        else
-                        {
-                            <label class="text-muted small">File @(i + 1)</label>
-                            <input type="file" name="attachments" class="form-control" readonly disabled />
-                        }
-                    </div>
-                }
-
-                <div id="removed-files-container"></div>
-
-            </div>
-
-            <div class="form-group mb-3 form-check">
-                <input asp-for="InvolvesHumanOrAnimalSubjects" class="form-check-input" readonly disabled />
-                <label asp-for="InvolvesHumanOrAnimalSubjects" class="form-check-label">
-                    Does this grant involve human or animal subjects?
-                </label>
-            </div>
-
-            <div class="form-group mb-3">
-                <label class="control-label">Approval File</label>
-
-                @{
-                    var existingApproval = Model.Attachments?.FirstOrDefault(a => a.IsApprovalFile);
-                }
-
-                @if (existingApproval != null)
-                {
-                    <div id="approval-slot" class="mb-2">
-                        <span>Current: <a href="@existingApproval.FilePath" target="_blank">@existingApproval.FileName</a></span>
-                    </div>
-
-                    <div id="approval-input-wrapper" style="display:none;">
-                        <input type="file" name="approvalFile" class="form-control" readonly disabled />
-                    </div>
-                }
-                else
-                {
-                    <input type="file" name="approvalFile" class="form-control" readonly disabled />
-                }
-
-            </div>
-
-            <div class="modal fade" id="acknowledgements-modal" tabindex="-1" aria-labelledby="acknowledgements-title" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="acknowledgements-title">Acknowledgements</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-check mb-3">
-                                <input asp-for="Acknowledgement1" class="form-check-input" readonly disabled />
-                                <label asp-for="Acknowledgement1" class="form-check-label">Acknowledgement 1</label>
-                            </div>
-                            <div class="form-check mb-3">
-                                <input asp-for="Acknowledgement2" class="form-check-input" readonly disabled />
-                                <label asp-for="Acknowledgement2" class="form-check-label">Acknowledgement 2</label>
-                            </div>
-                            <div class="form-check mb-3">
-                                <input asp-for="Acknowledgement3" class="form-check-input" readonly disabled />
-                                <label asp-for="Acknowledgement3" class="form-check-label">Acknowledgement 3</label>
-                            </div>
-                            <div class="form-check mb-3">
-                                <input asp-for="Acknowledgement4" class="form-check-input" readonly disabled />
-                                <label asp-for="Acknowledgement4" class="form-check-label">Acknowledgement 4</label>
-                            </div>
-                            <div class="d-flex gap-3 mb-3">
-                                <div class="form-group">
-                                    <label asp-for="Signature" class="control-label"></label>
-                                    <input asp-for="Signature" class="form-control" readonly disabled />
-                                </div>
-                                <div class="form-group">
-                                    @Html.LabelFor(m => m.SignatureDate, "Date", htmlAttributes: new { @class = "control-label" })
-                                    @Html.EditorFor(m => m.SignatureDate, new { htmlAttributes = new { @class = "form-control", type = "date" } })
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <button type="submit" formaction="@Url.Action("Approve", "Grant", new { id = Model.Id })" class="btn btn-secondary">
-                    Approve
-                </button>
-
-                <button type="submit" formaction="@Url.Action("Reject", "Grant", new { id = Model.Id })" class="btn btn-secondary">
-                    Reject
-                </button>
-
-                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-danger ms-2">Cancel</a>
-            </div>
-
-        </form>
+    <div class="alert alert-info">
+        Reviewing Grant ID: <strong>@grantId</strong>
     </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            General Information
+        </div>
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="fw-bold">Title</label>
+                <div>@Model.Title</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Description</label>
+                <div>@Model.Description</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Project Summary</label>
+                <div>@Model.ProjectSummary</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Justification</label>
+                <div>@Model.Justification</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Project Impact</label>
+                <div>@Model.ProjectImpact</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Project Timeline</label>
+                <div>@Model.ProjectTimeline</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Success Evaluation</label>
+                <div>@Model.SuccessEvaluation</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Organization Information
+        </div>
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="fw-bold">Multiple Departments</label>
+                <div>@(Model.isMultipleDepartments ? "Yes" : "No")</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">College</label>
+                <div>@Model.College?.Name</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">User</label>
+                <div>@Model.User?.FirstName @Model.User?.LastName</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Compliance
+        </div>
+        <div class="card-body">
+
+            <div class="mb-2">
+                <strong>Human or Animal Subjects:</strong>
+                @(Model.InvolvesHumanOrAnimalSubjects ? "Yes" : "No")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 1:</strong>
+                @(Model.Acknowledgement1 ? "Accepted" : "Not Accepted")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 2:</strong>
+                @(Model.Acknowledgement2 ? "Accepted" : "Not Accepted")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 3:</strong>
+                @(Model.Acknowledgement3 ? "Accepted" : "Not Accepted")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 4:</strong>
+                @(Model.Acknowledgement4 ? "Accepted" : "Not Accepted")
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Signature
+        </div>
+        <div class="card-body">
+
+            <div class="mb-2">
+                <strong>Signature:</strong>
+                @Model.Signature
+            </div>
+
+            <div class="mb-2">
+                <strong>Signature Date:</strong>
+                @Model.SignatureDate.ToString("MM/dd/yyyy")
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Status Information
+        </div>
+        <div class="card-body">
+
+            <div class="mb-2">
+                <strong>Draft Saved:</strong>
+                @(Model.IsSaved ? "No" : "Yes")
+            </div>
+
+            <div class="mb-2">
+                <strong>Department Review Status:</strong>
+                @(Model.DeptReviewStatus == null
+                    ? "Pending"
+                    : Model.DeptReviewStatus.Value
+                        ? "Approved"
+                        : "Rejected")
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Departments
+        </div>
+        <div class="card-body">
+
+            @if (Model.Departments.Any())
+            {
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var dept in Model.Departments)
+                        {
+                            <tr>
+                                <td>@dept.DepartmentName</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No departments assigned.</p>
+            }
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Budget Items
+        </div>
+        <div class="card-body">
+
+            @if (Model.BudgetItems.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Funding Source</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.BudgetItems)
+                        {
+                            <tr>
+                                <td>@item.Description</td>
+                                <td>@item.FundingSource</td>
+                                <td>@item.Amount.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No budget items.</p>
+            }
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Attachments
+        </div>
+        <div class="card-body">
+
+            @if (Model.Attachments.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Type</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var attachment in Model.Attachments)
+                        {
+                            <tr>
+                                <td>@attachment.FileName</td>
+                                <td>
+                                    @(attachment.IsApprovalFile
+                                        ? "Approval Document"
+                                        : "Supporting Document")
+                                </td>
+                                <td>
+                                    <a asp-controller="Review"
+                                           asp-action="DownloadAttachment"
+                                           asp-route-id="@attachment.Id"
+                                           class="btn btn-primary btn-sm">
+                                        Download
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No attachments uploaded.</p>
+            }
+
+        </div>
+    </div>
+
 </div>
+
+<hr class="my-5" />
+
+<form asp-action="DeptReview" enctype="multipart/form-data">
+    <div class="form-group">
+        <button type="submit" formaction="@Url.Action("Approve", "Grant", new { id = Model.Id })" class="btn btn-warning">
+            Approve
+        </button>
+
+        <button type="submit" formaction="@Url.Action("Reject", "Grant", new { id = Model.Id })" class="btn btn-danger">
+            Reject
+        </button>
+
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+    </div>
+</form>
