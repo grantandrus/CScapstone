@@ -1,6 +1,7 @@
 ﻿using CS4760GrantApplication.Data;
 using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
+using CS4760GrantApplication.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,11 +20,35 @@ namespace CS4760GrantApplication.Controllers
         [SessionAuthorize]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Grants
+            var isDeptChair = HttpContext.Session.GetString("IsDeptChair") == "True";
+
+            var viewModel = new DashboardViewModel
+            {
+                IsDeptChair = isDeptChair,
+                MyGrants = await _context.Grants
                 .Include(g => g.Departments)
                 .Include(g => g.College)
                 .Where(g => g.UserId == HttpContext.Session.GetInt32("UserID"))
-                .ToListAsync());
+                .ToListAsync()
+            };
+
+            if (isDeptChair)
+            {
+                var user = await _context.Users.FindAsync(HttpContext.Session.GetInt32("UserID"));
+
+            
+
+                if (user?.DepartmentId != null)
+                { 
+                    viewModel.DepartmentGrants = await _context.Grants
+                        .Include(g => g.Departments)
+                        .Include(g => g.College)
+                        .Where(g => !g.IsSaved
+                            && g.Departments.Any(d => d.Id == user.DepartmentId))
+                        .ToListAsync();
+                }
+            }    
+            return View(viewModel);
         }
     }
 }
