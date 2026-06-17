@@ -70,6 +70,7 @@ namespace CS4760GrantApplication.Controllers
             HttpContext.Session.SetString("UserRole", role);
             HttpContext.Session.SetString("Name", $"{user.FirstName} {user.LastName}");
             HttpContext.Session.SetString("IsCommitteeChair", user.IsCommitteeChair ? "True" : "False");
+            HttpContext.Session.SetString("IsDeptChair", user.IsDepartmentChair ? "True" : "False");
 
             return RedirectToAction("Index", "Home");
         }
@@ -216,7 +217,26 @@ namespace CS4760GrantApplication.Controllers
             }
 
             existing.CollegeId = (user.CollegeId == 0) ? null : user.CollegeId;
-            existing.DepartmentId = (user.DepartmentId == 0) ? null : user.DepartmentId;
+
+            var newDepartment = (user.DepartmentId == 0) ? null : user.DepartmentId;
+
+            // Logic for if user is a department chair and changes to a different or no department
+            if (existing.IsDepartmentChair && existing.DepartmentId != newDepartment)
+            {
+                existing.IsDepartmentChair = false;
+
+                var oldDepartment = await _context.Departments
+                    .FirstOrDefaultAsync(d => d.Id == existing.DepartmentId);
+
+                if (oldDepartment != null && oldDepartment.ChairId == existing.Id)
+                {
+                    oldDepartment.ChairId = null;
+                }
+
+                HttpContext.Session.SetString("IsDeptChair", "False");
+            }
+
+            existing.DepartmentId = newDepartment;
 
             await _context.SaveChangesAsync();
 

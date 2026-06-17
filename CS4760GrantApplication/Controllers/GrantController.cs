@@ -524,6 +524,104 @@ namespace CS4760GrantApplication.Controllers
             return RedirectToAction("Index", "Dashboard");
         }
 
+        [HttpGet]
+        [SessionAuthorize]
+        public async Task<IActionResult> DeptReview(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var grant = await _context.Grants
+                .Include(g => g.Departments)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (grant == null)
+            {
+                return NotFound();
+            }
+
+            // Retrieve attached files associated with this grant
+            var attachments = await _context.GrantAttachments
+                .Where(ga => ga.GrantId == grant.Id)
+                .ToListAsync();
+
+            var budgetItems = await _context.BudgetItems
+            .Where(b => b.GrantId == grant.Id)
+            .ToListAsync();
+
+            var vm = new CreateGrantViewModel
+            {
+                Id = grant.Id,
+                Title = grant.Title,
+                Description = grant.Description,
+                ProjectSummary = grant.ProjectSummary,
+                Justification = grant.Justification,
+                ProjectImpact = grant.ProjectImpact,
+                ProjectTimeline = grant.ProjectTimeline,
+                SuccessEvaluation = grant.SuccessEvaluation,
+                BudgetItems = budgetItems,
+                isMultipleDepartments = grant.isMultipleDepartments,
+                UserId = grant.UserId,
+                InvolvesHumanOrAnimalSubjects = grant.InvolvesHumanOrAnimalSubjects,
+                IsSaved = grant.IsSaved,
+                Attachments = attachments, // Include attachments in the view model
+
+                SelectedDepartmentIds = grant.Departments
+                    .Select(d => d.Id)
+                    .ToList()
+            };
+
+            vm.Departments = _context.Departments
+                .Select(d => new SelectListItem
+                {
+                    Value = d.Id.ToString(),
+                    Text = d.DepartmentName
+                })
+                .ToList();
+
+            vm.Users = _context.Users
+                .Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.FirstName + " " + u.LastName
+                })
+                .ToList();
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [SessionAuthorize]
+        [DeptChair]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var grant = await _context.Grants.FindAsync(id);
+            if (grant == null) return NotFound();
+
+            grant.DeptReviewStatus = true;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        [HttpPost]
+        [SessionAuthorize]
+        [DeptChair]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reject(int id)
+        {
+            var grant = await _context.Grants.FindAsync(id);
+            if (grant == null) return NotFound();
+
+            grant.DeptReviewStatus = false;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
         private bool GrantExists(int id)
         {
             return _context.Grants.Any(e => e.Id == id);

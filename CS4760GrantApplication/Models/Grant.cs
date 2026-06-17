@@ -47,5 +47,6 @@ namespace CS4760GrantApplication.Models
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime SignatureDate { get; set; }
+        public bool? DeptReviewStatus { get; set; }
     }
 }
