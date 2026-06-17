@@ -60,5 +60,15 @@ namespace CS4760GrantApplication.ViewModels
         // Tracking IDs for attachments that should be deleted
         public List<int> AttachmentsToRemove { get; set; } = new();
         public List<BudgetItem> BudgetItems { get; set; } = new();
+        public bool Acknowledgement1 { get; set; }
+        public bool Acknowledgement2 { get; set; }
+        public bool Acknowledgement3 { get; set; }
+        public bool Acknowledgement4 { get; set; }
+        [Required(AllowEmptyStrings = true)]
+        public String Signature { get; set; } = string.Empty;
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public DateTime SignatureDate { get; set; }
     }
 }
