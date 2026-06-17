@@ -1,0 +1,452 @@
+﻿@model CS4760GrantApplication.Models.Grant
+@{
+    ViewData["Title"] = "Review Grant";
+
+    // Option 3 - Access ID directly from route
+    var grantId = Context.Request.RouteValues["id"];
+}
+
+<div class="container mt-4">
+    <h2>Grant Review</h2>
+
+    <div class="alert alert-info">
+        Reviewing Grant ID: <strong>@grantId</strong>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            General Information
+        </div>
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="fw-bold">Title</label>
+                <div>@Model.Title</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Description</label>
+                <div>@Model.Description</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Project Summary</label>
+                <div>@Model.ProjectSummary</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Justification</label>
+                <div>@Model.Justification</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Project Impact</label>
+                <div>@Model.ProjectImpact</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Project Timeline</label>
+                <div>@Model.ProjectTimeline</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Success Evaluation</label>
+                <div>@Model.SuccessEvaluation</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Organization Information
+        </div>
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="fw-bold">Multiple Departments</label>
+                <div>@(Model.isMultipleDepartments ? "Yes" : "No")</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">College</label>
+                <div>@Model.College?.Name</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">User</label>
+                <div>@Model.User?.FirstName @Model.User?.LastName</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Compliance
+        </div>
+        <div class="card-body">
+
+            <div class="mb-2">
+                <strong>Human or Animal Subjects:</strong>
+                @(Model.InvolvesHumanOrAnimalSubjects ? "Yes" : "No")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 1:</strong>
+                @(Model.Acknowledgement1 ? "Accepted" : "Not Accepted")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 2:</strong>
+                @(Model.Acknowledgement2 ? "Accepted" : "Not Accepted")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 3:</strong>
+                @(Model.Acknowledgement3 ? "Accepted" : "Not Accepted")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 4:</strong>
+                @(Model.Acknowledgement4 ? "Accepted" : "Not Accepted")
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Signature
+        </div>
+        <div class="card-body">
+
+            <div class="mb-2">
+                <strong>Signature:</strong>
+                @Model.Signature
+            </div>
+
+            <div class="mb-2">
+                <strong>Signature Date:</strong>
+                @Model.SignatureDate.ToString("MM/dd/yyyy")
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Status Information
+        </div>
+        <div class="card-body">
+
+            <div class="mb-2">
+                <strong>Draft Saved:</strong>
+                @(Model.IsSaved ? "No" : "Yes")
+            </div>
+
+            <div class="mb-2">
+                <strong>Department Review Status:</strong>
+                @(Model.DeptReviewStatus == null
+                    ? "Pending"
+                    : Model.DeptReviewStatus.Value
+                        ? "Approved"
+                        : "Rejected")
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Departments
+        </div>
+        <div class="card-body">
+
+            @if (Model.Departments.Any())
+            {
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var dept in Model.Departments)
+                        {
+                            <tr>
+                                <td>@dept.DepartmentName</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No departments assigned.</p>
+            }
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Budget Items
+        </div>
+        <div class="card-body">
+
+            @if (Model.BudgetItems.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Funding Source</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.BudgetItems)
+                        {
+                            <tr>
+                                <td>@item.Description</td>
+                                <td>@item.FundingSource</td>
+                                <td>@item.Amount.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No budget items.</p>
+            }
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Attachments
+        </div>
+        <div class="card-body">
+
+            @if (Model.Attachments.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Type</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var attachment in Model.Attachments)
+                        {
+                            <tr>
+                                <td>@attachment.FileName</td>
+                                <td>
+                                    @(attachment.IsApprovalFile
+                                        ? "Approval Document"
+                                        : "Supporting Document")
+                                </td>
+                                <td>
+                                    <a asp-controller="Review"
+                                       asp-action="DownloadAttachment"
+                                       asp-route-id="@attachment.Id"
+                                       class="btn btn-primary btn-sm">
+                                        Download
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No attachments uploaded.</p>
+            }
+
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </div>
+</div>
+
+<hr class="my-5" />
+
+<div class="card">
+    <div class="card-header">
+        Submit Review
+    </div>
+
+    <div class="card-body">
+        <form asp-action="CreateReview" asp-controller="Review" method="post">
+
+            @{
+                var grantId = Context.Request.RouteValues["id"];
+            }
+
+            <input type="hidden" name="GrantId" value="@grantId" />
+            <input type="hidden" id="AverageScore" name="AverageScore" />
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    Educational Experience
+                </label>
+
+                <select class="form-select score-dropdown" data-max="35" required>
+                    <option value="">Select Score...</option>
+                    <option value="35">35 Points</option>
+                    <option value="20">20 Points</option>
+                    <option value="5">5 Points</option>
+                    <option value="0">0 Points</option>
+                </select>
+
+                <div class="mt-2 small">
+                    <div><strong>35:</strong> Impacts a large number of students or several programs.</div>
+                    <div><strong>20:</strong> Impacts many students in one program.</div>
+                    <div><strong>5:</strong> Impacts a small number of students.</div>
+                    <div><strong>0:</strong> No impact.</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    Innovation
+                </label>
+
+                <select class="form-select score-dropdown" data-max="25" required>
+                    <option value="">Select Score...</option>
+                    <option value="25">25 Points</option>
+                    <option value="15">15 Points</option>
+                    <option value="5">5 Points</option>
+                    <option value="0">0 Points</option>
+                </select>
+
+                <div class="mt-2 small">
+                    <div><strong>25:</strong> Project uses new technology in novel ways.</div>
+                    <div><strong>15:</strong> Project uses new technology with demonstrated methods.</div>
+                    <div><strong>5:</strong> Project uses existing technology for standard uses.</div>
+                    <div><strong>0:</strong> Project does not use technology.</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    Accessibility Experience
+                </label>
+
+                <select class="form-select score-dropdown" data-max="20" required>
+                    <option value="">Select Score...</option>
+                    <option value="20">20 Points</option>
+                    <option value="15">15 Points</option>
+                    <option value="10">10 Points</option>
+                    <option value="5">5 Points</option>
+                </select>
+
+                <div class="mt-2 small">
+                    <div><strong>20:</strong> Applicant demonstrates a clear understanding of how to create accessible materials and provides evidence.</div>
+                    <div><strong>15:</strong> Applicant indicates clear understanding of how to create accessible materials but evidence is missing or incomplete.</div>
+                    <div><strong>10:</strong> Applicant indicates intent to take accessibility training.</div>
+                    <div><strong>5:</strong> Applicant does not mention accessibility of the project.</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    Workload Allocation
+                </label>
+
+                <select class="form-select score-dropdown" data-max="20" required>
+                    <option value="">Select Score...</option>
+                    <option value="20">20 Points</option>
+                    <option value="15">15 Points</option>
+                    <option value="10">10 Points</option>
+                    <option value="5">5 Points</option>
+                </select>
+                <div class="mt-2 small">
+                    <div><strong>20:</strong> Realistic and timely workload allocation and timeline.</div>
+                    <div><strong>15:</strong> Mostly realistic and timely.</div>
+                    <div><strong>10:</strong> Many unrealistic or untimely elements.</div>
+                    <div><strong>5:</strong> Nearly entirely unrealistic or untimely.</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    Average Score
+                </label>
+
+                <input type="text"
+                       id="AverageDisplay"
+                       class="form-control"
+                       readonly />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    Notes
+                </label>
+
+                <textarea name="Notes"
+                          class="form-control"
+                          rows="5"></textarea>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">
+                    Submit Review
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    function calculateAverage() {
+
+        const dropdowns =
+            document.querySelectorAll('.score-dropdown');
+
+        let totalPercentage = 0;
+        let count = 0;
+
+        dropdowns.forEach(dropdown => {
+
+            if (dropdown.value !== '') {
+
+                const score = parseFloat(dropdown.value);
+                const maxScore = parseFloat(
+                    dropdown.dataset.max);
+
+                totalPercentage += score / maxScore;
+
+                count++;
+            }
+        });
+
+        const average =
+            count > 0
+                ? ((totalPercentage / count) * 100).toFixed(2)
+                : '';
+
+        document.getElementById('AverageDisplay').value =
+            average + '%';
+
+        document.getElementById('AverageScore').value =
+            average;
+    }
+
+    document.querySelectorAll('.score-dropdown')
+        .forEach(dropdown => {
+            dropdown.addEventListener(
+                'change',
+                calculateAverage);
+        });
+</script>

@@ -16,8 +16,8 @@
                 Requested Funds
             </th>
             <th>
-                Actions
-            </th>
+                Review / Review Score
+             </th>
         </tr>
     </thead>
     <tbody>
@@ -45,9 +45,17 @@
                     }
                     @total
                 </td>
+                @if (item.Review != null)
+                {
+                    <td>
+                        @item.Review.AverageScore
+                    </td>
+                } else
+                {
                 <td>
-                    <button type="button" class="btn btn-secondary" onclick="">Review</button>
+                    <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("ReviewGrant", "Review", new { id = item.Id })'">Review</button>
                 </td>
+                }
             </tr>
         }
     </tbody>
