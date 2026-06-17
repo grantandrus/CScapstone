@@ -4,6 +4,7 @@ using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography.Xml;
 
@@ -524,72 +525,52 @@ namespace CS4760GrantApplication.Controllers
             return RedirectToAction("Index", "Dashboard");
         }
 
-        [HttpGet]
-        [SessionAuthorize]
-        public async Task<IActionResult> DeptReview(int? id)
+        public async Task<IActionResult> DeptReview(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var grant = await _context.Grants
+                .Include(g => g.User)
+                .Include(g => g.College)
                 .Include(g => g.Departments)
+                .Include(g => g.Attachments)
+                .Include(g => g.BudgetItems)
                 .FirstOrDefaultAsync(g => g.Id == id);
 
             if (grant == null)
-            {
                 return NotFound();
+
+            return View(grant);
+        }
+
+        public async Task<IActionResult> DownloadAttachment(int id)
+        {
+            var attachment = await _context.GrantAttachments
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (attachment == null)
+                return NotFound();
+
+            var relativePath = attachment.FilePath.TrimStart('/', '\\');
+
+            var fullPath = Path.Combine(
+                _environment.WebRootPath,
+                relativePath);
+
+            if (!System.IO.File.Exists(fullPath))
+                return NotFound();
+
+            var provider = new FileExtensionContentTypeProvider();
+
+            if (!provider.TryGetContentType(
+                    fullPath,
+                    out string? contentType))
+            {
+                contentType = "application/octet-stream";
             }
 
-            // Retrieve attached files associated with this grant
-            var attachments = await _context.GrantAttachments
-                .Where(ga => ga.GrantId == grant.Id)
-                .ToListAsync();
+            var bytes = await System.IO.File.ReadAllBytesAsync(
+                fullPath);
 
-            var budgetItems = await _context.BudgetItems
-            .Where(b => b.GrantId == grant.Id)
-            .ToListAsync();
-
-            var vm = new CreateGrantViewModel
-            {
-                Id = grant.Id,
-                Title = grant.Title,
-                Description = grant.Description,
-                ProjectSummary = grant.ProjectSummary,
-                Justification = grant.Justification,
-                ProjectImpact = grant.ProjectImpact,
-                ProjectTimeline = grant.ProjectTimeline,
-                SuccessEvaluation = grant.SuccessEvaluation,
-                BudgetItems = budgetItems,
-                isMultipleDepartments = grant.isMultipleDepartments,
-                UserId = grant.UserId,
-                InvolvesHumanOrAnimalSubjects = grant.InvolvesHumanOrAnimalSubjects,
-                IsSaved = grant.IsSaved,
-                Attachments = attachments, // Include attachments in the view model
-
-                SelectedDepartmentIds = grant.Departments
-                    .Select(d => d.Id)
-                    .ToList()
-            };
-
-            vm.Departments = _context.Departments
-                .Select(d => new SelectListItem
-                {
-                    Value = d.Id.ToString(),
-                    Text = d.DepartmentName
-                })
-                .ToList();
-
-            vm.Users = _context.Users
-                .Select(u => new SelectListItem
-                {
-                    Value = u.Id.ToString(),
-                    Text = u.FirstName + " " + u.LastName
-                })
-                .ToList();
-
-            return View(vm);
+            return File(bytes, contentType, fullPath);
         }
 
         [HttpPost]
