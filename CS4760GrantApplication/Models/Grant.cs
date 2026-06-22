@@ -51,5 +51,23 @@ namespace CS4760GrantApplication.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime SignatureDate { get; set; }
         public bool? DeptReviewStatus { get; set; }
+
+        public GrantStatus Status { get; set; } = GrantStatus.Saved;
+    }
+
+    public enum GrantStatus
+    {
+        [Display(Name = "Saved")]
+        Saved,
+        [Display(Name = "Submitted")]
+        Submitted,
+        [Display(Name = "Reviewed by dept chair")]
+        ReviewedByDeptChair,
+        [Display(Name = "Approved by dept chair")]
+        ApprovedByDeptChair,
+        [Display(Name = "Under review by ARCC")]
+        UnderReviewByARCC,
+        [Display(Name = "Approved ARCC")]
+        ApprovedARCC
     }
 }

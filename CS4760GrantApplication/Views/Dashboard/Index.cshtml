@@ -33,6 +33,9 @@
                 Department Name
             </th>
             <th>
+                Status
+            </th>
+            <th>
                 Actions
             </th>
         </tr>
@@ -79,6 +82,9 @@
                 
                 <td>
                     @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
                 </td>
                 @if (item.IsSaved)
                 {
@@ -136,6 +142,9 @@
                     Department Name
                 </th>
                 <th>
+                    Status
+                </th>
+                <th>
                     Dept. Review
                 </th>
                 <th>
@@ -185,6 +194,10 @@
                 
                     <td>
                         @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
                     </td>
 
                     @if (item.DeptReviewStatus == null)
