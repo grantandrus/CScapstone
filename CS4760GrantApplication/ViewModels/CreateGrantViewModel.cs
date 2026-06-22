@@ -42,6 +42,8 @@ namespace CS4760GrantApplication.ViewModels
         public int CollegeId { get; set; }
 
         public bool InvolvesHumanOrAnimalSubjects { get; set; }
+        public bool HasAbroadSupport { get; set; } // New field (grant field updates) 06/22
+        public string Dissemination { get; set; } = string.Empty; // New field (grant field updates) 06/22
         public bool IsSaved { get; set; }
 
         public List<GrantAttachment> Attachments { get; set; } = new();

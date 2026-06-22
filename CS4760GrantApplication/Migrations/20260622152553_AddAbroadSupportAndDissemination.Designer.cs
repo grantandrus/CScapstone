@@ -4,6 +4,7 @@ using CS4760GrantApplication.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CS4760GrantApplication.Migrations
 {
     [DbContext(typeof(CS4760GrantApplicationContext))]
-    partial class CS4760GrantApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260622152553_AddAbroadSupportAndDissemination")]
+    partial class AddAbroadSupportAndDissemination
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -204,9 +207,6 @@ namespace CS4760GrantApplication.Migrations
 
                     b.Property<DateTime>("SignatureDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<string>("SuccessEvaluation")
                         .IsRequired()
