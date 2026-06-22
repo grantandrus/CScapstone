@@ -589,6 +589,7 @@ namespace CS4760GrantApplication.Controllers
             if (grant == null) return NotFound();
 
             grant.DeptReviewStatus = true;
+            grant.Status = GrantStatus.ApprovedByDeptChair;
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Dashboard");
@@ -604,6 +605,7 @@ namespace CS4760GrantApplication.Controllers
             if (grant == null) return NotFound();
 
             grant.DeptReviewStatus = false;
+            grant.Status = GrantStatus.ReviewedByDeptChair;
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Dashboard");
