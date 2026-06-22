@@ -149,6 +149,8 @@ namespace CS4760GrantApplication.Controllers
                     SuccessEvaluation = vm.SuccessEvaluation,
                     isMultipleDepartments = vm.isMultipleDepartments,
                     InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects,
+                    HasAbroadSupport = vm.HasAbroadSupport,
+                    Dissemination = vm.Dissemination,
                     UserId = vm.UserId,
                     CollegeId = vm.CollegeId,
                     IsSaved = vm.IsSaved,
@@ -285,6 +287,8 @@ namespace CS4760GrantApplication.Controllers
                 isMultipleDepartments = grant.isMultipleDepartments,
                 UserId = grant.UserId,
                 InvolvesHumanOrAnimalSubjects = grant.InvolvesHumanOrAnimalSubjects,
+                HasAbroadSupport = grant.HasAbroadSupport,
+                Dissemination = grant.Dissemination,
                 IsSaved = grant.IsSaved,
                 Attachments = attachments, // Include attachments in the view model
 
@@ -414,6 +418,8 @@ namespace CS4760GrantApplication.Controllers
             grant.isMultipleDepartments = vm.isMultipleDepartments;
             grant.UserId = vm.UserId;
             grant.InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects;
+            grant.HasAbroadSupport = vm.HasAbroadSupport;
+            grant.Dissemination = vm.Dissemination;
             grant.IsSaved = vm.IsSaved;
             grant.Acknowledgement1 = vm.Acknowledgement1;
             grant.Acknowledgement2 = vm.Acknowledgement2;

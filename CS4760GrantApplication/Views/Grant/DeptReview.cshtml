@@ -54,6 +54,11 @@
                 <div>@Model.SuccessEvaluation</div>
             </div>
 
+            <div class="mb-3">
+                <label class="fw-bold">Dissemination</label>
+                <div>@Model.Dissemination</div>
+            </div>
+
         </div>
     </div>
 
@@ -90,6 +95,11 @@
             <div class="mb-2">
                 <strong>Human or Animal Subjects:</strong>
                 @(Model.InvolvesHumanOrAnimalSubjects ? "Yes" : "No")
+            </div>
+
+            <div class="mb-2">
+                <strong>International Support:</strong>
+                @(Model.HasAbroadSupport ? "Yes" : "No")
             </div>
 
             <div class="mb-2">

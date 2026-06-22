@@ -33,6 +33,8 @@ namespace CS4760GrantApplication.Models
         public int? CollegeId { get; set; }
         public College? College { get; set; }
         public bool InvolvesHumanOrAnimalSubjects { get; set; }
+        public bool HasAbroadSupport { get; set; } // New field (grant field updates) 06/22
+        public string Dissemination { get; set; } = string.Empty; // New field (grant field updates) 06/22
         public bool IsSaved { get; set; } // When false, the grant is submitted and ready for review. When true, it's still a draft?
         public List<GrantAttachment> Attachments { get; set; } = new();
         public List<BudgetItem> BudgetItems { get; set; } = new();
