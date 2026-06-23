@@ -21,6 +21,7 @@ namespace CS4760GrantApplication.Data
         public DbSet<GrantAttachment> GrantAttachments { get; set; } = default!;
         public DbSet<BudgetItem> BudgetItems { get; set; } = default!;
         public DbSet<Allocation> Allocations { get; set; } = default!;
+        public DbSet<Review> Reveiws { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

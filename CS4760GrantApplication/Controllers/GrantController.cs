@@ -4,6 +4,7 @@ using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography.Xml;
 
@@ -44,13 +45,13 @@ namespace CS4760GrantApplication.Controllers
                 })
                 .ToList();
 
-            vm.Colleges = _context.Colleges.
-                Select(c => new SelectListItem
+            vm.Colleges = _context.Colleges
+                .Select(c => new SelectListItem
                 {
                     Value = c.Id.ToString(),
                     Text = c.Name
-                }
-                ).ToList();
+                })
+                .ToList();
 
             return View(vm);
         }
@@ -73,8 +74,8 @@ namespace CS4760GrantApplication.Controllers
             {
                 ModelState.AddModelError("approvalFile", "An approval file is required when human or animal subjects are involved.");
             }
-            if (!vm.isMultipleDepartments &&
-                vm.SelectedDepartmentIds.Count > 1)
+
+            if (!vm.isMultipleDepartments && vm.SelectedDepartmentIds.Count > 1)
             {
                 ModelState.AddModelError(
                     nameof(vm.SelectedDepartmentIds),
@@ -100,8 +101,7 @@ namespace CS4760GrantApplication.Controllers
                 }
             }
 
-            // signature should be inputted right before submission, not when saved
-            if(vm.IsSaved)
+            if (vm.IsSaved)
             {
                 ModelState.Remove("Signature");
             }
@@ -109,12 +109,12 @@ namespace CS4760GrantApplication.Controllers
             if (!ModelState.IsValid)
             {
                 vm.Departments = _context.Departments
-                     .Select(d => new SelectListItem
-                     {
-                         Value = d.Id.ToString(),
-                         Text = d.DepartmentName
-                     })
-                     .ToList();
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.Id.ToString(),
+                        Text = d.DepartmentName
+                    })
+                    .ToList();
 
                 vm.Users = _context.Users
                     .Select(u => new SelectListItem
@@ -124,110 +124,106 @@ namespace CS4760GrantApplication.Controllers
                     })
                     .ToList();
 
-                vm.Colleges = _context.Colleges.
-                    Select(c => new SelectListItem
+                vm.Colleges = _context.Colleges
+                    .Select(c => new SelectListItem
                     {
                         Value = c.Id.ToString(),
                         Text = c.Name
-                    }
-                    ).ToList();
+                    })
+                    .ToList();
 
                 return View(vm);
             }
 
-            if (ModelState.IsValid)
+            var grant = new Grant
             {
-                var grant = new Grant
-                {
-                    Title = vm.Title,
-                    Description = vm.Description,
-                    ProjectSummary = vm.ProjectSummary,
-                    Justification = vm.Justification,
-                    ProjectImpact = vm.ProjectImpact,
-                    ProjectTimeline = vm.ProjectTimeline,
-                    SuccessEvaluation = vm.SuccessEvaluation,
-                    isMultipleDepartments = vm.isMultipleDepartments,
-                    InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects,
-                    UserId = vm.UserId,
-                    CollegeId = vm.CollegeId,
-                    IsSaved = vm.IsSaved,
-                    Acknowledgement1 = vm.Acknowledgement1,
-                    Acknowledgement2 = vm.Acknowledgement2,
-                    Acknowledgement3 = vm.Acknowledgement3,
-                    Acknowledgement4 = vm.Acknowledgement4,
-                    Signature = vm.Signature == null ? "" : vm.Signature,
-                    SignatureDate = vm.SignatureDate
-                };
+                Title = vm.Title,
+                Description = vm.Description,
+                ProjectSummary = vm.ProjectSummary,
+                Justification = vm.Justification,
+                ProjectImpact = vm.ProjectImpact,
+                ProjectTimeline = vm.ProjectTimeline,
+                SuccessEvaluation = vm.SuccessEvaluation,
+                isMultipleDepartments = vm.isMultipleDepartments,
+                InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects,
+                HasAbroadSupport = vm.HasAbroadSupport,
+                Dissemination = vm.Dissemination,
+                UserId = vm.UserId,
+                CollegeId = vm.CollegeId,
+                IsSaved = vm.IsSaved,
+                Acknowledgement1 = vm.Acknowledgement1,
+                Acknowledgement2 = vm.Acknowledgement2,
+                Acknowledgement3 = vm.Acknowledgement3,
+                Acknowledgement4 = vm.Acknowledgement4,
+                Signature = vm.Signature ?? "",
+                SignatureDate = vm.SignatureDate
+            };
 
-                grant.Departments = await _context.Departments.Where(
-                    d => vm.SelectedDepartmentIds.Contains(d.Id)
-                    ).ToListAsync();
+            grant.Departments = await _context.Departments
+                .Where(d => vm.SelectedDepartmentIds.Contains(d.Id))
+                .ToListAsync();
 
+            _context.Add(grant);
+            await _context.SaveChangesAsync();
 
-                _context.Add(grant);
-                await _context.SaveChangesAsync();
+            string uploadFolder = Path.Combine(_environment.WebRootPath, "uploads");
 
-                string uploadFolder = Path.Combine(_environment.WebRootPath, "uploads");
-
-                if (!Directory.Exists(uploadFolder))
-                {
-                    Directory.CreateDirectory(uploadFolder);
-                }
-
-                if (attachments != null)
-                {
-                    foreach (var file in attachments)
-                    {
-                        if (file.Length > 0)
-                        {
-                            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
-                            string filePath = Path.Combine(uploadFolder, uniqueFileName);
-
-                            using (var fileStream = new FileStream(filePath, FileMode.Create))
-                            {
-                                await file.CopyToAsync(fileStream);
-                            }
-
-                            var grantAttachment = new GrantAttachment
-                            {
-                                GrantId = grant.Id,
-                                FileName = file.FileName,
-                                FilePath = "/uploads/" + uniqueFileName,
-                                IsApprovalFile = false
-                            };
-
-                            _context.GrantAttachments.Add(grantAttachment);
-                        }
-                    }
-                }
-
-                if (approvalFile != null && approvalFile.Length > 0)
-                {
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(approvalFile.FileName);
-                    string filePath = Path.Combine(uploadFolder, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await approvalFile.CopyToAsync(fileStream);
-                    }
-
-                    var approvalAttachment = new GrantAttachment
-                    {
-                        GrantId = grant.Id,
-                        FileName = approvalFile.FileName,
-                        FilePath = "/uploads/" + uniqueFileName,
-                        IsApprovalFile = true
-                    };
-
-                    _context.GrantAttachments.Add(approvalAttachment);
-                }
-
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("Index", "Dashboard");
+            if (!Directory.Exists(uploadFolder))
+            {
+                Directory.CreateDirectory(uploadFolder);
             }
 
-            return View(vm);
+            if (attachments != null)
+            {
+                foreach (var file in attachments)
+                {
+                    if (file.Length > 0)
+                    {
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+                        string filePath = Path.Combine(uploadFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(fileStream);
+                        }
+
+                        var grantAttachment = new GrantAttachment
+                        {
+                            GrantId = grant.Id,
+                            FileName = file.FileName,
+                            FilePath = "/uploads/" + uniqueFileName,
+                            IsApprovalFile = false
+                        };
+
+                        _context.GrantAttachments.Add(grantAttachment);
+                    }
+                }
+            }
+
+            if (approvalFile != null && approvalFile.Length > 0)
+            {
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(approvalFile.FileName);
+                string filePath = Path.Combine(uploadFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await approvalFile.CopyToAsync(fileStream);
+                }
+
+                var approvalAttachment = new GrantAttachment
+                {
+                    GrantId = grant.Id,
+                    FileName = approvalFile.FileName,
+                    FilePath = "/uploads/" + uniqueFileName,
+                    IsApprovalFile = true
+                };
+
+                _context.GrantAttachments.Add(approvalAttachment);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
         }
 
         // GET: e.g.: Grant/Edit/5
@@ -249,14 +245,13 @@ namespace CS4760GrantApplication.Controllers
                 return NotFound();
             }
 
-            // Retrieve attached files associated with this grant
             var attachments = await _context.GrantAttachments
                 .Where(ga => ga.GrantId == grant.Id)
                 .ToListAsync();
 
             var budgetItems = await _context.BudgetItems
-            .Where(b => b.GrantId == grant.Id)
-            .ToListAsync();
+                .Where(b => b.GrantId == grant.Id)
+                .ToListAsync();
 
             var vm = new CreateGrantViewModel
             {
@@ -272,9 +267,10 @@ namespace CS4760GrantApplication.Controllers
                 isMultipleDepartments = grant.isMultipleDepartments,
                 UserId = grant.UserId,
                 InvolvesHumanOrAnimalSubjects = grant.InvolvesHumanOrAnimalSubjects,
+                HasAbroadSupport = grant.HasAbroadSupport,
+                Dissemination = grant.Dissemination,
                 IsSaved = grant.IsSaved,
-                Attachments = attachments, // Include attachments in the view model
-
+                Attachments = attachments,
                 SelectedDepartmentIds = grant.Departments
                     .Select(d => d.Id)
                     .ToList()
@@ -324,7 +320,6 @@ namespace CS4760GrantApplication.Controllers
 
             var resultingFileCount = (existingRegularCount - removedRegularCount) + incomingRegularCount;
 
-            // Enforce limit of 3
             if (resultingFileCount > 3)
             {
                 ModelState.AddModelError("attachments", "You can only have up to 3 attached files.");
@@ -356,7 +351,6 @@ namespace CS4760GrantApplication.Controllers
                 }
             }
 
-            // signature should be inputted right before submission, not when saved
             if (vm.IsSaved)
             {
                 ModelState.Remove("Signature");
@@ -388,9 +382,11 @@ namespace CS4760GrantApplication.Controllers
                 .Include(g => g.Departments)
                 .FirstOrDefaultAsync(g => g.Id == id);
 
-            if (grant == null) return NotFound();
+            if (grant == null)
+            {
+                return NotFound();
+            }
 
-            // Update scalar properties
             grant.Title = vm.Title;
             grant.Description = vm.Description;
             grant.ProjectSummary = vm.ProjectSummary;
@@ -401,12 +397,14 @@ namespace CS4760GrantApplication.Controllers
             grant.isMultipleDepartments = vm.isMultipleDepartments;
             grant.UserId = vm.UserId;
             grant.InvolvesHumanOrAnimalSubjects = vm.InvolvesHumanOrAnimalSubjects;
+            grant.HasAbroadSupport = vm.HasAbroadSupport;
+            grant.Dissemination = vm.Dissemination;
             grant.IsSaved = vm.IsSaved;
             grant.Acknowledgement1 = vm.Acknowledgement1;
             grant.Acknowledgement2 = vm.Acknowledgement2;
             grant.Acknowledgement3 = vm.Acknowledgement3;
             grant.Acknowledgement4 = vm.Acknowledgement4;
-            grant.Signature = vm.Signature == null ? "" : vm.Signature;
+            grant.Signature = vm.Signature ?? "";
             grant.SignatureDate = vm.SignatureDate;
 
             grant.Departments = await _context.Departments
@@ -416,28 +414,31 @@ namespace CS4760GrantApplication.Controllers
             try
             {
                 string uploadFolder = Path.Combine(_environment.WebRootPath, "uploads");
-                if (!Directory.Exists(uploadFolder)) Directory.CreateDirectory(uploadFolder);
 
-                // 1. Process Removals
+                if (!Directory.Exists(uploadFolder))
+                {
+                    Directory.CreateDirectory(uploadFolder);
+                }
+
                 if (vm.AttachmentsToRemove != null && vm.AttachmentsToRemove.Any())
                 {
-                    var filesToDelete = existingAttachments.Where(ga => vm.AttachmentsToRemove.Contains(ga.Id)).ToList();
+                    var filesToDelete = existingAttachments
+                        .Where(ga => vm.AttachmentsToRemove.Contains(ga.Id))
+                        .ToList();
 
                     foreach (var file in filesToDelete)
                     {
-                        // Remove from filesystem
                         string physicalPath = Path.Combine(_environment.WebRootPath, file.FilePath.TrimStart('/'));
+
                         if (System.IO.File.Exists(physicalPath))
                         {
                             System.IO.File.Delete(physicalPath);
                         }
 
-                        // Remove from DB
                         _context.GrantAttachments.Remove(file);
                     }
                 }
 
-                // 2. Process New Incoming Files
                 if (attachments != null)
                 {
                     foreach (var file in attachments)
@@ -486,7 +487,11 @@ namespace CS4760GrantApplication.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!GrantExists(id)) return NotFound();
+                if (!GrantExists(id))
+                {
+                    return NotFound();
+                }
+
                 throw;
             }
 
@@ -554,6 +559,106 @@ namespace CS4760GrantApplication.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Edit", new { id = vm.GrantId });
+        }
+
+        [HttpGet]
+        [DeptChair]
+        public async Task<IActionResult> DeptReview(int id)
+        {
+            var grant = await _context.Grants
+                .Include(g => g.User)
+                .Include(g => g.College)
+                .Include(g => g.Departments)
+                .Include(g => g.Attachments)
+                .Include(g => g.BudgetItems)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (grant == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new DeptReviewViewModel
+            {
+                Grant = grant,
+                Notes = grant.DeptReviewNotes,
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [SessionAuthorize]
+        [DeptChair]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeptApprove(int id, string DeptReviewNotes)
+        {
+            var grant = await _context.Grants.FindAsync(id);
+
+            if (grant == null)
+            {
+                return NotFound();
+            }
+
+            grant.DeptReviewStatus = true;
+            grant.Status = GrantStatus.ApprovedByDeptChair;
+            grant.DeptReviewNotes = DeptReviewNotes ?? string.Empty;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        [HttpPost]
+        [SessionAuthorize]
+        [DeptChair]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeptReject(int id, string DeptReviewNotes)
+        {
+            var grant = await _context.Grants.FindAsync(id);
+
+            if (grant == null)
+            {
+                return NotFound();
+            }
+
+            grant.DeptReviewStatus = false;
+            grant.DeptReviewNotes = DeptReviewNotes ?? string.Empty;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        public async Task<IActionResult> DownloadAttachment(int id)
+        {
+            var attachment = await _context.GrantAttachments
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (attachment == null)
+            {
+                return NotFound();
+            }
+
+            var relativePath = attachment.FilePath.TrimStart('/', '\\');
+
+            var fullPath = Path.Combine(_environment.WebRootPath, relativePath);
+
+            if (!System.IO.File.Exists(fullPath))
+            {
+                return NotFound();
+            }
+
+            var provider = new FileExtensionContentTypeProvider();
+
+            if (!provider.TryGetContentType(fullPath, out string? contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            var bytes = await System.IO.File.ReadAllBytesAsync(fullPath);
+
+            return File(bytes, contentType, Path.GetFileName(fullPath));
         }
 
         private bool GrantExists(int id)

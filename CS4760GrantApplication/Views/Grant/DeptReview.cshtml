@@ -1,0 +1,311 @@
+@model CS4760GrantApplication.ViewModels.DeptReviewViewModel
+@{
+    ViewData["Title"] = "Review Grant";
+
+    // Option 3 - Access ID directly from route
+    var grantId = Context.Request.RouteValues["id"];
+}
+
+<div class="container mt-4">
+    <h2>Grant Review</h2>
+
+    <div class="alert alert-info">
+        Reviewing Grant ID: <strong>@grantId</strong>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            General Information
+        </div>
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="fw-bold">Title</label>
+                <div>@Model.Grant.Title</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Description</label>
+                <div>@Model.Grant.Description</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Project Summary</label>
+                <div>@Model.Grant.ProjectSummary</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Justification</label>
+                <div>@Model.Grant.Justification</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Project Impact</label>
+                <div>@Model.Grant.ProjectImpact</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Project Timeline</label>
+                <div>@Model.Grant.ProjectTimeline</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Success Evaluation</label>
+                <div>@Model.Grant.SuccessEvaluation</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Dissemination</label>
+                <div>@Model.Grant.Dissemination</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Organization Information
+        </div>
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="fw-bold">Multiple Departments</label>
+                <div>@(Model.Grant.isMultipleDepartments ? "Yes" : "No")</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">College</label>
+                <div>@Model.Grant.College?.Name</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">User</label>
+                <div>@Model.Grant.User?.FirstName @Model.Grant.User?.LastName</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Compliance
+        </div>
+        <div class="card-body">
+
+            <div class="mb-2">
+                <strong>Human or Animal Subjects:</strong>
+                @(Model.Grant.InvolvesHumanOrAnimalSubjects ? "Yes" : "No")
+            </div>
+
+            <div class="mb-2">
+                <strong>International Support:</strong>
+                @(Model.Grant.HasAbroadSupport ? "Yes" : "No")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 1:</strong>
+                @(Model.Grant.Acknowledgement1 ? "Accepted" : "Not Accepted")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 2:</strong>
+                @(Model.Grant.Acknowledgement2 ? "Accepted" : "Not Accepted")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 3:</strong>
+                @(Model.Grant.Acknowledgement3 ? "Accepted" : "Not Accepted")
+            </div>
+
+            <div class="mb-2">
+                <strong>Acknowledgement 4:</strong>
+                @(Model.Grant.Acknowledgement4 ? "Accepted" : "Not Accepted")
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Signature
+        </div>
+        <div class="card-body">
+
+            <div class="mb-2">
+                <strong>Signature:</strong>
+                @Model.Grant.Signature
+            </div>
+
+            <div class="mb-2">
+                <strong>Signature Date:</strong>
+                @Model.Grant.SignatureDate.ToString("MM/dd/yyyy")
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Status Information
+        </div>
+        <div class="card-body">
+
+            <div class="mb-2">
+                <strong>Draft Saved:</strong>
+                @(Model.Grant.IsSaved ? "No" : "Yes")
+            </div>
+
+            <div class="mb-2">
+                <strong>Department Review Status:</strong>
+                @(Model.Grant.DeptReviewStatus == null
+                    ? "Pending"
+                    : Model.Grant.DeptReviewStatus.Value
+                        ? "Approved"
+                        : "Rejected")
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Departments
+        </div>
+        <div class="card-body">
+
+            @if (Model.Grant.Departments.Any())
+            {
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var dept in Model.Grant.Departments)
+                        {
+                            <tr>
+                                <td>@dept.DepartmentName</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No departments assigned.</p>
+            }
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Budget Items
+        </div>
+        <div class="card-body">
+
+            @if (Model.Grant.BudgetItems.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Funding Source</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Grant.BudgetItems)
+                        {
+                            <tr>
+                                <td>@item.Description</td>
+                                <td>@item.FundingSource</td>
+                                <td>@item.Amount.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No budget items.</p>
+            }
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Attachments
+        </div>
+        <div class="card-body">
+
+            @if (Model.Grant.Attachments.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Type</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var attachment in Model.Grant.Attachments)
+                        {
+                            <tr>
+                                <td>@attachment.FileName</td>
+                                <td>
+                                    @(attachment.IsApprovalFile
+                                        ? "Approval Document"
+                                        : "Supporting Document")
+                                </td>
+                                <td>
+                                    <a asp-controller="Grant"
+                                           asp-action="DownloadAttachment"
+                                           asp-route-id="@attachment.Id"
+                                           class="btn btn-primary btn-sm">
+                                        Download
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No attachments uploaded.</p>
+            }
+
+        </div>
+    </div>
+
+</div>
+
+<hr class="my-5" />
+
+<form asp-action="DeptReview" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label class="form-label fw-bold">
+            Notes
+        </label>
+
+        <textarea name="DeptReviewNotes"
+                  class="form-control"
+                  rows="5">@Model.Notes</textarea>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" formaction="@Url.Action("DeptApprove", "Grant", new { id = Model.Grant.Id })" class="btn btn-warning">
+            Approve
+        </button>
+
+        <button type="submit" formaction="@Url.Action("DeptReject", "Grant", new { id = Model.Grant.Id })" class="btn btn-danger">
+            Reject
+        </button>
+
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+    </div>
+</form>

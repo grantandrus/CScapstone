@@ -63,6 +63,15 @@ namespace CS4760GrantApplication.Controllers
 
                 _context.Add(department);
                 await _context.SaveChangesAsync();
+
+                var user = _context.Users.Find(newDepartment.ChairId);
+                if (user != null)
+                {
+                    user.IsDepartmentChair = true;
+                    // Redundant but makes sure that user's department is correct
+                    user.DepartmentId = department.Id;
+                    await _context.SaveChangesAsync();
+                }
                 return RedirectToAction("Index", "Home");
             }
 
@@ -85,7 +94,7 @@ namespace CS4760GrantApplication.Controllers
             if (department == null)
                 return NotFound();
 
-            var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
+            var users = _context.Users.Where(u => u.DepartmentId == id).Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
             ViewData["Chairs"] = new SelectList(users, "Id", "FullName", department.ChairId);
             ViewData["Colleges"] = new SelectList(_context.Colleges.ToList(), "Id", "Name", department.CollegeId);
 
@@ -118,6 +127,26 @@ namespace CS4760GrantApplication.Controllers
 
             await _context.SaveChangesAsync();
 
+            var currentChair = await _context.Users
+                .FirstOrDefaultAsync(u => u.IsDepartmentChair && u.DepartmentId == department.Id);
+            if (currentChair != null && currentChair.Id != viewModel.ChairId)
+            {
+                currentChair.IsDepartmentChair = false;
+            }
+
+            if (viewModel.ChairId.HasValue)
+            {
+                var newChair = await _context.Users.FindAsync(viewModel.ChairId.Value);
+                if (newChair != null)
+                {
+                    newChair.IsDepartmentChair = true;
+                    // Redundant but makes sure that user's department is correct
+                    newChair.DepartmentId = department.Id;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -138,6 +167,14 @@ namespace CS4760GrantApplication.Controllers
             var department = await _context.Departments.FindAsync(id);
             if (department != null)
             {
+                var deptChair = await _context.Users
+                    .FirstOrDefaultAsync(u => u.IsDepartmentChair && u.DepartmentId == id);
+
+                if (deptChair != null)
+                {
+                    deptChair.IsDepartmentChair = false;
+                }
+
                 _context.Departments.Remove(department);
                 await _context.SaveChangesAsync();
             }

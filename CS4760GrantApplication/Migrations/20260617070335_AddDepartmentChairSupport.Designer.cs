@@ -4,6 +4,7 @@ using CS4760GrantApplication.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CS4760GrantApplication.Migrations
 {
     [DbContext(typeof(CS4760GrantApplicationContext))]
-    partial class CS4760GrantApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260617070335_AddDepartmentChairSupport")]
+    partial class AddDepartmentChairSupport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -159,10 +162,6 @@ namespace CS4760GrantApplication.Migrations
                     b.Property<int?>("CollegeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("DeptReviewNotes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool?>("DeptReviewStatus")
                         .HasColumnType("bit");
 
@@ -170,13 +169,6 @@ namespace CS4760GrantApplication.Migrations
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("Dissemination")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("HasAbroadSupport")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("InvolvesHumanOrAnimalSubjects")
                         .HasColumnType("bit");
@@ -208,9 +200,6 @@ namespace CS4760GrantApplication.Migrations
 
                     b.Property<DateTime>("SignatureDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<string>("SuccessEvaluation")
                         .IsRequired()
@@ -290,33 +279,6 @@ namespace CS4760GrantApplication.Migrations
                     b.HasIndex("RubricCriterionId");
 
                     b.ToTable("RatingSuggestions");
-                });
-
-            modelBuilder.Entity("CS4760GrantApplication.Models.Review", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("AverageScore")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("GrantId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GrantId")
-                        .IsUnique();
-
-                    b.ToTable("Reveiws");
                 });
 
             modelBuilder.Entity("CS4760GrantApplication.Models.RubricCriterion", b =>
@@ -486,17 +448,6 @@ namespace CS4760GrantApplication.Migrations
                         .HasForeignKey("RubricCriterionId");
                 });
 
-            modelBuilder.Entity("CS4760GrantApplication.Models.Review", b =>
-                {
-                    b.HasOne("CS4760GrantApplication.Models.Grant", "Grant")
-                        .WithOne("Review")
-                        .HasForeignKey("CS4760GrantApplication.Models.Review", "GrantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Grant");
-                });
-
             modelBuilder.Entity("CS4760GrantApplication.Models.User", b =>
                 {
                     b.HasOne("CS4760GrantApplication.Models.College", "College")
@@ -539,8 +490,6 @@ namespace CS4760GrantApplication.Migrations
                     b.Navigation("Attachments");
 
                     b.Navigation("BudgetItems");
-
-                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("CS4760GrantApplication.Models.RubricCriterion", b =>

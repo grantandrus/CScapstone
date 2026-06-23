@@ -6,15 +6,17 @@
 }
 
 <h1>Edit Grant Request</h1>
-<div class="text-secondary">Opened at: @DateTime.Now</div>
-<div class="row">
-    <div class="col-md-6">
+<div class="text-secondary mb-4">Opened at: @DateTime.Now</div>
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8 shadow-sm p-4 bg-white rounded border mb-5">
         <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="UserId" />
             <input type="hidden" asp-for="IsSaved" />
+
+            <h4 class="text-primary mt-2 mb-3 border-bottom pb-2">General Information</h4>
 
             <div class="form-group mb-3">
                 <label asp-for="Title" class="control-label"></label>
@@ -58,15 +60,21 @@
                 <span asp-validation-for="SuccessEvaluation" class="text-danger"></span>
             </div>
 
+<<<<<<< HEAD
             <hr />
 
             <h3>Budget Worksheet</h3>
+=======
+            <h4 class="text-primary mt-4 mb-3 border-bottom pb-2">Budget Items</h4>
+>>>>>>> origin/main
 
             <a asp-action="BudgetWorksheet"
                asp-route-id="@Model.Id"
                class="btn btn-outline-primary mb-3">
                 Open Budget Worksheet
             </a>
+
+            <h4 class="text-primary mt-4 mb-3 border-bottom pb-2">Organization Information</h4>
 
             <div class="form-check mb-3">
                 <input asp-for="isMultipleDepartments" class="form-check-input" />
@@ -93,6 +101,8 @@
                 <span asp-validation-for="UserId"
                       class="text-danger"></span>
             </div>
+
+            <h4 class="text-primary mt-4 mb-3 border-bottom pb-2">Compliance & Attachments</h4>
 
             <div class="form-group mb-3">
                 <label class="control-label">Attachments (up to 3 files)</label>
@@ -142,6 +152,19 @@
                 </label>
             </div>
 
+            <div class="form-group mb-3 form-check">
+                <input asp-for="HasAbroadSupport" class="form-check-input" />
+                <label asp-for="HasAbroadSupport" class="form-check-label">
+                    Does this grant have international support?
+                </label>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Dissemination" class="control-label"></label>
+                <textarea asp-for="Dissemination" class="form-control"></textarea>
+                <span asp-validation-for="Dissemination" class="text-danger"></span>
+            </div>
+
             <div class="form-group mb-3">
                 <label class="control-label">Approval File</label>
 
@@ -168,6 +191,8 @@
 
                 <span class="text-danger">@Html.ValidationMessage("approvalFile")</span>
             </div>
+
+            <hr class="mt-4 mb-4" />
 
             <div class="form-group">
                 <button type="button"

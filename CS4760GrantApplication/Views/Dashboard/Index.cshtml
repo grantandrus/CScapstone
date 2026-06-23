@@ -1,8 +1,9 @@
-﻿@model IEnumerable<CS4760GrantApplication.Models.Grant>
+﻿@model CS4760GrantApplication.ViewModels.DashboardViewModel
 
 @{
     ViewData["Title"] = "Dashboard";
 }
+<h2>Your Grants</h2>
 
 <table class="table">
     <thead>
@@ -32,12 +33,15 @@
                 Department Name
             </th>
             <th>
+                Status
+            </th>
+            <th>
                 Actions
             </th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.MyGrants)
         {
             <tr>
                 <td>
@@ -79,10 +83,19 @@
                 <td>
                     @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
                 </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
                 @if (item.IsSaved)
                 {
                     <td>
                         <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">Edit</button>
+                    </td>
+                }
+                else
+                {
+                    <td>
+
                     </td>
                 }
             </tr>
@@ -91,7 +104,127 @@
 </table>
 
 <button type="button"
-    class="btn btn-primary" 
-    onclick="location.href='@Url.Action("Create", "Grant")'">
+        class="btn btn-primary"
+        onclick="location.href='@Url.Action("Create", "Grant")'">
     Create Grant
 </button>
+
+@if (Model.IsDeptChair)
+{
+    <br />
+    <h2>Department Grants</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Grant Title
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Project Summary
+                </th>
+                <th>
+                    Justification
+                </th>
+                <th>
+                    Project Impact
+                </th>
+                <th>
+                    Multiple Departments
+                </th>
+                <th>
+                    College
+                </th>
+                <th>
+                    Department Name
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Dept. Review
+                </th>
+                <th>
+                    Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.DepartmentGrants)
+            {
+                <tr>
+                    <td>
+                        @item.Title
+                    </td>
+                    <td>
+                        @item.Description
+                    </td>
+                
+                    <td>
+                        @item.ProjectSummary
+                    </td>
+                
+                    <td>
+                        @item.Justification
+                    </td>
+                
+                    <td>
+                        @item.ProjectImpact
+                    </td>
+                
+                    <td>
+                        @item.isMultipleDepartments
+                    </td>
+               
+                    @if (item.College == null)
+                    {
+                        <td>
+                            None
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            @item.College.Name
+                        </td>
+                    }
+                
+                    <td>
+                        @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+
+                    @if (item.DeptReviewStatus == null)
+                    {
+                        <td>
+                            Not reviewed
+                        </td>
+                    }
+                    else if (item.DeptReviewStatus == true)
+                    {
+                        <td>
+                            Approved
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            Rejected
+                        </td>
+                    }
+
+                    <td>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("DeptReview", "Grant", new { id = item.Id })'">Review</button>
+                    </td>
+                
+                </tr>
+            }
+        </tbody>
+    </table>
+}
