@@ -228,3 +228,123 @@
         </tbody>
     </table>
 }
+
+@if (Model.IsCollegeDean)
+{
+    <br />
+    <h2>Grants Requesting College Funding</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Grant Title
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Project Summary
+                </th>
+                <th>
+                    Justification
+                </th>
+                <th>
+                    Project Impact
+                </th>
+                <th>
+                    Multiple Departments
+                </th>
+                <th>
+                    College
+                </th>
+                <th>
+                    Department Name
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    College Review
+                </th>
+                <th>
+                    Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CollegeGrants)
+            {
+                <tr>
+                    <td>
+                        @item.Title
+                    </td>
+                    <td>
+                        @item.Description
+                    </td>
+
+                    <td>
+                        @item.ProjectSummary
+                    </td>
+
+                    <td>
+                        @item.Justification
+                    </td>
+
+                    <td>
+                        @item.ProjectImpact
+                    </td>
+
+                    <td>
+                        @item.isMultipleDepartments
+                    </td>
+
+                    @if (item.College == null)
+                    {
+                        <td>
+                            None
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            @item.College.Name
+                        </td>
+                    }
+
+                    <td>
+                        @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+
+                    @if (item.CollegeReviewStatus == null)
+                    {
+                        <td>
+                            Not reviewed
+                        </td>
+                    }
+                    else if (item.CollegeReviewStatus == true)
+                    {
+                        <td>
+                            Approved
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            Rejected
+                        </td>
+                    }
+
+                    <td>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("CollegeReview", "Grant", new { id = item.Id })'">Review</button>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}

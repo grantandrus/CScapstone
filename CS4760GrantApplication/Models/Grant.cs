@@ -52,6 +52,8 @@ namespace CS4760GrantApplication.Models
         public DateTime SignatureDate { get; set; }
         public bool? DeptReviewStatus { get; set; }
         public string DeptReviewNotes { get; set; } = string.Empty;
+        public bool? CollegeReviewStatus { get; set; }
+        public string CollegeReviewNotes { get; set; } = string.Empty;
 
         public GrantStatus Status { get; set; } = GrantStatus.Saved;
     }

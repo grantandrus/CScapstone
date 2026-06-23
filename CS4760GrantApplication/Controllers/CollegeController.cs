@@ -49,8 +49,15 @@ namespace CS4760GrantApplication.Controllers
                 if (newCollege.DeanId.HasValue)
                 {
                     college.Dean = await _context.Users.FindAsync(newCollege.DeanId.Value);
+                    if (college.Dean != null) college.Dean.IsCollegeDean = true;
                 }
                 college.Name = newCollege.Name;
+
+                if (college.Dean != null)
+                {
+                    college.Dean.IsCollegeDean = true;
+                    college.Dean.CollegeId = college.Id;
+                }
 
                 _context.Add(college);
                 await _context.SaveChangesAsync();
@@ -100,6 +107,23 @@ namespace CS4760GrantApplication.Controllers
 
             college.Name = viewModel.Name;
             college.DeanId = viewModel.DeanId;
+
+            var currentDean = await _context.Users
+                .FirstOrDefaultAsync(u => u.IsCollegeDean && u.CollegeId == college.Id);
+            if (currentDean != null && currentDean.Id != viewModel.DeanId)
+            {
+                currentDean.IsCollegeDean = false;
+            }
+
+            if (viewModel.DeanId.HasValue)
+            {
+                var newDean = await _context.Users.FindAsync(viewModel.DeanId.Value);
+                if (newDean != null)
+                {
+                    newDean.IsCollegeDean = true;
+                    newDean.CollegeId = college.Id;
+                }
+            }
 
             await _context.SaveChangesAsync();
 

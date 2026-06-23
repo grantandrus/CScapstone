@@ -24,6 +24,7 @@ namespace CS4760GrantApplication.Models
         public bool IsCommitteeChair { get; set; } = false;
         public int? CollegeId { get; set; }
         public College? College { get; set; }
+        public bool IsCollegeDean { get; set; } = false;
         public int? DepartmentId { get; set; }
         public Department? Department { get; set; }
         public bool IsDepartmentChair { get; set; } = false;

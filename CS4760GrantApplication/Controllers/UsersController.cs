@@ -71,6 +71,7 @@ namespace CS4760GrantApplication.Controllers
             HttpContext.Session.SetString("Name", $"{user.FirstName} {user.LastName}");
             HttpContext.Session.SetString("IsCommitteeChair", user.IsCommitteeChair ? "True" : "False");
             HttpContext.Session.SetString("IsDeptChair", user.IsDepartmentChair ? "True" : "False");
+            HttpContext.Session.SetString("IsCollegeDean", user.IsCollegeDean ? "True" : "False");
 
             return RedirectToAction("Index", "Home");
         }

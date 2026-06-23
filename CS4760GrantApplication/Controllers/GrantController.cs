@@ -630,6 +630,64 @@ namespace CS4760GrantApplication.Controllers
             return RedirectToAction("Index", "Dashboard");
         }
 
+        [HttpGet]
+        [SessionAuthorize]
+        [CollegeDean]
+        public async Task<IActionResult> CollegeReview(int id)
+        {
+            var grant = await _context.Grants
+                .Include(g => g.User)
+                .Include(g => g.College)
+                .Include(g => g.Departments)
+                .Include(g => g.Attachments)
+                .Include(g => g.BudgetItems)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (grant == null) return NotFound();
+
+            var viewModel = new CollegeReviewViewModel
+            {
+                Grant = grant,
+                Notes = grant.CollegeReviewNotes,
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [SessionAuthorize]
+        [CollegeDean]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CollegeApprove(int id, string CollegeReviewNotes)
+        {
+            var grant = await _context.Grants.FindAsync(id);
+            if (grant == null) return NotFound();
+
+            grant.CollegeReviewStatus = true;
+            //grant.Status = GrantStatus.ApprovedByCollegeDean;
+            grant.CollegeReviewNotes = CollegeReviewNotes ?? string.Empty;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        [HttpPost]
+        [SessionAuthorize]
+        [CollegeDean]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CollegeReject(int id, string CollegeReviewNotes)
+        {
+            var grant = await _context.Grants.FindAsync(id);
+            if (grant == null) return NotFound();
+
+            grant.CollegeReviewStatus = false;
+            //grant.Status = GrantStatus.ApprovedByCollegeDean;
+            grant.CollegeReviewNotes = CollegeReviewNotes ?? string.Empty;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
         public async Task<IActionResult> DownloadAttachment(int id)
         {
             var attachment = await _context.GrantAttachments
