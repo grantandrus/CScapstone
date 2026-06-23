@@ -167,18 +167,6 @@ namespace CS4760GrantApplication.Controllers
                 _context.Add(grant);
                 await _context.SaveChangesAsync();
 
-                foreach (var item in vm.BudgetItems)
-                {
-                    if (!string.IsNullOrWhiteSpace(item.Description) ||
-                        !string.IsNullOrWhiteSpace(item.ItemType) ||
-                        !string.IsNullOrWhiteSpace(item.FundingSource) ||
-                        item.Amount > 0)
-                    {
-                        item.GrantId = grant.Id;
-                        _context.BudgetItems.Add(item);
-                    }
-                }
-
                 string uploadFolder = Path.Combine(_environment.WebRootPath, "uploads");
 
                 if (!Directory.Exists(uploadFolder))
@@ -425,25 +413,6 @@ namespace CS4760GrantApplication.Controllers
                 .Where(d => vm.SelectedDepartmentIds.Contains(d.Id))
                 .ToListAsync();
 
-            var existingBudgetItems = await _context.BudgetItems
-                .Where(b => b.GrantId == grant.Id)
-                .ToListAsync();
-
-            _context.BudgetItems.RemoveRange(existingBudgetItems);
-
-            foreach (var item in vm.BudgetItems)
-            {
-                if (!string.IsNullOrWhiteSpace(item.Description) ||
-                    !string.IsNullOrWhiteSpace(item.ItemType) ||
-                    !string.IsNullOrWhiteSpace(item.FundingSource) ||
-                    item.Amount > 0)
-                {
-                    item.Id = 0;
-                    item.GrantId = grant.Id;
-                    _context.BudgetItems.Add(item);
-                }
-            }
-
             try
             {
                 string uploadFolder = Path.Combine(_environment.WebRootPath, "uploads");
@@ -522,6 +491,69 @@ namespace CS4760GrantApplication.Controllers
             }
 
             return RedirectToAction("Index", "Dashboard");
+        }
+
+        [HttpGet]
+        [SessionAuthorize]
+        public async Task<IActionResult> BudgetWorksheet(int id)
+        {
+            var grant = await _context.Grants
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (grant == null)
+            {
+                return NotFound();
+            }
+
+            var budgetItems = await _context.BudgetItems
+                .Where(b => b.GrantId == id)
+                .ToListAsync();
+
+            var vm = new BudgetWorksheetViewModel
+            {
+                GrantId = grant.Id,
+                GrantTitle = grant.Title,
+                BudgetItems = budgetItems
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [SessionAuthorize]
+        public async Task<IActionResult> BudgetWorksheet(BudgetWorksheetViewModel vm)
+        {
+            var grant = await _context.Grants
+                .FirstOrDefaultAsync(g => g.Id == vm.GrantId);
+
+            if (grant == null)
+            {
+                return NotFound();
+            }
+
+            var existingBudgetItems = await _context.BudgetItems
+                .Where(b => b.GrantId == vm.GrantId)
+                .ToListAsync();
+
+            _context.BudgetItems.RemoveRange(existingBudgetItems);
+
+            foreach (var item in vm.BudgetItems)
+            {
+                if (!string.IsNullOrWhiteSpace(item.Description) ||
+                    !string.IsNullOrWhiteSpace(item.ItemType) ||
+                    !string.IsNullOrWhiteSpace(item.FundingSource) ||
+                    item.Amount > 0)
+                {
+                    item.Id = 0;
+                    item.GrantId = vm.GrantId;
+                    _context.BudgetItems.Add(item);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Edit", new { id = vm.GrantId });
         }
 
         private bool GrantExists(int id)

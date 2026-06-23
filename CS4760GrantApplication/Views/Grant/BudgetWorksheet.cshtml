@@ -1,0 +1,141 @@
+﻿@model CS4760GrantApplication.ViewModels.BudgetWorksheetViewModel
+
+@{
+    ViewData["Title"] = "Budget Worksheet";
+}
+
+<h1>Budget Worksheet</h1>
+
+<h4>Grant: @Model.GrantTitle</h4>
+
+<form asp-action="BudgetWorksheet" method="post">
+    <input type="hidden" asp-for="GrantId" />
+
+    <div id="budget-items-container">
+        @for (int i = 0; i < Model.BudgetItems.Count; i++)
+        {
+            <div class="border rounded p-3 mb-3">
+                <h5>Budget Item @(i + 1)</h5>
+
+                <input type="hidden" asp-for="BudgetItems[i].Id" />
+                <input type="hidden" asp-for="BudgetItems[i].GrantId" />
+
+                <div class="form-group mb-2">
+                    <label>Description</label>
+                    <input asp-for="BudgetItems[i].Description" class="form-control" />
+                </div>
+
+                <div class="form-group mb-2">
+                    <label>Item Type</label>
+                    <select asp-for="BudgetItems[i].ItemType" class="form-control">
+                        <option value="">-- Select Type --</option>
+                        <option value="Hardware">Hardware</option>
+                        <option value="Software">Software</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-2">
+                    <label>Funding Source</label>
+                    <select asp-for="BudgetItems[i].FundingSource" class="form-control">
+                        <option value="">-- Select Funding Source --</option>
+                        <option value="ARCC">ARCC</option>
+                        <option value="College">College</option>
+                        <option value="Department">Department</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-2">
+                    <label>Amount</label>
+                    <input asp-for="BudgetItems[i].Amount"
+                           type="number"
+                           step="0.01"
+                           min="0"
+                           class="form-control" />
+                </div>
+            </div>
+        }
+    </div>
+
+    <button type="button" id="add-budget-item" class="btn btn-outline-primary mb-3">
+        Add Budget Item
+    </button>
+
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">
+            Save Budget Worksheet
+        </button>
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.GrantId"
+           class="btn btn-secondary">
+            Back to Grant
+        </a>
+    </div>
+</form>
+
+<hr />
+
+<h4>Totals</h4>
+
+<ul>
+    <li><strong>Total Requested:</strong> @Model.TotalRequested.ToString("C")</li>
+    <li><strong>ARCC:</strong> @Model.TotalFromARCC.ToString("C")</li>
+    <li><strong>College:</strong> @Model.TotalFromCollege.ToString("C")</li>
+    <li><strong>Department:</strong> @Model.TotalFromDepartment.ToString("C")</li>
+    <li><strong>Other:</strong> @Model.TotalFromOther.ToString("C")</li>
+</ul>
+
+<script>
+    let budgetIndex = @Model.BudgetItems.Count;
+
+    document.getElementById('add-budget-item').addEventListener('click', function () {
+        const container = document.getElementById('budget-items-container');
+
+        const html = `
+            <div class="border rounded p-3 mb-3">
+                <h5>Budget Item ${budgetIndex + 1}</h5>
+
+                <input type="hidden" name="BudgetItems[${budgetIndex}].Id" value="0" />
+                <input type="hidden" name="BudgetItems[${budgetIndex}].GrantId" value="@Model.GrantId" />
+
+                <div class="form-group mb-2">
+                    <label>Description</label>
+                    <input name="BudgetItems[${budgetIndex}].Description" class="form-control" />
+                </div>
+
+                <div class="form-group mb-2">
+                    <label>Item Type</label>
+                    <select name="BudgetItems[${budgetIndex}].ItemType" class="form-control">
+                        <option value="">-- Select Type --</option>
+                        <option value="Hardware">Hardware</option>
+                        <option value="Software">Software</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-2">
+                    <label>Funding Source</label>
+                    <select name="BudgetItems[${budgetIndex}].FundingSource" class="form-control">
+                        <option value="">-- Select Funding Source --</option>
+                        <option value="ARCC">ARCC</option>
+                        <option value="College">College</option>
+                        <option value="Department">Department</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-2">
+                    <label>Amount</label>
+                    <input name="BudgetItems[${budgetIndex}].Amount"
+                           type="number"
+                           step="0.01"
+                           min="0"
+                           class="form-control" />
+                </div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', html);
+        budgetIndex++;
+    });
+</script>
