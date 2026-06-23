@@ -531,6 +531,8 @@ namespace CS4760GrantApplication.Controllers
             return RedirectToAction("Index", "Dashboard");
         }
 
+        [HttpGet]
+        [DeptChair]
         public async Task<IActionResult> DeptReview(int id)
         {
             var grant = await _context.Grants
@@ -541,10 +543,49 @@ namespace CS4760GrantApplication.Controllers
                 .Include(g => g.BudgetItems)
                 .FirstOrDefaultAsync(g => g.Id == id);
 
-            if (grant == null)
-                return NotFound();
+            if (grant == null) return NotFound();
 
-            return View(grant);
+            var viewModel = new DeptReviewViewModel
+            {
+                Grant = grant,
+                Notes = grant.DeptReviewNotes,
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [SessionAuthorize]
+        [DeptChair]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeptApprove(int id, string DeptReviewNotes)
+        {
+            var grant = await _context.Grants.FindAsync(id);
+            if (grant == null) return NotFound();
+
+            grant.DeptReviewStatus = true;
+            grant.Status = GrantStatus.ApprovedByDeptChair;
+            grant.DeptReviewNotes = DeptReviewNotes ?? string.Empty;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        [HttpPost]
+        [SessionAuthorize]
+        [DeptChair]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeptReject(int id, string DeptReviewNotes)
+        {
+            var grant = await _context.Grants.FindAsync(id);
+            if (grant == null) return NotFound();
+
+            grant.DeptReviewStatus = false;
+            //grant.Status = GrantStatus.ApprovedByDeptChair;
+            grant.DeptReviewNotes = DeptReviewNotes ?? string.Empty;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
         }
 
         public async Task<IActionResult> DownloadAttachment(int id)
@@ -577,38 +618,6 @@ namespace CS4760GrantApplication.Controllers
                 fullPath);
 
             return File(bytes, contentType, fullPath);
-        }
-
-        [HttpPost]
-        [SessionAuthorize]
-        [DeptChair]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Approve(int id)
-        {
-            var grant = await _context.Grants.FindAsync(id);
-            if (grant == null) return NotFound();
-
-            grant.DeptReviewStatus = true;
-            grant.Status = GrantStatus.ApprovedByDeptChair;
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index", "Dashboard");
-        }
-
-        [HttpPost]
-        [SessionAuthorize]
-        [DeptChair]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reject(int id)
-        {
-            var grant = await _context.Grants.FindAsync(id);
-            if (grant == null) return NotFound();
-
-            grant.DeptReviewStatus = false;
-            grant.Status = GrantStatus.ReviewedByDeptChair;
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index", "Dashboard");
         }
 
         private bool GrantExists(int id)

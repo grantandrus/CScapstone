@@ -94,7 +94,7 @@ namespace CS4760GrantApplication.Controllers
             if (department == null)
                 return NotFound();
 
-            var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
+            var users = _context.Users.Where(u => u.DepartmentId == id).Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
             ViewData["Chairs"] = new SelectList(users, "Id", "FullName", department.ChairId);
             ViewData["Colleges"] = new SelectList(_context.Colleges.ToList(), "Id", "Name", department.CollegeId);
 
