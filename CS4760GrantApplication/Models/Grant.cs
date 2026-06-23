@@ -51,6 +51,7 @@ namespace CS4760GrantApplication.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime SignatureDate { get; set; }
         public bool? DeptReviewStatus { get; set; }
+        public string DeptReviewNotes { get; set; } = string.Empty;
 
         public GrantStatus Status { get; set; } = GrantStatus.Saved;
     }

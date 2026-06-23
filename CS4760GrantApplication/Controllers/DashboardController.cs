@@ -36,18 +36,15 @@ namespace CS4760GrantApplication.Controllers
             {
                 var user = await _context.Users.FindAsync(HttpContext.Session.GetInt32("UserID"));
 
-            
-
                 if (user?.DepartmentId != null)
-                { 
+                {
                     viewModel.DepartmentGrants = await _context.Grants
-                        .Include(g => g.Departments)
+                        .Include(g => g.User)
                         .Include(g => g.College)
-                        .Where(g => !g.IsSaved
-                            && g.Departments.Any(d => d.Id == user.DepartmentId))
+                        .Where(g => !g.IsSaved && g.User != null && g.User.DepartmentId == user.DepartmentId)
                         .ToListAsync();
                 }
-            }    
+            }
             return View(viewModel);
         }
     }
