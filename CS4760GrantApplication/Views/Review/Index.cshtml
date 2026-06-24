@@ -45,16 +45,22 @@
                     }
                     @total
                 </td>
-                @if (item.Review != null)
+                @if(item.Reviews.Count() != 0)
+                {
+                    @foreach (var review in item.Reviews)
+                    {
+                        @if (review != null)
+                        {
+                            <td>
+                                @review.AverageScore
+                            </td>
+                        }
+                    }
+                }else 
                 {
                     <td>
-                        @item.Review.AverageScore
+                        <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("ReviewGrant", "Review", new { id = item.Id })'">Review</button>
                     </td>
-                } else
-                {
-                <td>
-                    <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("ReviewGrant", "Review", new { id = item.Id })'">Review</button>
-                </td>
                 }
             </tr>
         }

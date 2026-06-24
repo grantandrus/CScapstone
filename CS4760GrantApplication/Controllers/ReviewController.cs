@@ -25,7 +25,7 @@ namespace CS4760GrantApplication.Controllers
         }
 
         public List<Grant> Grants = new();
-
+         
         [SessionAuthorize]
         public async Task<IActionResult> Index()
         {
@@ -33,7 +33,7 @@ namespace CS4760GrantApplication.Controllers
             Grants = await _context.Grants
                 .Include(g => g.BudgetItems)
                 .Include(g => g.User)
-                .Include(g => g.Review)
+                .Include(g => g.Reviews.Where(g => g.UserId == HttpContext.Session.GetInt32("UserID")))
                 .Where(g => !g.IsSaved)
                 .ToListAsync();
 
@@ -91,6 +91,7 @@ namespace CS4760GrantApplication.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateReview(Review review)
         {
+            review.UserId = HttpContext.Session.GetInt32("UserID");
             _context.Reveiws.Add(review);
             await _context.SaveChangesAsync();
 

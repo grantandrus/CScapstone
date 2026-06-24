@@ -4,6 +4,7 @@ using CS4760GrantApplication.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CS4760GrantApplication.Migrations
 {
     [DbContext(typeof(CS4760GrantApplicationContext))]
-    partial class CS4760GrantApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260624185410_UpdateReviewGrantRelationship")]
+    partial class UpdateReviewGrantRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -310,7 +313,7 @@ namespace CS4760GrantApplication.Migrations
                     b.Property<decimal>("AverageScore")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("GrantId")
+                    b.Property<int>("GrantId")
                         .HasColumnType("int");
 
                     b.Property<string>("Notes")
@@ -318,16 +321,14 @@ namespace CS4760GrantApplication.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserID")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GrantId");
 
-                    b.HasIndex("UserId", "GrantId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL AND [GrantId] IS NOT NULL");
+                    b.HasIndex("UserID");
 
                     b.ToTable("Reveiws");
                 });
@@ -506,11 +507,15 @@ namespace CS4760GrantApplication.Migrations
                 {
                     b.HasOne("CS4760GrantApplication.Models.Grant", "Grant")
                         .WithMany("Reviews")
-                        .HasForeignKey("GrantId");
+                        .HasForeignKey("GrantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("CS4760GrantApplication.Models.User", "User")
                         .WithMany("Reviews")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Grant");
 

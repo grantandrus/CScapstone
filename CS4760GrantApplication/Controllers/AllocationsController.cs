@@ -15,9 +15,46 @@ namespace CS4760GrantApplication.Controllers
             _context = context;
         }
 
+        public List<Grant> Grants = new();
+
         [SessionAuthorize]
         [HttpGet]
         public async Task<IActionResult> Index()
+        {
+            Grants = await _context.Grants
+                .Include(g => g.BudgetItems)
+                .Include(g => g.User)
+                .Include(g => g.Reviews)
+                .Where(g => !g.IsSaved)
+                .ToListAsync();
+
+            return View(Grants);
+
+        }
+
+        [SessionAuthorize]
+        [HttpGet]
+        public async Task<IActionResult> View(int id)
+        {
+            var grant = await _context.Grants
+                .Include(g => g.User)
+                .Include(g => g.College)
+                .Include(g => g.Departments)
+                .Include(g => g.Attachments)
+                .Include(g => g.BudgetItems)
+                .Include(g => g.Reviews)
+                    .ThenInclude(r => r.User)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (grant == null)
+                return NotFound();
+
+            return View(grant);
+        }
+
+        [SessionAuthorize]
+        [HttpGet]
+        public async Task<IActionResult> Create()
         {
             var allocation = await _context.Allocations.FirstOrDefaultAsync();
 
@@ -32,7 +69,7 @@ namespace CS4760GrantApplication.Controllers
         [SessionAuthorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(Allocation allocation)
+        public async Task<IActionResult> Create(Allocation allocation)
         {
             if (!ModelState.IsValid)
             {

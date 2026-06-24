@@ -25,6 +25,12 @@ namespace CS4760GrantApplication.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Review>()
+                .HasIndex(r => new { r.UserId, r.GrantId })
+                .IsUnique();
+
             modelBuilder.Entity<College>()
                 .HasOne(c => c.Dean)
                 .WithMany()

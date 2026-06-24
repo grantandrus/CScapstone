@@ -3,6 +3,7 @@
     var userId = Context.Session.GetInt32("UserID");
     var userRole = Context.Session.GetString("UserRole");
     var isCommitteeChair = Context.Session.GetString("IsCommitteeChair") == "True";
+    var isCommitteMember = Context.Session.GetString("IsCommitteMember") == "True";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -47,7 +48,13 @@
                                 <a class="nav-link text-dark" asp-controller="ARCC" asp-action="Index">ARCC Committee</a>
                             </li>
                         }
-                        @if (userId.HasValue && isCommitteeChair)
+                        @if (userId.HasValue && isCommitteMember)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Review" asp-action="Index">Review Grants</a>
+                            </li>
+                        }
+                            @if (userId.HasValue && isCommitteeChair)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Rubric" asp-action="Create">Rubric Management</a>
@@ -55,9 +62,7 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Allocations" asp-action="Index">Allocations</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Review" asp-action="Index">Review Grants</a>
-                            </li>
+
                         }
                         
                     </ul>

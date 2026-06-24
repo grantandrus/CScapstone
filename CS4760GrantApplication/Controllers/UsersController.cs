@@ -70,6 +70,7 @@ namespace CS4760GrantApplication.Controllers
             HttpContext.Session.SetString("UserRole", role);
             HttpContext.Session.SetString("Name", $"{user.FirstName} {user.LastName}");
             HttpContext.Session.SetString("IsCommitteeChair", user.IsCommitteeChair ? "True" : "False");
+            HttpContext.Session.SetString("IsCommitteMember", user.IsCommitteeMember ? "True" : "Flase");
             HttpContext.Session.SetString("IsDeptChair", user.IsDepartmentChair ? "True" : "False");
             HttpContext.Session.SetString("IsCollegeDean", user.IsCollegeDean ? "True" : "False");
 

@@ -20,6 +20,7 @@ namespace CS4760GrantApplication.Models
         public string PasswordHash { get; set; } = string.Empty;
         public bool IsAdmin { get; set; } = false;
         public List<Grant> Grants { get; set; } = new();
+        public List<Review> Reviews { get; set; } = new();
         public bool IsCommitteeMember { get; set; } = false;
         public bool IsCommitteeChair { get; set; } = false;
         public int? CollegeId { get; set; }
