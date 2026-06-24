@@ -12,7 +12,10 @@ namespace CS4760GrantApplication.Models
 
         [StringLength(1000)]
         public string Notes { get; set; } = string.Empty;
-        public int GrantId { get; set; }
+        public int? UserId { get; set; }
+        public User? User { get; set; }
+        public int? GrantId { get; set; }
         public Grant? Grant { get; set; }
+
     }
 }

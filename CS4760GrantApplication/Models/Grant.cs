@@ -38,7 +38,7 @@ namespace CS4760GrantApplication.Models
         public bool IsSaved { get; set; } // When false, the grant is submitted and ready for review. When true, it's still a draft?
         public List<GrantAttachment> Attachments { get; set; } = new();
         public List<BudgetItem> BudgetItems { get; set; } = new();
-        public Review? Review { get; set; }
+        public List<Review> Reviews { get; set; } = new();
         public bool Acknowledgement1 { get; set; }
         public bool Acknowledgement2 { get; set; }
         public bool Acknowledgement3 { get; set; }
