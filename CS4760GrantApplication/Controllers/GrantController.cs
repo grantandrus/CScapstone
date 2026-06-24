@@ -411,6 +411,20 @@ namespace CS4760GrantApplication.Controllers
                 .Where(d => vm.SelectedDepartmentIds.Contains(d.Id))
                 .ToListAsync();
 
+            // If no budget items have a source of College, auto approve college review
+            if (!vm.IsSaved)
+            {
+                var currentBudgetItems = await _context.BudgetItems
+                    .Where(b => b.GrantId == grant.Id)
+                    .ToListAsync();
+
+                bool needsCollegeReview = currentBudgetItems.Any(b => b.FundingSource == "College");
+                if (!needsCollegeReview)
+                {
+                    grant.CollegeReviewStatus = true;
+                }
+            }
+
             try
             {
                 string uploadFolder = Path.Combine(_environment.WebRootPath, "uploads");

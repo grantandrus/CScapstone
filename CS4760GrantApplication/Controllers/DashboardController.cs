@@ -58,7 +58,7 @@ namespace CS4760GrantApplication.Controllers
                         .Include(g => g.User)
                         .Include(g => g.College)
                         .Include(g => g.BudgetItems)
-                        .Where(g => !g.IsSaved && g.User != null && g.User.CollegeId == user.CollegeId && g.BudgetItems.Any(b => b.FundingSource == "College"))
+                        .Where(g => !g.IsSaved && g.User != null && g.CollegeId == user.CollegeId && g.BudgetItems.Any(b => b.FundingSource == "College"))
                         .ToListAsync();
                 }
             }
