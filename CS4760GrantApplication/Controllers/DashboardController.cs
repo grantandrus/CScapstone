@@ -21,10 +21,12 @@ namespace CS4760GrantApplication.Controllers
         public async Task<IActionResult> Index()
         {
             var isDeptChair = HttpContext.Session.GetString("IsDeptChair") == "True";
+            var isCollegeDean = HttpContext.Session.GetString("IsCollegeDean") == "True";
 
             var viewModel = new DashboardViewModel
             {
                 IsDeptChair = isDeptChair,
+                IsCollegeDean = isCollegeDean,
                 MyGrants = await _context.Grants
                 .Include(g => g.Departments)
                 .Include(g => g.College)
@@ -42,6 +44,21 @@ namespace CS4760GrantApplication.Controllers
                         .Include(g => g.User)
                         .Include(g => g.College)
                         .Where(g => !g.IsSaved && g.User != null && g.User.DepartmentId == user.DepartmentId)
+                        .ToListAsync();
+                }
+            }
+
+            if (isCollegeDean)
+            {
+                var user = await _context.Users.FindAsync(HttpContext.Session.GetInt32("UserID"));
+
+                if (user?.CollegeId != null)
+                {
+                    viewModel.CollegeGrants = await _context.Grants
+                        .Include(g => g.User)
+                        .Include(g => g.College)
+                        .Include(g => g.BudgetItems)
+                        .Where(g => !g.IsSaved && g.User != null && g.CollegeId == user.CollegeId && g.BudgetItems.Any(b => b.FundingSource == "College"))
                         .ToListAsync();
                 }
             }

@@ -411,6 +411,20 @@ namespace CS4760GrantApplication.Controllers
                 .Where(d => vm.SelectedDepartmentIds.Contains(d.Id))
                 .ToListAsync();
 
+            // If no budget items have a source of College, auto approve college review
+            if (!vm.IsSaved)
+            {
+                var currentBudgetItems = await _context.BudgetItems
+                    .Where(b => b.GrantId == grant.Id)
+                    .ToListAsync();
+
+                bool needsCollegeReview = currentBudgetItems.Any(b => b.FundingSource == "College");
+                if (!needsCollegeReview)
+                {
+                    grant.CollegeReviewStatus = true;
+                }
+            }
+
             try
             {
                 string uploadFolder = Path.Combine(_environment.WebRootPath, "uploads");
@@ -625,6 +639,64 @@ namespace CS4760GrantApplication.Controllers
             grant.DeptReviewStatus = false;
             grant.DeptReviewNotes = DeptReviewNotes ?? string.Empty;
 
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        [HttpGet]
+        [SessionAuthorize]
+        [CollegeDean]
+        public async Task<IActionResult> CollegeReview(int id)
+        {
+            var grant = await _context.Grants
+                .Include(g => g.User)
+                .Include(g => g.College)
+                .Include(g => g.Departments)
+                .Include(g => g.Attachments)
+                .Include(g => g.BudgetItems)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (grant == null) return NotFound();
+
+            var viewModel = new CollegeReviewViewModel
+            {
+                Grant = grant,
+                Notes = grant.CollegeReviewNotes,
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [SessionAuthorize]
+        [CollegeDean]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CollegeApprove(int id, string CollegeReviewNotes)
+        {
+            var grant = await _context.Grants.FindAsync(id);
+            if (grant == null) return NotFound();
+
+            grant.CollegeReviewStatus = true;
+            //grant.Status = GrantStatus.ApprovedByCollegeDean;
+            grant.CollegeReviewNotes = CollegeReviewNotes ?? string.Empty;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        [HttpPost]
+        [SessionAuthorize]
+        [CollegeDean]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CollegeReject(int id, string CollegeReviewNotes)
+        {
+            var grant = await _context.Grants.FindAsync(id);
+            if (grant == null) return NotFound();
+
+            grant.CollegeReviewStatus = false;
+            //grant.Status = GrantStatus.ApprovedByCollegeDean;
+            grant.CollegeReviewNotes = CollegeReviewNotes ?? string.Empty;
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Dashboard");
