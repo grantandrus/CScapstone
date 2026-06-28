@@ -19,6 +19,9 @@
                 Aggregate Review Score
             </th>
             <th>
+                Notes
+            </th>
+            <th>
                 View
             </th>
         </tr>
@@ -65,6 +68,26 @@
                         Awaiting Review
                     </td>
                 }
+                <td>
+                    @if(item.DeptReviewNotes != "")
+                    {
+                        <div>@item.DeptReviewNotes</div>
+                    } 
+                    @if(item.DeptReviewNotes != "" && item.CollegeReviewNotes != "")
+                    {
+                        <hr/>
+                    }
+                    @if(item.CollegeReviewNotes != "")
+                    {
+                        <div>@item.CollegeReviewNotes</div>   
+                    }
+                    @if (item.DeptReviewNotes == "" && item.CollegeReviewNotes == "")
+                    {
+                        //different styling to differentiate between system message vs if a user inputted 'No Notes'
+                        <div class="text-secondary" style="font-style:italic;">No Notes</div>
+                    }
+
+                </td>
                 <td>
                     <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("View", "Allocations", new { id = item.Id })'">View</button>
                 </td>
