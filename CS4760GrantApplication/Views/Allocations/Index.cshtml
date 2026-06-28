@@ -1,7 +1,43 @@
-﻿@model IEnumerable<CS4760GrantApplication.Models.Grant>
+﻿@model CS4760GrantApplication.ViewModels.AllocationsViewModel
 @{
-    ViewData["Title"] = "Review";
+    ViewData["Title"] = "Allocations";
 }
+
+
+<h1>Allocations</h1>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Message"]
+    </div>
+}
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <input type="hidden" asp-for="Allocation.Id" />
+
+    <div class="form-group mb-3">
+        <label asp-for="Allocation.AvailableAmount" class="control-label">Money Available for Review Session</label>
+        <input asp-for="Allocation.AvailableAmount" class="form-control" type="number" step="0.01" min="0" />
+        <span asp-validation-for="Allocation.AvailableAmount" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Allocation.RolloverAmount" class="control-label">Money Left Over From Last Session</label>
+        <input asp-for="Allocation.RolloverAmount" class="form-control" type="number" step="0.01" min="0" />
+        <span asp-validation-for="Allocation.RolloverAmount" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Allocation.CutoffPercent" class="control-label">Cutoff Percent</label>
+        <input asp-for="Allocation.CutoffPercent" class="form-control" type="number" step="0.01" min="0" max="100" />
+        <span asp-validation-for="Allocation.CutoffPercent" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Allocations</button>
+</form>
 
 <table class="table">
     <thead>
@@ -27,7 +63,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Grants)
         {
             <tr>
                 <td>
@@ -95,9 +131,3 @@
         }
     </tbody>
 </table>
-
-<h1>Allocations</h1>
-
-<a asp-action="Create" class="btn btn-primary">
-    Create Allocation
-</a>

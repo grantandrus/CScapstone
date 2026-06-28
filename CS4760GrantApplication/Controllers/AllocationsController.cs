@@ -1,6 +1,7 @@
 ﻿using CS4760GrantApplication.Data;
 using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
+using CS4760GrantApplication.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,14 +22,23 @@ namespace CS4760GrantApplication.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            Grants = await _context.Grants
+            var grants = await _context.Grants
                 .Include(g => g.BudgetItems)
                 .Include(g => g.User)
                 .Include(g => g.Reviews)
-                .Where(g => !g.IsSaved)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0)
                 .ToListAsync();
 
-            return View(Grants);
+            var allocation = await _context.Allocations.FirstOrDefaultAsync()
+                     ?? new Allocation();
+
+            var vm = new AllocationsViewModel
+            {
+                Grants = grants,
+                Allocation = allocation
+            };
+
+            return View(vm);
 
         }
 
@@ -69,30 +79,40 @@ namespace CS4760GrantApplication.Controllers
         [SessionAuthorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Allocation allocation)
+        public async Task<IActionResult> Create(AllocationsViewModel vm)
         {
+            var allocation = vm.Allocation;
+
             if (!ModelState.IsValid)
             {
-                return View(allocation);
+                vm.Grants = await _context.Grants
+                    .Include(g => g.BudgetItems)
+                    .Include(g => g.User)
+                    .Include(g => g.Reviews)
+                    .Where(g => !g.IsSaved)
+                    .ToListAsync();
+
+                return View("Index", vm);
             }
 
-            var existingAllocation = await _context.Allocations.FirstOrDefaultAsync();
+            var existing = await _context.Allocations.FirstOrDefaultAsync();
 
-            if (existingAllocation == null)
+            if (existing == null)
             {
                 _context.Allocations.Add(allocation);
             }
             else
             {
-                existingAllocation.AvailableAmount = allocation.AvailableAmount;
-                existingAllocation.RolloverAmount = allocation.RolloverAmount;
-                existingAllocation.CutoffPercent = allocation.CutoffPercent;
+                existing.AvailableAmount = allocation.AvailableAmount;
+                existing.RolloverAmount = allocation.RolloverAmount;
+                existing.CutoffPercent = allocation.CutoffPercent;
             }
 
             await _context.SaveChangesAsync();
 
-            ViewBag.Message = "Allocations saved successfully.";
-            return View(await _context.Allocations.FirstOrDefaultAsync());
+            TempData["Message"] = "Allocations saved successfully.";
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }
