@@ -22,11 +22,29 @@ namespace CS4760GrantApplication.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var grants = await _context.Grants
+            var acceptedGrants = await _context.Grants
                 .Include(g => g.BudgetItems)
                 .Include(g => g.User)
                 .Include(g => g.Reviews)
-                .Where(g => !g.IsSaved && g.Reviews.Count() != 0)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Status == GrantStatus.ApprovedARCC)
+                .ToListAsync();
+
+            var rejectedGrants = await _context.Grants
+                .Include(g => g.BudgetItems)
+                .Include(g => g.User)
+                .Include(g => g.Reviews)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Status == GrantStatus.RejectedARCC)
+                .ToListAsync();
+
+            var undecidedGrants = await _context.Grants
+                .Include(g => g.BudgetItems)
+                .Include(g => g.User)
+                .Include(g => g.Reviews)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && (g.Status != GrantStatus.RejectedARCC && g.Status != GrantStatus.ApprovedARCC))
+                .ToListAsync();
+
+            var allocationRules = await _context.AllocationRules
+                .OrderByDescending(r => r.MinScore)
                 .ToListAsync();
 
             var allocation = await _context.Allocations.FirstOrDefaultAsync()
@@ -34,8 +52,11 @@ namespace CS4760GrantApplication.Controllers
 
             var vm = new AllocationsViewModel
             {
-                Grants = grants,
-                Allocation = allocation
+                AcceptedGrants = acceptedGrants,
+                RejectedGrants = rejectedGrants,
+                UndecidedGrants = undecidedGrants,
+                Allocation = allocation,
+                Rules = allocationRules
             };
 
             return View(vm);
@@ -85,11 +106,25 @@ namespace CS4760GrantApplication.Controllers
 
             if (!ModelState.IsValid)
             {
-                vm.Grants = await _context.Grants
+                vm.AcceptedGrants = await _context.Grants
+                .Include(g => g.BudgetItems)
+                .Include(g => g.User)
+                .Include(g => g.Reviews)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Status == GrantStatus.ApprovedARCC)
+                .ToListAsync();
+
+                vm.RejectedGrants = await _context.Grants
                     .Include(g => g.BudgetItems)
                     .Include(g => g.User)
                     .Include(g => g.Reviews)
-                    .Where(g => !g.IsSaved)
+                    .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Status == GrantStatus.RejectedARCC)
+                    .ToListAsync();
+
+                vm.UndecidedGrants = await _context.Grants
+                    .Include(g => g.BudgetItems)
+                    .Include(g => g.User)
+                    .Include(g => g.Reviews)
+                    .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && (g.Status != GrantStatus.RejectedARCC && g.Status != GrantStatus.ApprovedARCC))
                     .ToListAsync();
 
                 return View("Index", vm);
@@ -111,6 +146,128 @@ namespace CS4760GrantApplication.Controllers
             await _context.SaveChangesAsync();
 
             TempData["Message"] = "Allocations saved successfully.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [SessionAuthorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApplyCutoff(AllocationsViewModel vm)
+        {
+            var allocation = await _context.Allocations.FirstOrDefaultAsync();
+
+            if (allocation == null)
+            {
+                TempData["Message"] = "Please save the allocation settings first.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var undecidedGrants = await _context.Grants
+                .Include(g => g.Reviews)
+                .Where(g =>
+                    !g.IsSaved &&
+                    g.Reviews.Any() &&
+                    g.Status != GrantStatus.ApprovedARCC &&
+                    g.Status != GrantStatus.RejectedARCC)
+                .ToListAsync();
+
+            foreach (var grant in undecidedGrants)
+            {
+                decimal averageScore = grant.Reviews.Average(r => r.AverageScore);
+
+                if (averageScore >= allocation.CutoffPercent)
+                {
+                    grant.Status = GrantStatus.ApprovedARCC;
+                }
+                else
+                {
+                    grant.Status = GrantStatus.RejectedARCC;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Cutoff applied successfully.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddRule(AllocationsViewModel vm)
+        {
+            if (!ModelState.IsValid)
+                return RedirectToAction(nameof(Index));
+
+            _context.AllocationRules.Add(vm.NewRule);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Allocation rule added.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveRule(int id)
+        {
+            var rule = await _context.AllocationRules.FindAsync(id);
+
+            if (rule != null)
+            {
+                _context.AllocationRules.Remove(rule);
+
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["Message"] = "Allocation rule removed.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [SessionAuthorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApplyRule(int id)
+        {
+            var rule = await _context.AllocationRules.FindAsync(id);
+
+            if (rule == null)
+            {
+                TempData["Message"] = "Allocation rule not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var grants = await _context.Grants
+                .Include(g => g.BudgetItems)
+                .Include(g => g.Reviews)
+                .Where(g => g.Status == GrantStatus.ApprovedARCC)
+                .ToListAsync();
+
+            foreach (var grant in grants)
+            {
+                if (!grant.Reviews.Any())
+                    continue;
+
+                decimal averageScore = grant.Reviews.Average(r => r.AverageScore);
+
+                if (averageScore >= rule.MinScore &&
+                    averageScore <= rule.MaxScore)
+                {
+                    decimal requestedAmount = grant.BudgetItems
+                        .Where(b => b.FundingSource == "ARCC")
+                        .Sum(b => b.Amount);
+
+                    grant.AllocatedFunds =
+                        requestedAmount * rule.PercentAllocated / 100m;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Allocation rule applied.";
 
             return RedirectToAction(nameof(Index));
         }
