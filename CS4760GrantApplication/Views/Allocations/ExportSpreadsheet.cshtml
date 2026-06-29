@@ -1,0 +1,13 @@
+﻿@model CS4760GrantApplication.Views.Allocations.ExcelModel
+
+@{
+    ViewData["Title"] = "Export ARCC Allocations";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>Click the button to download an Excel file containing PI name, PI account (email), grant title, and ARCC allocated amounts.</p>
+
+<form method="get" action="/Allocations/DownloadAllocations">
+    <button type="submit" class="btn btn-primary">Download ARCC Allocations</button>
+</form>

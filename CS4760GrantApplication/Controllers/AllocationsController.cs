@@ -1,8 +1,11 @@
 ﻿using CS4760GrantApplication.Data;
 using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using System.Linq;
 
 namespace CS4760GrantApplication.Controllers
 {
@@ -93,6 +96,54 @@ namespace CS4760GrantApplication.Controllers
 
             ViewBag.Message = "Allocations saved successfully.";
             return View(await _context.Allocations.FirstOrDefaultAsync());
+        }
+
+        // Returns the view that contains the download button
+        [SessionAuthorize]
+        [HttpGet]
+        public IActionResult ExportSpreadsheet()
+        {
+            return View();
+        }
+
+        // Endpoint to download the spreadsheet
+        [SessionAuthorize]
+        [HttpGet]
+        public FileResult DownloadAllocations()
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("ARCC Allocations");
+                worksheet.Cell(1, 1).Value = "PI Name";
+                worksheet.Cell(1, 2).Value = "PI Account (email)";
+                worksheet.Cell(1, 3).Value = "Grant Title";
+                worksheet.Cell(1, 4).Value = "ARCC Allocated";
+
+                var grants = _context.Grants
+                    .Include(g => g.User)
+                    .Include(g => g.BudgetItems)
+                    .ToList();
+
+                for (int i = 0; i < grants.Count; i++)
+                {
+                    var grant = grants[i];
+                    var piName = grant.User != null ? $"{grant.User.FirstName} {grant.User.LastName}" : string.Empty;
+                    var piAccount = grant.User?.Email ?? string.Empty;
+                    var arccAmount = grant.BudgetItems?.Where(b => b.FundingSource == "ARCC").Sum(b => b.Amount) ?? 0m;
+
+                    worksheet.Cell(i + 2, 1).Value = piName;
+                    worksheet.Cell(i + 2, 2).Value = piAccount;
+                    worksheet.Cell(i + 2, 3).Value = grant.Title;
+                    worksheet.Cell(i + 2, 4).Value = arccAmount;
+                }
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ARCC_Allocations.xlsx");
+                }
+            }
         }
     }
 }
