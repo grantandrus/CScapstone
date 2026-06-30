@@ -22,6 +22,7 @@ namespace CS4760GrantApplication.Data
         public DbSet<BudgetItem> BudgetItems { get; set; } = default!;
         public DbSet<Allocation> Allocations { get; set; } = default!;
         public DbSet<Review> Reveiws { get; set; } = default!;
+        public DbSet<Notification> Notifications { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
