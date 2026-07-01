@@ -526,6 +526,11 @@ else
     <div class="text-secondary" style="font-style:italic;">No rejected grants.</div>
 }
 
+<br /><br />
+<form method="post" asp-controller="Allocations" asp-action="Export">
+    <input type="submit" value="Send to Accounting" class="btn btn-primary" />
+</form>
+
 @section Scripts
 {
 <script>
