@@ -1,0 +1,14 @@
+﻿@model CS4760GrantApplication.Models.Grant
+
+@{
+    ViewData["Title"] = "Delete Grant";
+}
+
+<h2>Delete Department</h2>
+
+<p>Are you sure you want to delete @Model.Title?</p>
+
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+</form>
