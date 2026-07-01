@@ -1,0 +1,39 @@
+﻿@model CS4760GrantApplication.Models.Grant
+@{
+    ViewData["Title"] = "Notes";
+
+    // Option 3 - Access ID directly from route
+    var GrantId = Context.Request.RouteValues["id"];
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Review Notes</h2>
+
+    @if (Model == null)
+    {
+        <div class="alert alert-info">
+            No reviews have been submitted.
+        </div>
+    }
+    else
+    {
+        @foreach (var review in Model.Reviews)
+        {
+            <div class="card mb-3 shadow-sm">
+                <div class="card-header">
+                    <strong>Reviewer:</strong> @review.User?.FirstName @review.User?.LastName
+                </div>
+
+                <div class="card-body">
+                    <p class="card-text" style="white-space: pre-wrap;">
+                        @review.Notes
+                    </p>
+                </div>
+
+                <div class="card-footer text-muted">
+                    Score: @review.AverageScore
+                </div>
+            </div>
+        }
+    }
+</div>

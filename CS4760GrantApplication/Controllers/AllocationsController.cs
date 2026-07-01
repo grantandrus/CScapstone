@@ -24,6 +24,8 @@ namespace CS4760GrantApplication.Controllers
 
         public List<Grant> Grants = new();
 
+        public List<Grant> AllocatedGrants = new();
+
         [SessionAuthorize]
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -157,6 +159,22 @@ namespace CS4760GrantApplication.Controllers
         }
 
         [SessionAuthorize]
+        [HttpGet]
+        public async Task<IActionResult> Notes(int id)
+        {
+            var grant = await _context.Grants
+                .Include(g => g.Reviews)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (grant == null)
+            {
+                return NotFound();
+            }
+
+            return View(grant);
+        }
+
+        [SessionAuthorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApplyCutoff(AllocationsViewModel vm)
@@ -268,6 +286,8 @@ namespace CS4760GrantApplication.Controllers
 
                     grant.AllocatedFunds =
                         requestedAmount * rule.PercentAllocated / 100m;
+
+                    AllocatedGrants.Append(grant);
                 }
             }
 

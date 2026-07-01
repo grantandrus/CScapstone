@@ -2,7 +2,9 @@
 @{
     ViewData["Title"] = "Allocations";
 }
-
+@{
+    decimal AllRequestedFundsARCC = 0;
+}
 
 <h1>Allocations</h1>
 
@@ -232,7 +234,7 @@
                         {
 
                             arccTotal += budgetItem.Amount;
-
+                            AllRequestedFundsARCC += arccTotal;
                         }
                     }
                     @arccTotal
@@ -265,24 +267,29 @@
                     </td>
                 }
                 <td>
-                    @if(item.DeptReviewNotes != "")
+                    @if (item.Reviews.Count() != 0)
                     {
-                        <div>@item.DeptReviewNotes</div>
-                    } 
-                    @if(item.DeptReviewNotes != "" && item.CollegeReviewNotes != "")
-                    {
-                        <hr/>
-                    }
-                    @if(item.CollegeReviewNotes != "")
-                    {
-                        <div>@item.CollegeReviewNotes</div>   
-                    }
-                    @if (item.DeptReviewNotes == "" && item.CollegeReviewNotes == "")
-                    {
-                        //different styling to differentiate between system message vs if a user inputted 'No Notes'
-                        <div class="text-secondary" style="font-style:italic;">No Notes</div>
-                    }
-
+                            foreach (var review in item.Reviews)
+                            {
+                                if (review.Notes != null)
+                                {
+                                    <form asp-controller="Allocations"
+                                    asp-action="Notes"
+                                    asp-route-id="@item.Id"
+                                    method="get">
+                                        <button type="submit" class="btn btn-primary">
+                                            View Notes
+                                        </button>
+                                    </form>
+                                    break;
+                                }
+                                else
+                                {
+                                    //different styling to differentiate between system message vs if a user inputted 'No Notes'
+                                    <div class="text-secondary" style="font-style:italic;">No Notes</div>
+                                }
+                            }
+                        }
                 </td>
                 <td>
                     <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("View", "Allocations", new { id = item.Id })'">View</button>
@@ -343,6 +350,7 @@
                         {
 
                             arccTotal += budgetItem.Amount;
+                                AllRequestedFundsARCC += arccTotal;
 
                         }
                     }
@@ -376,26 +384,31 @@
                         Awaiting Review
                     </td>
                 }
-                <td>
-                    @if (item.DeptReviewNotes != "")
-                    {
-                        <div>@item.DeptReviewNotes</div>
-                    }
-                    @if (item.DeptReviewNotes != "" && item.CollegeReviewNotes != "")
-                    {
-                        <hr />
-                    }
-                    @if (item.CollegeReviewNotes != "")
-                    {
-                        <div>@item.CollegeReviewNotes</div>
-                    }
-                    @if (item.DeptReviewNotes == "" && item.CollegeReviewNotes == "")
-                    {
-                        //different styling to differentiate between system message vs if a user inputted 'No Notes'
-                        <div class="text-secondary" style="font-style:italic;">No Notes</div>
-                    }
-
-                </td>
+                    <td>
+                        @if (item.Reviews.Count() != 0)
+                        {
+                            foreach (var review in item.Reviews)
+                            {
+                                if (review.Notes != null)
+                                {
+                                    <form asp-controller="Allocations"
+                                          asp-action="Notes"
+                                          asp-route-id="@item.Id"
+                                          method="get">
+                                        <button type="submit" class="btn btn-primary">
+                                            View Notes
+                                        </button>
+                                    </form>
+                                    break;
+                                }
+                                else
+                                {
+                                    //different styling to differentiate between system message vs if a user inputted 'No Notes'
+                                    <div class="text-secondary" style="font-style:italic;">No Notes</div>
+                                }
+                            }
+                        }
+                    </td>
                 <td>
                     @item.AllocatedFunds
                 </td>
@@ -460,7 +473,7 @@ else
                         {
 
                             arccTotal += budgetItem.Amount;
-
+                            AllRequestedFundsARCC += arccTotal;
                         }
                     }
                     @arccTotal
@@ -493,26 +506,31 @@ else
                         Awaiting Review
                     </td>
                 }
-                <td>
-                    @if (item.DeptReviewNotes != "")
-                    {
-                        <div>@item.DeptReviewNotes</div>
-                    }
-                    @if (item.DeptReviewNotes != "" && item.CollegeReviewNotes != "")
-                    {
-                        <hr />
-                    }
-                    @if (item.CollegeReviewNotes != "")
-                    {
-                        <div>@item.CollegeReviewNotes</div>
-                    }
-                    @if (item.DeptReviewNotes == "" && item.CollegeReviewNotes == "")
-                    {
-                        //different styling to differentiate between system message vs if a user inputted 'No Notes'
-                        <div class="text-secondary" style="font-style:italic;">No Notes</div>
-                    }
-
-                </td>
+                    <td>
+                        @if (item.Reviews.Count() != 0)
+                        {
+                            foreach (var review in item.Reviews)
+                            {
+                                if (review.Notes != null)
+                                {
+                                    <form asp-controller="Allocations"
+                                          asp-action="Notes"
+                                          asp-route-id="@item.Id"
+                                          method="get">
+                                        <button type="submit" class="btn btn-primary">
+                                            View Notes
+                                        </button>
+                                    </form>
+                                    break;
+                                }
+                                else
+                                {
+                                    //different styling to differentiate between system message vs if a user inputted 'No Notes'
+                                    <div class="text-secondary" style="font-style:italic;">No Notes</div>
+                                }
+                            }
+                        }
+                    </td>
                 <td>
                     <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("View", "Allocations", new { id = item.Id })'">View</button>
                 </td>
@@ -527,9 +545,37 @@ else
 }
 
 <br /><br />
-<form method="post" asp-controller="Allocations" asp-action="Export">
-    <input type="submit" value="Send to Accounting" class="btn btn-primary" />
-</form>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <h5 class="card-title mb-2">Total Funds Requested From ARCC</h5>
+        <p class="card-text fs-5 fw-bold mb-0">
+            @AllRequestedFundsARCC.ToString("C")
+        </p>
+    </div>
+</div>
+
+<div class="d-flex gap-2">
+
+    <form method="post"
+          asp-controller="Allocations"
+          asp-action="Export">
+        <input type="submit"
+               value="Send to Accounting"
+               class="btn btn-primary" />
+    </form>
+
+    <form method="post"
+          asp-controller="Allocations"
+          asp-action="CompleteAllocations"
+          onsubmit="return confirm('Are you sure you want to complete the allocations? This action cannot be easily undone.');">
+
+        <input type="submit"
+               value="Complete Allocations"
+               class="btn btn-warning" />
+    </form>
+
+</div>
 
 @section Scripts
 {
