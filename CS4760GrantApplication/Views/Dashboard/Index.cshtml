@@ -44,110 +44,186 @@
     </div>
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Grant Title
-            </th>
-            <th>
-                Description
-            </th>
-            <th>
-                Project Summary
-            </th>
-            <th>
-                Justification
-            </th>
-            <th>
-                Project Impact
-            </th>
-            <th>
-                Multiple Departments
-            </th>
-            <th>
-                College
-            </th>
-            <th>
-                Department Name
-            </th>
-            <th>
-                Status
-            </th>
-            <th>
-                Actions
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.MyGrants)
-        {
-            <tr>
-                <td>
-                    @item.Title
-                </td>
-                <td>
-                    @item.Description
-                </td>
-                
-                <td>
-                    @item.ProjectSummary
-                </td>
-                
-                <td>
-                    @item.Justification
-                </td>
-                
-                <td>
-                    @item.ProjectImpact
-                </td>
-                
-                <td>
-                    @item.isMultipleDepartments
-                </td>
-               
-                @if (item.College == null)
-                {
-                    <td>
-                        None
-                    </td>
-                }
-                else
-                {
-                    <td>
-                        @item.College.Name
-                    </td>
-                }
-                
-                <td>
-                    @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Status)
-                </td>
-                @if (item.IsSaved)
-                {
-                    <td>
-                        <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">Edit</button>
-                        <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Delete", "Grant", new { id = item.Id })'">Delete</button>
-                    </td>
-                }
-                else
-                {
-                    <td>
-
-                    </td>
-                }
-            </tr>
-        }
-    </tbody>
-</table>
-
 <button type="button"
         class="btn btn-primary"
         onclick="location.href='@Url.Action("Create", "Grant")'">
     Create Grant
 </button>
+
+
+<h3 class="mt-4">Approved Grants (ARCC)</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Grant Title</th>
+            <th>Description</th>
+            <th>Project Summary</th>
+            <th>Justification</th>
+            <th>Project Impact</th>
+            <th>Multiple Departments</th>
+            <th>College</th>
+            <th>Department Name</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model.MyGrants.Where(g => g.Status == GrantStatus.ApprovedARCC))
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.Description</td>
+                <td>@item.ProjectSummary</td>
+                <td>@item.Justification</td>
+                <td>@item.ProjectImpact</td>
+                <td>@item.isMultipleDepartments</td>
+
+                <td>
+                    @(item.College == null ? "None" : item.College.Name)
+                </td>
+
+                <td>
+                    @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
+                </td>
+
+                <td>@item.Status</td>
+
+                <td>
+                    @if (item.IsSaved)
+                    {
+                        <button type="button" class="btn btn-secondary"
+                                onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">
+                            Edit
+                        </button>
+
+                        <button type="button" class="btn btn-danger"
+                                onclick="location.href='@Url.Action("Delete", "Grant", new { id = item.Id })'">
+                            Delete
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3 class="mt-4">Rejected Grants (ARCC)</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Grant Title</th>
+            <th>Description</th>
+            <th>Project Summary</th>
+            <th>Justification</th>
+            <th>Project Impact</th>
+            <th>Multiple Departments</th>
+            <th>College</th>
+            <th>Department Name</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model.MyGrants.Where(g => g.Status == GrantStatus.RejectedARCC))
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.Description</td>
+                <td>@item.ProjectSummary</td>
+                <td>@item.Justification</td>
+                <td>@item.ProjectImpact</td>
+                <td>@item.isMultipleDepartments</td>
+
+                <td>
+                    @(item.College == null ? "None" : item.College.Name)
+                </td>
+
+                <td>
+                    @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
+                </td>
+
+                <td>@item.Status</td>
+
+                <td>
+                    @if (item.IsSaved)
+                    {
+                        <button type="button" class="btn btn-secondary"
+                                onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">
+                            Edit
+                        </button>
+
+                        <button type="button" class="btn btn-danger"
+                                onclick="location.href='@Url.Action("Delete", "Grant", new { id = item.Id })'">
+                            Delete
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3 class="mt-4">Other Grants</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Grant Title</th>
+            <th>Description</th>
+            <th>Project Summary</th>
+            <th>Justification</th>
+            <th>Project Impact</th>
+            <th>Multiple Departments</th>
+            <th>College</th>
+            <th>Department Name</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model.MyGrants.Where(g => g.Status != GrantStatus.RejectedARCC && g.Status != GrantStatus.ApprovedARCC))
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.Description</td>
+                <td>@item.ProjectSummary</td>
+                <td>@item.Justification</td>
+                <td>@item.ProjectImpact</td>
+                <td>@item.isMultipleDepartments</td>
+
+                <td>
+                    @(item.College == null ? "None" : item.College.Name)
+                </td>
+
+                <td>
+                    @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
+                </td>
+
+                <td>@item.Status</td>
+
+                <td>
+                    @if (item.IsSaved)
+                    {
+                        <button type="button" class="btn btn-secondary"
+                                onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">
+                            Edit
+                        </button>
+
+                        <button type="button" class="btn btn-danger"
+                                onclick="location.href='@Url.Action("Delete", "Grant", new { id = item.Id })'">
+                            Delete
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 
 @if (Model.IsDeptChair)
 {
