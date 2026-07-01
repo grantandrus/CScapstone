@@ -4,6 +4,7 @@ using CS4760GrantApplication.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CS4760GrantApplication.Migrations
 {
     [DbContext(typeof(CS4760GrantApplicationContext))]
-    partial class CS4760GrantApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260630220328_AddNotifications")]
+    partial class AddNotifications
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,28 +47,6 @@ namespace CS4760GrantApplication.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Allocations");
-                });
-
-            modelBuilder.Entity("CS4760GrantApplication.Models.AllocationRule", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("MaxScore")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("MinScore")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("PercentAllocated")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AllocationRules");
                 });
 
             modelBuilder.Entity("CS4760GrantApplication.Models.BudgetItem", b =>
@@ -177,10 +158,6 @@ namespace CS4760GrantApplication.Migrations
 
                     b.Property<bool>("Acknowledgement4")
                         .HasColumnType("bit");
-
-                    b.Property<decimal?>("AllocatedFunds")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("CollegeId")
                         .HasColumnType("int");

@@ -5,6 +5,45 @@
 }
 <h2>Your Grants</h2>
 
+<div class="mb-3">
+    <button class="btn btn-outline-primary"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#notificationPanel">
+
+        🔔 Notifications
+
+        @if (Model.Notifications.Any())
+        {
+            <span class="badge bg-danger">
+                @Model.Notifications.Count
+            </span>
+        }
+    </button>
+
+    <div class="collapse mt-2" id="notificationPanel">
+        <div class="card card-body">
+
+            @if (Model.Notifications.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var notification in Model.Notifications)
+                    {
+                        <li class="list-group-item">
+                            @notification.Message
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="mb-0">No notifications.</p>
+            }
+
+        </div>
+    </div>
+</div>
+
 <table class="table">
     <thead>
         <tr>

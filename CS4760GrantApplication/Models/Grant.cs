@@ -57,6 +57,12 @@ namespace CS4760GrantApplication.Models
         public string CollegeReviewNotes { get; set; } = string.Empty;
 
         public GrantStatus Status { get; set; } = GrantStatus.Saved;
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public DateTime? ReportDueDate { get; set; }
+
+        public List<Notification> Notifications { get; set; } = new();
         [Precision(18, 2)]
         public decimal? AllocatedFunds { get; set; }
     }
