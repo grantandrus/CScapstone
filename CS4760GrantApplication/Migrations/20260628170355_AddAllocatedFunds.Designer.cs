@@ -4,6 +4,7 @@ using CS4760GrantApplication.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CS4760GrantApplication.Migrations
 {
     [DbContext(typeof(CS4760GrantApplicationContext))]
-    partial class CS4760GrantApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260628170355_AddAllocatedFunds")]
+    partial class AddAllocatedFunds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -235,9 +238,6 @@ namespace CS4760GrantApplication.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
-                    b.Property<DateTime?>("ReportDueDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Signature")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -300,40 +300,6 @@ namespace CS4760GrantApplication.Migrations
                     b.HasIndex("GrantId");
 
                     b.ToTable("GrantAttachments");
-                });
-
-            modelBuilder.Entity("CS4760GrantApplication.Models.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("GrantId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<DateTime>("NotificationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GrantId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("CS4760GrantApplication.Models.RatingSuggestion", b =>
@@ -558,25 +524,6 @@ namespace CS4760GrantApplication.Migrations
                     b.Navigation("Grant");
                 });
 
-            modelBuilder.Entity("CS4760GrantApplication.Models.Notification", b =>
-                {
-                    b.HasOne("CS4760GrantApplication.Models.Grant", "Grant")
-                        .WithMany("Notifications")
-                        .HasForeignKey("GrantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CS4760GrantApplication.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Grant");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CS4760GrantApplication.Models.RatingSuggestion", b =>
                 {
                     b.HasOne("CS4760GrantApplication.Models.RubricCriterion", null)
@@ -641,8 +588,6 @@ namespace CS4760GrantApplication.Migrations
                     b.Navigation("Attachments");
 
                     b.Navigation("BudgetItems");
-
-                    b.Navigation("Notifications");
 
                     b.Navigation("Reviews");
                 });

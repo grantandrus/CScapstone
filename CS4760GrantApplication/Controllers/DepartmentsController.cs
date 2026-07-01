@@ -178,7 +178,7 @@ namespace CS4760GrantApplication.Controllers
                 _context.Departments.Remove(department);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Dashboard");
         }
     }
 }

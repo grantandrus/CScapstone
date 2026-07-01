@@ -129,6 +129,7 @@
                 {
                     <td>
                         <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">Edit</button>
+                        <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Delete", "Grant", new { id = item.Id })'">Delete</button>
                     </td>
                 }
                 else
@@ -150,6 +151,7 @@
 
 @if (Model.IsDeptChair)
 {
+    <br />
     <br />
     <h2>Department Grants</h2>
 

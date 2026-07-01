@@ -1,4 +1,5 @@
-﻿using Microsoft.Identity.Client;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using System.ComponentModel.DataAnnotations;
 
 namespace CS4760GrantApplication.Models
@@ -62,6 +63,8 @@ namespace CS4760GrantApplication.Models
         public DateTime? ReportDueDate { get; set; }
 
         public List<Notification> Notifications { get; set; } = new();
+        [Precision(18, 2)]
+        public decimal? AllocatedFunds { get; set; }
     }
 
     public enum GrantStatus
@@ -76,7 +79,9 @@ namespace CS4760GrantApplication.Models
         ApprovedByDeptChair,
         [Display(Name = "Under review by ARCC")]
         UnderReviewByARCC,
-        [Display(Name = "Approved ARCC")]
-        ApprovedARCC
+        [Display(Name = "Approved by ARCC")]
+        ApprovedARCC,
+        [Display(Name = "Rejected by ARCC")]
+        RejectedARCC
     }
 }

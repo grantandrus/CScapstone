@@ -23,6 +23,7 @@ namespace CS4760GrantApplication.Data
         public DbSet<Allocation> Allocations { get; set; } = default!;
         public DbSet<Review> Reveiws { get; set; } = default!;
         public DbSet<Notification> Notifications { get; set; } = default!;
+        public DbSet<AllocationRule> AllocationRules { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
