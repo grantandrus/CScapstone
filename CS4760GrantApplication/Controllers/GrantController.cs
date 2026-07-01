@@ -576,6 +576,34 @@ namespace CS4760GrantApplication.Controllers
         }
 
         [HttpGet]
+        [SessionAuthorize]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+            var grant = await _context.Grants.FirstOrDefaultAsync(m => m.Id == id);
+            if (grant == null) return NotFound();
+            // Don't let users delete grants that have already been submitted
+            if (grant.IsSaved == false) return NotFound();
+            // Don't let users delete grants that aren't their own
+            if (grant.UserId != HttpContext.Session.GetInt32("UserID")) return NotFound();
+            return View(grant);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [SessionAuthorize]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var grant = await _context.Grants.FindAsync(id);
+            if (grant != null)
+            {
+                _context.Grants.Remove(grant);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        [HttpGet]
         [DeptChair]
         public async Task<IActionResult> DeptReview(int id)
         {
