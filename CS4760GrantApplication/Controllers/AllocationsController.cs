@@ -334,29 +334,5 @@ namespace CS4760GrantApplication.Controllers
 
             return ds;
         }
-
-        [SessionAuthorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CompleteAllocations()
-        {
-            foreach (var grant in AllocatedGrants)
-            {
-                var notification = new Notification
-                {
-                    UserId = (int)grant.UserId,
-                    GrantId = (int)grant.Id,
-                    Message = "Your grant has been accepted! Report due by the listed deadline.",
-                    NotificationDate = DateTime.Today,
-                };
-
-                _context.Notifications.Add(notification);
-                await _context.SaveChangesAsync();
-            }
-
-
-            return RedirectToAction("Index");
-        }
-
     }
 }
