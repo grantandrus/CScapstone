@@ -24,6 +24,8 @@ namespace CS4760GrantApplication.Controllers
 
         public List<Grant> Grants = new();
 
+        public List<Grant> AllocatedGrants = new();
+
         [SessionAuthorize]
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -157,6 +159,22 @@ namespace CS4760GrantApplication.Controllers
         }
 
         [SessionAuthorize]
+        [HttpGet]
+        public async Task<IActionResult> Notes(int id)
+        {
+            var grant = await _context.Grants
+                .Include(g => g.Reviews)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (grant == null)
+            {
+                return NotFound();
+            }
+
+            return View(grant);
+        }
+
+        [SessionAuthorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApplyCutoff(AllocationsViewModel vm)
@@ -268,6 +286,8 @@ namespace CS4760GrantApplication.Controllers
 
                     grant.AllocatedFunds =
                         requestedAmount * rule.PercentAllocated / 100m;
+
+                    AllocatedGrants.Append(grant);
                 }
             }
 
@@ -317,41 +337,26 @@ namespace CS4760GrantApplication.Controllers
 
         [SessionAuthorize]
         [HttpPost]
-        public IActionResult Export()
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CompleteAllocations()
         {
-            using XLWorkbook wb = new();
-            DataTable dt = GetGrants().Tables[0];
-
-            var ws = wb.Worksheets.Add(dt);
-
-            ws.Columns("A").AdjustToContents();
-            ws.Columns("B").AdjustToContents().Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-            ws.Columns("C").AdjustToContents();
-
-            using MemoryStream stream = new();
-            wb.SaveAs(stream);
-            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "GrantAllocations.xlsx");
-        }
-
-        private DataSet GetGrants()
-        {
-            DataSet ds = new();
-            var constr = Configuration.GetConnectionString("DefaultConnection");
-            string sql = "SELECT Grants.Title AS \"Grant Title\", " +
-                "Grants.UserId AS \"PI Account Number\", " +
-                "Users.FirstName + ' ' + Users.LastName AS \"PI Name\" " +
-                "FROM Grants " +
-                "JOIN Users ON Grants.UserId = Users.Id " +
-                "ORDER BY Grants.Id;";
-            using (SqlConnection con = new(constr))
+            foreach (var grant in AllocatedGrants)
             {
-                using SqlDataAdapter sda = new(sql, con);
-                sda.Fill(ds);
+                var notification = new Notification
+                {
+                    UserId = (int)grant.UserId,
+                    GrantId = (int)grant.Id,
+                    Message = "Your grant has been accepted! Report due by the listed deadline.",
+                    NotificationDate = DateTime.Today,
+                };
+
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
             }
 
-            return ds;
-        }
 
+            return RedirectToAction("Index");
+        }
 
     }
 }
