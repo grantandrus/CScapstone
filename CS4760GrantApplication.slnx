@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="CS4760GrantApplication/CS4760GrantApplication.csproj" />
+  <Project Path="CS4760GrantApplicationTest/CS4760GrantApplicationTest.csproj" Id="03f1d7de-5e02-488a-84c1-94d25f5a07f8" />
 </Solution>
