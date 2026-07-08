@@ -45,7 +45,8 @@ namespace CS4760GrantApplication.Controllers
                 Notifications = await _context.Notifications
                     .Include(n => n.Grant)
                     .Where(n => n.UserId == userId && !n.IsRead)
-                    .OrderByDescending(n => n.NotificationDate)
+                    .OrderBy(n => n.Grant!.ReportDueDate)
+                    .ThenByDescending(n => n.NotificationDate)
                     .ToListAsync()
             };
 
@@ -86,9 +87,9 @@ namespace CS4760GrantApplication.Controllers
             var today = DateTime.Today;
 
             var acceptedGrants = await _context.Grants
-                .Where(g => g.UserId == userId && g.Status == GrantStatus.ApprovedARCC)
+                .Where(g => g.UserId == userId && g.Statuses.Contains(GrantStatus.ApprovedARCC))
                 .ToListAsync();
-
+    
             foreach (var grant in acceptedGrants)
             {
                 if (grant.ReportDueDate == null)

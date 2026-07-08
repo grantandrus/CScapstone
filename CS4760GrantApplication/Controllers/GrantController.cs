@@ -421,7 +421,7 @@ namespace CS4760GrantApplication.Controllers
                 bool needsCollegeReview = currentBudgetItems.Any(b => b.FundingSource == "College");
                 if (!needsCollegeReview)
                 {
-                    grant.CollegeReviewStatus = true;
+                    grant.Statuses.Add(GrantStatus.ApproveDean);
                 }
             }
 
@@ -667,8 +667,7 @@ namespace CS4760GrantApplication.Controllers
                 return NotFound();
             }
 
-            grant.DeptReviewStatus = true;
-            grant.Status = GrantStatus.ApprovedByDeptChair;
+            grant.Statuses.Add(GrantStatus.ApprovedByDeptChair);
             grant.DeptReviewNotes = DeptReviewNotes ?? string.Empty;
 
             await _context.SaveChangesAsync();
@@ -689,7 +688,7 @@ namespace CS4760GrantApplication.Controllers
                 return NotFound();
             }
 
-            grant.DeptReviewStatus = false;
+            grant.Statuses.Add(GrantStatus.RejectedByDeptChair);
             grant.DeptReviewNotes = DeptReviewNotes ?? string.Empty;
 
             await _context.SaveChangesAsync();
@@ -730,8 +729,7 @@ namespace CS4760GrantApplication.Controllers
             var grant = await _context.Grants.FindAsync(id);
             if (grant == null) return NotFound();
 
-            grant.CollegeReviewStatus = true;
-            //grant.Status = GrantStatus.ApprovedByCollegeDean;
+            grant.Statuses.Add(GrantStatus.ApproveDean);
             grant.CollegeReviewNotes = CollegeReviewNotes ?? string.Empty;
             await _context.SaveChangesAsync();
 
@@ -747,8 +745,7 @@ namespace CS4760GrantApplication.Controllers
             var grant = await _context.Grants.FindAsync(id);
             if (grant == null) return NotFound();
 
-            grant.CollegeReviewStatus = false;
-            //grant.Status = GrantStatus.ApprovedByCollegeDean;
+            grant.Statuses.Add(GrantStatus.RejectedDean);
             grant.CollegeReviewNotes = CollegeReviewNotes ?? string.Empty;
             await _context.SaveChangesAsync();
 

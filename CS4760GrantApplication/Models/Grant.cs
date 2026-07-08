@@ -55,7 +55,7 @@ namespace CS4760GrantApplication.Models
         public string DeptReviewNotes { get; set; } = string.Empty;
         public bool? CollegeReviewStatus { get; set; }
         public string CollegeReviewNotes { get; set; } = string.Empty;
-
+        public List<GrantStatus> Statuses { get; set; } = new(); 
         public GrantStatus Status { get; set; } = GrantStatus.Saved;
 
         [DataType(DataType.Date)]
@@ -75,6 +75,8 @@ namespace CS4760GrantApplication.Models
         Submitted,
         [Display(Name = "Reviewed by dept chair")]
         ReviewedByDeptChair,
+        [Display(Name = "Rejected by dept chair")]
+        RejectedByDeptChair,
         [Display(Name = "Approved by dept chair")]
         ApprovedByDeptChair,
         [Display(Name = "Under review by ARCC")]
@@ -82,6 +84,10 @@ namespace CS4760GrantApplication.Models
         [Display(Name = "Approved by ARCC")]
         ApprovedARCC,
         [Display(Name = "Rejected by ARCC")]
-        RejectedARCC
+        RejectedARCC,
+        [Display(Name = "Rejected by dean")]
+        RejectedDean,
+        [Display(Name = "Approved by dean")]
+        ApproveDean
     }
 }

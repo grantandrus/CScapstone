@@ -34,21 +34,21 @@ namespace CS4760GrantApplication.Controllers
                 .Include(g => g.BudgetItems)
                 .Include(g => g.User)
                 .Include(g => g.Reviews)
-                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Status == GrantStatus.ApprovedARCC)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.ApprovedARCC))
                 .ToListAsync();
 
             var rejectedGrants = await _context.Grants
                 .Include(g => g.BudgetItems)
                 .Include(g => g.User)
                 .Include(g => g.Reviews)
-                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Status == GrantStatus.RejectedARCC)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.RejectedARCC))
                 .ToListAsync();
 
             var undecidedGrants = await _context.Grants
                 .Include(g => g.BudgetItems)
                 .Include(g => g.User)
                 .Include(g => g.Reviews)
-                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && (g.Status != GrantStatus.RejectedARCC && g.Status != GrantStatus.ApprovedARCC))
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && (!g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.Statuses.Contains(GrantStatus.ApprovedARCC)))
                 .ToListAsync();
 
             var allocationRules = await _context.AllocationRules
@@ -118,21 +118,21 @@ namespace CS4760GrantApplication.Controllers
                 .Include(g => g.BudgetItems)
                 .Include(g => g.User)
                 .Include(g => g.Reviews)
-                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Status == GrantStatus.ApprovedARCC)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.ApprovedARCC))
                 .ToListAsync();
 
                 vm.RejectedGrants = await _context.Grants
                     .Include(g => g.BudgetItems)
                     .Include(g => g.User)
                     .Include(g => g.Reviews)
-                    .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Status == GrantStatus.RejectedARCC)
+                    .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.RejectedARCC))
                     .ToListAsync();
 
                 vm.UndecidedGrants = await _context.Grants
                     .Include(g => g.BudgetItems)
                     .Include(g => g.User)
                     .Include(g => g.Reviews)
-                    .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && (g.Status != GrantStatus.RejectedARCC && g.Status != GrantStatus.ApprovedARCC))
+                    .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && (!g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.Statuses.Contains(GrantStatus.ApprovedARCC)))
                     .ToListAsync();
 
                 return View("Index", vm);
@@ -192,8 +192,7 @@ namespace CS4760GrantApplication.Controllers
                 .Where(g =>
                     !g.IsSaved &&
                     g.Reviews.Any() &&
-                    g.Status != GrantStatus.ApprovedARCC &&
-                    g.Status != GrantStatus.RejectedARCC)
+                    (!g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.Statuses.Contains(GrantStatus.ApprovedARCC)))
                 .ToListAsync();
 
             foreach (var grant in undecidedGrants)
@@ -202,11 +201,11 @@ namespace CS4760GrantApplication.Controllers
 
                 if (averageScore >= allocation.CutoffPercent)
                 {
-                    grant.Status = GrantStatus.ApprovedARCC;
+                    grant.Statuses.Add(GrantStatus.ApprovedARCC);
                 }
                 else
                 {
-                    grant.Status = GrantStatus.RejectedARCC;
+                    grant.Statuses.Add(GrantStatus.RejectedARCC);
                 }
             }
 
@@ -269,7 +268,7 @@ namespace CS4760GrantApplication.Controllers
             var grants = await _context.Grants
                 .Include(g => g.BudgetItems)
                 .Include(g => g.Reviews)
-                .Where(g => g.Status == GrantStatus.ApprovedARCC)
+                .Where(g => g.Statuses.Contains(GrantStatus.ApprovedARCC))
                 .ToListAsync();
 
             var totalAvailable = (await _context.Allocations.FirstOrDefaultAsync())?.AvailableAmount ?? 0;
