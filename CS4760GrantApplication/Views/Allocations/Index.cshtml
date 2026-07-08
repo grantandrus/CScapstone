@@ -559,20 +559,20 @@ else
 
     <form method="post"
           asp-controller="Allocations"
-          asp-action="Export">
-        <input type="submit"
-               value="Send to Accounting"
-               class="btn btn-primary" />
-    </form>
-
-    <form method="post"
-          asp-controller="Allocations"
           asp-action="CompleteAllocations"
           onsubmit="return confirm('Are you sure you want to complete the allocations? This action cannot be easily undone.');">
 
         <input type="submit"
                value="Complete Allocations"
                class="btn btn-warning" />
+    </form>
+
+    <form method="post"
+          asp-controller="Allocations"
+          asp-action="Export">
+        <input type="submit"
+               value="Send to Accounting"
+               class="btn btn-primary" />
     </form>
 
 </div>

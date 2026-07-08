@@ -604,6 +604,31 @@ namespace CS4760GrantApplication.Controllers
         }
 
         [HttpGet]
+        [SessionAuthorize]
+        public async Task<IActionResult> ViewGrant(int id)
+        {
+            var grant = await _context.Grants
+                .Include(g => g.User)
+                .Include(g => g.College)
+                .Include(g => g.Departments)
+                .Include(g => g.Attachments)
+                .Include(g => g.BudgetItems)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (grant == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new DeptReviewViewModel
+            {
+                Grant = grant
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
         [DeptChair]
         public async Task<IActionResult> DeptReview(int id)
         {
