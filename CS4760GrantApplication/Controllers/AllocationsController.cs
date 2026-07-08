@@ -310,6 +310,7 @@ namespace CS4760GrantApplication.Controllers
             ws.Columns("A").AdjustToContents();
             ws.Columns("B").AdjustToContents().Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
             ws.Columns("C").AdjustToContents();
+            ws.Columns("D").AdjustToContents();
 
             using MemoryStream stream = new();
             wb.SaveAs(stream);
@@ -321,8 +322,9 @@ namespace CS4760GrantApplication.Controllers
             DataSet ds = new();
             var constr = Configuration.GetConnectionString("DefaultConnection");
             string sql = "SELECT Grants.Title AS \"Grant Title\", " +
-                "Grants.UserId AS \"PI Account Number\", " +
-                "Users.FirstName + ' ' + Users.LastName AS \"PI Name\" " +
+                "RIGHT('000000' + CAST(UserId AS VARCHAR(6)), 6) AS \"PI Account Number\", " +
+                "Users.FirstName + ' ' + Users.LastName AS \"PI Name\", " +
+                "'$' + CAST(AllocatedFunds AS VARCHAR(15)) AllocatedFunds " +
                 "FROM Grants " +
                 "JOIN Users ON Grants.UserId = Users.Id " +
                 "ORDER BY Grants.Id;";
