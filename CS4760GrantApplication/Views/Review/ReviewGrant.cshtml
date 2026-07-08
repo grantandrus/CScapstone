@@ -147,11 +147,18 @@
 
             <div class="mb-2">
                 <strong>Department Review Status:</strong>
-                @(Model.DeptReviewStatus == null
-                    ? "Pending"
-                    : Model.DeptReviewStatus.Value
-                        ? "Approved"
-                        : "Rejected")
+                @if (!Model.Statuses.Contains(GrantStatus.RejectedByDeptChair) && !Model.Statuses.Contains(GrantStatus.ApprovedByDeptChair))
+                {
+                    <span>Pending</span>
+                }
+                else if (Model.Statuses.Contains(GrantStatus.ApprovedByDeptChair))
+                {
+                    <span>Approved</span>
+                }
+                else if (Model.Statuses.Contains(GrantStatus.RejectedByDeptChair))
+                {
+                    <span>Rejected</span>
+                }
             </div>
 
         </div>

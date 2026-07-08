@@ -70,7 +70,7 @@
     </thead>
 
     <tbody>
-        @foreach (var item in Model.MyGrants.Where(g => g.Status == GrantStatus.ApprovedARCC))
+        @foreach (var item in Model.MyGrants.Where(g => g.Statuses.Contains(GrantStatus.ApprovedARCC)))
         {
             <tr>
                 <td>@item.Title</td>
@@ -87,8 +87,18 @@
                 <td>
                     @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
                 </td>
-
-                <td>@item.Status</td>
+                @if (item.Statuses.Count() == 0)
+                {
+                    <td>
+                        Not Reviewed
+                    </td>
+                }
+                @foreach (var status in item.Statuses)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => status),
+                    </td>
+                }
 
                 <td>
                     @if (item.IsSaved)
@@ -135,7 +145,7 @@
     </thead>
 
     <tbody>
-        @foreach (var item in Model.MyGrants.Where(g => g.Status == GrantStatus.RejectedARCC))
+        @foreach (var item in Model.MyGrants.Where(g => g.Statuses.Contains(GrantStatus.RejectedARCC)))
         {
             <tr>
                 <td>@item.Title</td>
@@ -152,8 +162,18 @@
                 <td>
                     @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
                 </td>
-
-                <td>@item.Status</td>
+                @if (item.Statuses.Count() == 0)
+                {
+                    <td>
+                        Not Reviewed
+                    </td>
+                }
+                @foreach (var status in item.Statuses)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => status),
+                    </td>
+                }
 
                 <td>
                     @if (item.IsSaved)
@@ -200,7 +220,7 @@
     </thead>
 
     <tbody>
-        @foreach (var item in Model.MyGrants.Where(g => g.Status != GrantStatus.RejectedARCC && g.Status != GrantStatus.ApprovedARCC))
+        @foreach (var item in Model.MyGrants.Where(g => !g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.Statuses.Contains(GrantStatus.ApprovedARCC)))
         {
             <tr>
                 <td>@item.Title</td>
@@ -217,8 +237,18 @@
                 <td>
                     @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
                 </td>
-
-                <td>@item.Status</td>
+                @if (item.Statuses.Count() == 0)
+                {
+                    <td>
+                        Not Reviewed
+                    </td>
+                }
+                @foreach (var status in item.Statuses)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => status),
+                    </td>
+                }
 
                 <td>
                     @if (item.IsSaved)
@@ -334,23 +364,32 @@
                         @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
                     </td>
 
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Status)
-                    </td>
+                    @if (item.Statuses.Count() == 0)
+                    {
+                        <td>
+                            Not Reviewed
+                        </td>
+                    }
+                    @foreach (var status in item.Statuses)
+                    {
+                        <td>
+                            @Html.DisplayFor(modelItem => status),
+                        </td>
+                    }
 
-                    @if (item.DeptReviewStatus == null)
+                    @if (!item.Statuses.Contains(GrantStatus.RejectedByDeptChair) && !item.Statuses.Contains(GrantStatus.ApprovedByDeptChair))
                     {
                         <td>
                             Not reviewed
                         </td>
                     }
-                    else if (item.DeptReviewStatus == true)
+                    else if (item.Statuses.Contains(GrantStatus.ApprovedByDeptChair))
                     {
                         <td>
                             Approved
                         </td>
                     }
-                    else
+                    else if (item.Statuses.Contains(GrantStatus.RejectedByDeptChair))
                     {
                         <td>
                             Rejected
@@ -453,24 +492,32 @@
                     <td>
                         @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
                     </td>
+                    @if (item.Statuses.Count() == 0)
+                    {
+                        <td>
+                            Not Reviewed
+                        </td>
+                    }
+                    @foreach (var status in item.Statuses)
+                    {
+                        <td>
+                            @Html.DisplayFor(modelItem => status), 
+                        </td>
+                    }
 
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Status)
-                    </td>
-
-                    @if (item.CollegeReviewStatus == null)
+                    @if (!item.Statuses.Contains(GrantStatus.RejectedDean) && !item.Statuses.Contains(GrantStatus.ApproveDean))
                     {
                         <td>
                             Not reviewed
                         </td>
                     }
-                    else if (item.CollegeReviewStatus == true)
+                    else if (item.Statuses.Contains(GrantStatus.ApproveDean))
                     {
                         <td>
                             Approved
                         </td>
                     }
-                    else
+                    else if (item.Statuses.Contains(GrantStatus.RejectedDean))
                     {
                         <td>
                             Rejected
