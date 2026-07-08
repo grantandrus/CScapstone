@@ -86,9 +86,9 @@ namespace CS4760GrantApplication.Controllers
             var today = DateTime.Today;
 
             var acceptedGrants = await _context.Grants
-                .Where(g => g.UserId == userId && g.Status == GrantStatus.ApprovedARCC)
+                .Where(g => g.UserId == userId && g.Statuses.Contains(GrantStatus.ApprovedARCC))
                 .ToListAsync();
-
+    
             foreach (var grant in acceptedGrants)
             {
                 if (grant.ReportDueDate == null)

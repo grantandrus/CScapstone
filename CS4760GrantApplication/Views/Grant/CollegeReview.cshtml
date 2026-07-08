@@ -155,14 +155,24 @@
                 @(Model.Grant.IsSaved ? "No" : "Yes")
             </div>
 
-            <div class="mb-2">
-                <strong>College Review Status:</strong>
-                @(Model.Grant.CollegeReviewStatus == null
-                    ? "Pending"
-                    : Model.Grant.CollegeReviewStatus.Value
-                        ? "Approved"
-                        : "Rejected")
-            </div>
+            @if (!Model.Grant.Statuses.Contains(GrantStatus.RejectedDean) || !Model.Grant.Statuses.Contains(GrantStatus.ApproveDean))
+            {
+                <td>
+                    Not reviewed
+                </td>
+            }
+            else if (Model.Grant.Statuses.Contains(GrantStatus.ApproveDean))
+            {
+                <td>
+                    Approved
+                </td>
+            }
+            else if (Model.Grant.Statuses.Contains(GrantStatus.RejectedDean))
+            {
+                <td>
+                    Rejected
+                </td>
+            }
 
         </div>
     </div>
