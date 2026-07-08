@@ -103,6 +103,13 @@
                             Delete
                         </button>
                     }
+                    @if (!item.IsSaved)
+                    {
+                        <button type="button" class="btn btn-secondary"
+                                onclick="location.href='@Url.Action("ViewGrant", "Grant", new { id = item.Id })'">
+                            View
+                        </button>
+                    }
                 </td>
             </tr>
         }
@@ -161,6 +168,13 @@
                             Delete
                         </button>
                     }
+                    @if (!item.IsSaved)
+                    {
+                        <button type="button" class="btn btn-secondary"
+                                onclick="location.href='@Url.Action("ViewGrant", "Grant", new { id = item.Id })'">
+                            View
+                        </button>
+                    }
                 </td>
             </tr>
         }
@@ -217,6 +231,13 @@
                         <button type="button" class="btn btn-danger"
                                 onclick="location.href='@Url.Action("Delete", "Grant", new { id = item.Id })'">
                             Delete
+                        </button>
+                    }
+                    @if (!item.IsSaved)
+                    {
+                        <button type="button" class="btn btn-secondary"
+                                onclick="location.href='@Url.Action("ViewGrant", "Grant", new { id = item.Id })'">
+                            View
                         </button>
                     }
                 </td>
