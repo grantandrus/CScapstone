@@ -254,13 +254,15 @@ namespace CS4760GrantApplication.Controllers
         [SessionAuthorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApplyRule(int id)
+        public async Task<IActionResult> ApplyRules()
         {
-            var rule = await _context.AllocationRules.FindAsync(id);
+            var rules = await _context.AllocationRules
+                .OrderByDescending(r => r.MinScore)
+                .ToListAsync();
 
-            if (rule == null)
+            if(!rules.Any())
             {
-                TempData["Message"] = "Allocation rule not found.";
+                TempData["Message"] = "No allocation rules defined.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -269,6 +271,21 @@ namespace CS4760GrantApplication.Controllers
                 .Include(g => g.Reviews)
                 .Where(g => g.Status == GrantStatus.ApprovedARCC)
                 .ToListAsync();
+
+            var totalAvailable = (await _context.Allocations.FirstOrDefaultAsync())?.AvailableAmount ?? 0;
+
+            if (totalAvailable <= 0)
+            {
+                TempData["Message"] = "No available funds to allocate.";
+            }
+
+            foreach (var rule in rules){
+
+            
+
+            // check to see if the current rules will exceed the available amount
+
+            decimal total = 0;
 
             foreach (var grant in grants)
             {
@@ -287,13 +304,26 @@ namespace CS4760GrantApplication.Controllers
                     grant.AllocatedFunds =
                         requestedAmount * rule.PercentAllocated / 100m;
 
-                    AllocatedGrants.Append(grant);
+                    total += (decimal)grant.AllocatedFunds;
                 }
             }
 
-            await _context.SaveChangesAsync();
+            if(total > totalAvailable)
+            {
+                TempData["Message"] = "Allocation rules exceed available funds. Please adjust the rules.";
+                return RedirectToAction(nameof(Index));
+            }
 
-            TempData["Message"] = "Allocation rule applied.";
+            if(total - totalAvailable > 5000)
+            {
+                TempData["Message"] = "Allocation rules leave more than $5000 remaining. Please adjust the rules.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["Message"] = "Allocation rule applied.";
+            }
 
             return RedirectToAction(nameof(Index));
         }

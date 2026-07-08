@@ -55,14 +55,24 @@
     </button>
 </form>
 
-<h2 class="mt-4 mb-3">Allocation Rules</h2>
+<div class="d-flex justify-content-between align-items-center">
+    <h2 class="mt-4 mb-3">Allocation Rules</h2>
+
+    <form asp-action="ApplyRules"
+          method="post">
+        @Html.AntiForgeryToken()
+
+        <button type="submit" class="btn btn-outline-primary" id="apply-rules-btn">
+            Apply Rules
+        </button>
+    </form>
+</div>
 
 <table class="table">
     <thead>
         <tr>
             <th>Score Range</th>
             <th>Percent Allcoated</th>
-            <th></th>
             <th></th>
         </tr>
     </thead>
@@ -78,18 +88,6 @@
 
                 <td>
                     @rule.PercentAllocated% of requested ARCC funds
-                </td>
-
-                <td>
-                    <form asp-action="ApplyRule"
-                          asp-route-id="@rule.Id"
-                          method="post">
-                        @Html.AntiForgeryToken()
-
-                        <button type="submit" class="btn btn-outline-primary">
-                            Apply
-                        </button>
-                    </form>
                 </td>
 
                 <td>
@@ -587,9 +585,22 @@ else
                 field.disabled = false;
             });
 
-        document.getElementById("applyCutoffButton").disabled = true;
+        const applyCutoffButton = document.getElementById("applyCutoffButton");
+        if (applyCutoffButton) {
+            applyCutoffButton.disabled = true;
+        }
+
+        const applyRulesBtn = document.getElementById("apply-rules-btn");
+        if (applyRulesBtn) {
+            applyRulesBtn.disabled = true;
+        }
+
         document.getElementById("editButton").style.display = "none";
-        document.getElementById("saveButton").style.display = "";
+        
+        const saveButton = document.getElementById("saveButton");
+        if (saveButton) {
+            saveButton.style.display = "";
+        }
     });
 </script>s
 }
