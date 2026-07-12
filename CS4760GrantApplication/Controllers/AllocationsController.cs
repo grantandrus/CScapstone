@@ -253,7 +253,7 @@ namespace CS4760GrantApplication.Controllers
         [SessionAuthorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApplyRules()
+        public async Task<IActionResult> ApplyRules(bool ignoreOverage = false)
         {
             var rules = await _context.AllocationRules
                 .OrderByDescending(r => r.MinScore)
@@ -275,14 +275,9 @@ namespace CS4760GrantApplication.Controllers
 
             if (totalAvailable <= 0)
             {
-                TempData["Message"] = "No available funds to allocate.";
+                TempData["Error"] = "No available funds to allocate.";
+                return RedirectToAction(nameof(Index));
             }
-
-            foreach (var rule in rules){
-
-            
-
-            // check to see if the current rules will exceed the available amount
 
             decimal total = 0;
 
@@ -292,37 +287,39 @@ namespace CS4760GrantApplication.Controllers
                     continue;
 
                 decimal averageScore = grant.Reviews.Average(r => r.AverageScore);
+                var rule = rules.FirstOrDefault(r => averageScore >= r.MinScore && averageScore <= r.MaxScore);
 
-                if (averageScore >= rule.MinScore &&
-                    averageScore <= rule.MaxScore)
+                if (rule != null)
                 {
                     decimal requestedAmount = grant.BudgetItems
                         .Where(b => b.FundingSource == "ARCC")
                         .Sum(b => b.Amount);
 
-                    grant.AllocatedFunds =
-                        requestedAmount * rule.PercentAllocated / 100m;
-
+                    grant.AllocatedFunds = requestedAmount * rule.PercentAllocated / 100m;
                     total += (decimal)grant.AllocatedFunds;
+                }
+                else
+                {
+                    grant.AllocatedFunds = 0;
                 }
             }
 
-            if(total > totalAvailable)
+            if (total > totalAvailable)
             {
-                TempData["Message"] = "Allocation rules exceed available funds. Please adjust the rules.";
+                TempData["Error"] = $"Allocation rules exceed available funds. Total allocated: ${total.ToString()}, Available: ${totalAvailable.ToString()}. Please adjust the rules.";
                 return RedirectToAction(nameof(Index));
             }
 
-            if(total - totalAvailable > 5000)
+            if (!ignoreOverage && (totalAvailable - total) > 5000)
             {
-                TempData["Message"] = "Allocation rules leave more than $5000 remaining. Please adjust the rules.";
-                    return RedirectToAction(nameof(Index));
-                }
-
-                await _context.SaveChangesAsync();
-
-                TempData["Message"] = "Allocation rule applied.";
+                TempData["ConfirmOverage"] = true;
+                TempData["OverageAmount"] = (totalAvailable - total).ToString("C");
+                return RedirectToAction(nameof(Index));
             }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Allocation rules applied successfully.";
 
             return RedirectToAction(nameof(Index));
         }

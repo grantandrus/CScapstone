@@ -8,10 +8,32 @@
 
 <h1>Allocations</h1>
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
 @if (TempData["Message"] != null)
 {
     <div class="alert alert-success">
         @TempData["Message"]
+    </div>
+}
+
+@if (TempData["ConfirmOverage"] != null && (bool)TempData["ConfirmOverage"] == true)
+{
+    <div class="alert alert-warning">
+        <p>The current rules will leave @TempData["OverageAmount"] remaining. It is recommended to adjust the rules to allocate more funds.</p>
+        <div class="d-flex gap-2 mt-2">
+            <form asp-action="ApplyRules" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ignoreOverage" value="true" />
+                <button type="submit" class="btn btn-warning">Proceed Anyway</button>
+            </form>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Go Back</a>
+        </div>
     </div>
 }
 
