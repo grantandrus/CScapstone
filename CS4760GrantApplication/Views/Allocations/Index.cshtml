@@ -8,10 +8,32 @@
 
 <h1>Allocations</h1>
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
 @if (TempData["Message"] != null)
 {
     <div class="alert alert-success">
         @TempData["Message"]
+    </div>
+}
+
+@if (TempData["ConfirmOverage"] != null && (bool)TempData["ConfirmOverage"] == true)
+{
+    <div class="alert alert-warning">
+        <p>The current rules will leave @TempData["OverageAmount"] remaining. It is recommended to adjust the rules to allocate more funds.</p>
+        <div class="d-flex gap-2 mt-2">
+            <form asp-action="ApplyRules" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ignoreOverage" value="true" />
+                <button type="submit" class="btn btn-warning">Proceed Anyway</button>
+            </form>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Go Back</a>
+        </div>
     </div>
 }
 
@@ -55,14 +77,24 @@
     </button>
 </form>
 
-<h2 class="mt-4 mb-3">Allocation Rules</h2>
+<div class="d-flex justify-content-between align-items-center">
+    <h2 class="mt-4 mb-3">Allocation Rules</h2>
+
+    <form asp-action="ApplyRules"
+          method="post">
+        @Html.AntiForgeryToken()
+
+        <button type="submit" class="btn btn-outline-primary" id="apply-rules-btn">
+            Apply Rules
+        </button>
+    </form>
+</div>
 
 <table class="table">
     <thead>
         <tr>
             <th>Score Range</th>
             <th>Percent Allcoated</th>
-            <th></th>
             <th></th>
         </tr>
     </thead>
@@ -78,18 +110,6 @@
 
                 <td>
                     @rule.PercentAllocated% of requested ARCC funds
-                </td>
-
-                <td>
-                    <form asp-action="ApplyRule"
-                          asp-route-id="@rule.Id"
-                          method="post">
-                        @Html.AntiForgeryToken()
-
-                        <button type="submit" class="btn btn-outline-primary">
-                            Apply
-                        </button>
-                    </form>
                 </td>
 
                 <td>
@@ -587,9 +607,22 @@ else
                 field.disabled = false;
             });
 
-        document.getElementById("applyCutoffButton").disabled = true;
+        const applyCutoffButton = document.getElementById("applyCutoffButton");
+        if (applyCutoffButton) {
+            applyCutoffButton.disabled = true;
+        }
+
+        const applyRulesBtn = document.getElementById("apply-rules-btn");
+        if (applyRulesBtn) {
+            applyRulesBtn.disabled = true;
+        }
+
         document.getElementById("editButton").style.display = "none";
-        document.getElementById("saveButton").style.display = "";
+        
+        const saveButton = document.getElementById("saveButton");
+        if (saveButton) {
+            saveButton.style.display = "";
+        }
     });
 </script>s
 }
