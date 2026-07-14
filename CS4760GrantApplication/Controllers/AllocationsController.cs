@@ -353,6 +353,7 @@ namespace CS4760GrantApplication.Controllers
                 "'$' + CAST(AllocatedFunds AS VARCHAR(15)) AllocatedFunds " +
                 "FROM Grants " +
                 "JOIN Users ON Grants.UserId = Users.Id " +
+                "WHERE AllocatedFunds > 0 " +
                 "ORDER BY Grants.Id;";
             using (SqlConnection con = new(constr))
             {
