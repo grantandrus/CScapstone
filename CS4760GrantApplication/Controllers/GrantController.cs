@@ -752,6 +752,59 @@ namespace CS4760GrantApplication.Controllers
             return RedirectToAction("Index", "Dashboard");
         }
 
+        [HttpGet]
+        [SessionAuthorize]
+        public async Task<IActionResult> SubmitReport(int id)
+        {
+            var grant = await _context.Grants
+                .Include(g => g.User)
+                .FirstOrDefaultAsync(g => g.Id == id);
+
+            if (grant == null)
+                return NotFound();
+
+            if (grant.AllocatedFunds == null || grant.AllocatedFunds <= 0)
+                return NotFound();
+
+            return View(grant);
+        }
+
+        [HttpPost]
+        [SessionAuthorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitReport(Report report)
+        {
+            var grant = await _context.Grants.FindAsync(report.GrantId);
+            if (grant == null) return NotFound();
+            if (grant.ReportSubmitted) return RedirectToAction("Index", "Dashboard");
+
+            report.Id = 0;
+            report.Grant = null;
+
+            grant.ReportSubmitted = true;
+            _context.Reports.Add(report);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        [HttpGet]
+        [SessionAuthorize]
+        public async Task<IActionResult> ViewReport(int id)
+        {
+            var report = await _context.Reports
+                .Include(r => r.Grant)
+                .ThenInclude(g => g.User)
+                .FirstOrDefaultAsync(r => r.GrantId == id);
+
+            if (report == null)
+            {
+                return NotFound();
+            }
+
+            return View(report);
+        }
+
         public async Task<IActionResult> DownloadAttachment(int id)
         {
             var attachment = await _context.GrantAttachments

@@ -1,0 +1,71 @@
+﻿@model CS4760GrantApplication.Models.Grant
+@{
+    ViewData["Title"] = "Submit Report";
+}
+
+<div class="container mt-4">
+    <h2>Submit Report</h2>
+
+    <div class="alert alert-info">
+        Report for Grant ID: <strong>@Model.Id</strong>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Grant Information
+        </div>
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="fw-bold">Title</label>
+                <div>@Model.Title</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Principle Investigator</label>
+                <div>@Model.User?.FirstName @Model.User?.LastName</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Description</label>
+                <div>@Model.Description</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Award Date</label>
+                <div>@Model.AwardDate</div>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="SubmitReport" enctype="multipart/form-data">
+        <input type="hidden" name="GrantId" value="@Model.Id" />
+        <div class="mb-3">
+            <label class="form-label fw-bold">
+                Report
+            </label>
+            <br /><br />
+            <label for="ProjectSummary" class="control-label">Project Summary</label>
+            <textarea name="ProjectSummary" class="form-control" rows="5"></textarea>
+
+            <label for="Budget" class="control-label">Budget</label>
+            <textarea name="Budget" class="form-control" rows="5"></textarea>
+
+            <label for="CurrentProgress" class="control-label">Current Progress</label>
+            <textarea name="CurrentProgress" class="form-control" rows="5"></textarea>
+
+            <label for="Next Steps" class="control-label">Next Steps</label>
+            <textarea name="NextSteps" class="form-control" rows="5"></textarea>
+        </div>
+
+        <div class="form-group">
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">
+                    Submit Report
+                </button>
+            </div>
+
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+        </div>
+    </form>
+</div>

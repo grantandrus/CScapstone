@@ -55,7 +55,7 @@ namespace CS4760GrantApplication.Models
         public string DeptReviewNotes { get; set; } = string.Empty;
         public bool? CollegeReviewStatus { get; set; }
         public string CollegeReviewNotes { get; set; } = string.Empty;
-        public List<GrantStatus> Statuses { get; set; } = new(); 
+        public List<GrantStatus> Statuses { get; set; } = new();
         public GrantStatus Status { get; set; } = GrantStatus.Saved;
 
         [DataType(DataType.Date)]
@@ -65,6 +65,8 @@ namespace CS4760GrantApplication.Models
         public List<Notification> Notifications { get; set; } = new();
         [Precision(18, 2)]
         public decimal? AllocatedFunds { get; set; }
+        public DateTime? AwardDate { get; set; }
+        public bool ReportSubmitted { get; set; } = false;
     }
 
     public enum GrantStatus

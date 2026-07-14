@@ -1,0 +1,60 @@
+﻿@model CS4760GrantApplication.Models.Report
+@{
+    ViewData["Title"] = "View Report";
+}
+
+<div class="container mt-4">
+    <h2>View Report</h2>
+
+    <div class="alert alert-info">
+        Report for Grant ID: <strong>@Model.GrantId</strong>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            Grant Information
+        </div>
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="fw-bold">Title</label>
+                <div>@Model.Grant.Title</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Principle Investigator</label>
+                <div>@Model.Grant.User?.FirstName @Model.Grant.User?.LastName</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Description</label>
+                <div>@Model.Grant.Description</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Award Date</label>
+                <div>@Model.Grant.AwardDate</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Project Summary</label>
+                <div>@Model.ProjectSummary</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Budget</label>
+                <div>@Model.Budget</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Current Progress</label>
+                <div>@Model.CurrentProgress</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Next Steps</label>
+                <div>@Model.NextSteps</div>
+            </div>
+        </div>
+    </div>
+</div>
