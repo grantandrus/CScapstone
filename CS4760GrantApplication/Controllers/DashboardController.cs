@@ -44,7 +44,7 @@ namespace CS4760GrantApplication.Controllers
 
                 Notifications = await _context.Notifications
                     .Include(n => n.Grant)
-                    .Where(n => n.UserId == userId && !n.IsRead)
+                    .Where(n => n.UserId == userId && !n.IsRead && n.Grant!.ReportSubmitted == false)
                     .OrderBy(n => n.Grant!.ReportDueDate)
                     .ThenByDescending(n => n.NotificationDate)
                     .ToListAsync()

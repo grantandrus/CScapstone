@@ -296,6 +296,7 @@ namespace CS4760GrantApplication.Controllers
                         .Sum(b => b.Amount);
 
                     grant.AllocatedFunds = requestedAmount * rule.PercentAllocated / 100m;
+                    grant.AwardDate = DateTime.UtcNow;
                     total += (decimal)grant.AllocatedFunds;
                 }
                 else
