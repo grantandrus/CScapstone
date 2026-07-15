@@ -281,13 +281,6 @@
                                 Submit Report
                             </button>
                         }
-                        @if (item.AllocatedFunds > 0 && item.ReportSubmitted)
-                        {
-                            <button type="button" class="btn btn-warning"
-                                    onclick="location.href='@Url.Action("ViewReport", "Grant", new { id = item.Id })'">
-                                View Report
-                            </button>
-                        }
                     }
                 </td>
             </tr>
@@ -428,23 +421,18 @@
                 }
 
                 <td>
-                    @if (item.IsSaved)
-                    {
-                        <button type="button" class="btn btn-secondary"
-                                onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">
-                            Edit
-                        </button>
-
-                        <button type="button" class="btn btn-danger"
-                                onclick="location.href='@Url.Action("Delete", "Grant", new { id = item.Id })'">
-                            Delete
-                        </button>
-                    }
                     @if (!item.IsSaved)
                     {
                         <button type="button" class="btn btn-secondary"
                                 onclick="location.href='@Url.Action("ViewGrant", "Grant", new { id = item.Id })'">
                             View
+                        </button>
+                    }
+                    @if (item.AllocatedFunds > 0 && item.ReportSubmitted)
+                    {
+                        <button type="button" class="btn btn-warning"
+                                onclick="location.href='@Url.Action("ViewReport", "Grant", new { id = item.Id })'">
+                            View Report
                         </button>
                     }
                 </td>
