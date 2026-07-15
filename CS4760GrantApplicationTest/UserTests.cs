@@ -1,9 +1,17 @@
 ﻿using CS4760GrantApplication.Controllers;
 using CS4760GrantApplication.Data;
+using CS4760GrantApplication.Models;
+using CS4760GrantApplication.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CS4760GrantApplicationTest
 {
@@ -65,7 +73,7 @@ namespace CS4760GrantApplicationTest
             // did what we expected it to do. So here we want to make sure that
             // the user was actually created and created as we would expect it
             // to be.
-            
+
             // find a user in the fake database that matches the email of the dummy
             // user. 
             var createdUser = _context.Users.FirstOrDefault(u => u.Email == user.Email);
@@ -92,6 +100,93 @@ namespace CS4760GrantApplicationTest
              * 
              */
         }
+
+        [TestMethod]
+        public async Task InvalidUser_DuplicateEmail_IsNotCreatedAsync()
+        {
+            // arrange by creating a user and then another user with the same email
+            var existingUser = new User
+            {
+                FirstName = "John",
+                LastName = "Smith",
+                Email = "janedoe@example.com",
+                PasswordHash = "InitialHash"
+            };
+            _context.Users.Add(existingUser);
+            await _context.SaveChangesAsync();
+
+            var registerUser = new RegisterViewModel
+            {
+                FirstName = "Jane",
+                LastName = "Doe",
+                Email = "janedoe@example.com",
+                Password = "Password123!",
+                ConfirmPassword = "Password123!"
+            };
+
+            // act
+            var result = await _controller.Create(registerUser) as ViewResult;
+
+            // assert that a veiw is being returned, the error message appears, and there's still only one user
+            Assert.IsNotNull(result, "Action did not return a ViewResult.");
+
+            Assert.AreEqual("An account with that email already exists.", _controller.ViewBag.Error);
+
+            var usersCount = _context.Users.Count();
+            Assert.AreEqual(1, usersCount, "A new user was improperly created in the database.");
+        }
+
+        [TestMethod]
+        public async Task InvalidUser_CannotLogInAsync()
+        {
+            // arrange by making up a user (not saved to the database)
+            var email = "nonexistent@example.com";
+            var password = "WrongPassword123!";
+
+            // act
+            var result = await _controller.Login(email, password) as ViewResult;
+
+            // assert that we return back to the Login view with an error message
+            Assert.IsNotNull(result, "Action did not return a ViewResult.");
+            Assert.AreEqual("Invalid email or password.", _controller.ViewBag.Error);
+        }
+
+        [TestMethod]
+        public async Task ValidUser_CanLogInAsync()
+        {
+            // arrange
+            // fake session so HttpContext.Session doesn't throw NullReferenceException
+            var mockSession = new Mock<ISession>();
+            var httpContext = new DefaultHttpContext();
+            httpContext.Session = mockSession.Object;
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            };
+
+            // add a new user + hash their password to save since the login will check against the hash
+            var hasher = new PasswordHasher<User>();
+            var testUser = new User
+            {
+                FirstName = "Alice",
+                LastName = "Wonderland",
+                Email = "alice@example.com",
+                IsAdmin = false
+            };
+            testUser.PasswordHash = hasher.HashPassword(testUser, "CorrectPassword1!");
+
+            _context.Users.Add(testUser);
+            await _context.SaveChangesAsync();
+
+            // act
+            var result = await _controller.Login(testUser.Email, "CorrectPassword1!") as RedirectToActionResult;
+
+            // assert view is returned and the correct action takes place
+            Assert.IsNotNull(result, "Login did not redirect correctly on valid credentials.");
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("Home", result.ControllerName);
+        }
     }
-    
+
 }
