@@ -216,6 +216,56 @@ namespace CS4760GrantApplication.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [SessionAuthorize]
+        [HttpGet]
+        public async Task<IActionResult> PreviewCutoffData()
+        {
+            var allocation = await _context.Allocations.FirstOrDefaultAsync();
+            if (allocation == null)
+            {
+                return Json(new { error = "Allocation settings not found." });
+            }
+
+            var undecidedGrants = await _context.Grants
+                .Include(g => g.Reviews)
+                .Include(g => g.User)
+                .Where(g =>
+                    !g.IsSaved &&
+                    g.Reviews.Any() &&
+                    (!g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.Statuses.Contains(GrantStatus.ApprovedARCC)))
+                .ToListAsync();
+
+            var resultGrants = new List<object>();
+            int acceptedCount = 0;
+            int rejectedCount = 0;
+
+            foreach (var grant in undecidedGrants)
+            {
+                decimal averageScore = grant.Reviews.Average(r => r.AverageScore);
+                bool isAccepted = averageScore >= allocation.CutoffPercent;
+
+                if (isAccepted) acceptedCount++;
+                else rejectedCount++;
+
+                resultGrants.Add(new
+                {
+                    title = grant.Title,
+                    principalInvestigator = grant.User.FirstName + " " + grant.User.LastName,
+                    averageScore = averageScore,
+                    accept = isAccepted
+                });
+            }
+
+            return Json(new
+            {
+                cutoff = allocation.CutoffPercent,
+                acceptedCount = acceptedCount,
+                rejectedCount = rejectedCount,
+                affectedCount = resultGrants.Count,
+                grants = resultGrants
+            });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddRule(AllocationsViewModel vm)
@@ -259,7 +309,7 @@ namespace CS4760GrantApplication.Controllers
                 .OrderByDescending(r => r.MinScore)
                 .ToListAsync();
 
-            if(!rules.Any())
+            if (!rules.Any())
             {
                 TempData["Message"] = "No allocation rules defined.";
                 return RedirectToAction(nameof(Index));
@@ -326,6 +376,81 @@ namespace CS4760GrantApplication.Controllers
         }
 
         [SessionAuthorize]
+        [HttpGet]
+        public async Task<IActionResult> PreviewAllocationData()
+        {
+            var rules = await _context.AllocationRules
+                .OrderByDescending(r => r.MinScore)
+                .ToListAsync();
+
+            var grants = await _context.Grants
+                .Include(g => g.BudgetItems)
+                .Include(g => g.Reviews)
+                .Include(g => g.User)
+                .Where(g => g.Statuses.Contains(GrantStatus.ApprovedARCC))
+                .ToListAsync();
+
+            var allocation = await _context.Allocations.FirstOrDefaultAsync();
+            decimal totalAvailable = allocation?.AvailableAmount ?? 0;
+            decimal totalRequested = 0;
+            decimal totalAllocated = 0;
+
+            var resultGrants = new List<object>();
+
+            foreach (var grant in grants)
+            {
+                if (!grant.Reviews.Any())
+                    continue;
+
+                decimal averageScore = grant.Reviews.Average(r => r.AverageScore);
+                var rule = rules.FirstOrDefault(r => averageScore >= r.MinScore && averageScore <= r.MaxScore);
+
+                decimal requestedAmount = grant.BudgetItems
+                    .Where(b => b.FundingSource == "ARCC")
+                    .Sum(b => b.Amount);
+
+                totalRequested += requestedAmount;
+
+                decimal allocatedAmount = 0;
+                string ruleRange = "No Rule";
+                int percentAllocated = 0;
+
+                if (rule != null)
+                {
+                    allocatedAmount = requestedAmount * rule.PercentAllocated / 100m;
+                    ruleRange = $"{rule.MinScore}-{rule.MaxScore}";
+                    percentAllocated = (int)rule.PercentAllocated;
+                }
+
+                totalAllocated += allocatedAmount;
+
+                resultGrants.Add(new
+                {
+                    title = grant.Title,
+                    principalInvestigator = grant.User.FirstName + " " + grant.User.LastName,
+                    averageScore = averageScore,
+                    requestedAmountFormatted = requestedAmount.ToString("C"),
+                    ruleRange = ruleRange,
+                    percentAllocated = percentAllocated,
+                    allocatedAmountFormatted = allocatedAmount.ToString("C")
+                });
+            }
+
+            decimal remainingFunds = totalAvailable - totalAllocated;
+
+            return Json(new
+            {
+                totalRequestedFormatted = totalRequested.ToString("C"),
+                totalAllocatedFormatted = totalAllocated.ToString("C"),
+                availableFundsFormatted = totalAvailable.ToString("C"),
+                remainingFundsFormatted = remainingFunds.ToString("C"),
+                isOverAllocated = remainingFunds < 0,
+                isLargeRemainder = remainingFunds > 5000,
+                grants = resultGrants
+            });
+        }
+
+        [SessionAuthorize]
         [HttpPost]
         public IActionResult Export()
         {
@@ -364,5 +489,6 @@ namespace CS4760GrantApplication.Controllers
 
             return ds;
         }
+
     }
 }
