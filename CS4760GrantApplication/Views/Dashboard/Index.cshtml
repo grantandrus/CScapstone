@@ -3,699 +3,816 @@
 @{
     ViewData["Title"] = "Dashboard";
 }
-<h2>Your Grants</h2>
 
-<div class="mb-3">
+<style>
+    .dashboard-section {
+        margin-top: 2.5rem;
+    }
+
+    .dashboard-table {
+        width: 100%;
+        margin-bottom: 0;
+        table-layout: fixed;
+    }
+
+    .dashboard-table th {
+        vertical-align: middle;
+        text-align: center;
+        white-space: normal;
+        line-height: 1.2;
+        padding-top: 0.9rem;
+        padding-bottom: 0.9rem;
+    }
+
+    .dashboard-table th:nth-child(6),
+.dashboard-table th:nth-child(7),
+.dashboard-table th:nth-child(8),
+.dashboard-table th:nth-child(9) {
+    min-width: 120px;
+}
+
+    .dashboard-table td {
+        vertical-align: middle;
+        overflow-wrap: anywhere;
+    }
+
+    .dashboard-table .text-column {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .dashboard-table .status-column {
+        white-space: normal;
+    }
+
+    .dashboard-table .actions-column .btn {
+        width: 100%;
+        white-space: nowrap;
+    }
+
+    .dashboard-table-container {
+        margin-bottom: 2rem;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .dashboard-empty-state {
+        padding: 1.5rem;
+        margin-bottom: 0;
+        color: var(--bs-secondary-color);
+        text-align: center;
+        background-color: var(--bs-tertiary-bg);
+    }
+
+    .section-heading {
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+    <h1 class="mb-0">Your Grants</h1>
+
+    <a class="btn btn-primary"
+       asp-controller="Grant"
+       asp-action="Create">
+        <i class="bi bi-plus-circle me-1"></i>
+        Create Grant
+    </a>
+</div>
+
+<div class="mb-4">
     <button class="btn btn-outline-primary"
             type="button"
             data-bs-toggle="collapse"
-            data-bs-target="#notificationPanel">
-
-        🔔 Notifications
+            data-bs-target="#notificationPanel"
+            aria-expanded="false"
+            aria-controls="notificationPanel">
+        <i class="bi bi-bell-fill me-1"></i>
+        Notifications
 
         @if (Model.Notifications.Any())
         {
-            <span class="badge bg-danger">
+            <span class="badge bg-danger ms-1">
                 @Model.Notifications.Count
             </span>
         }
     </button>
 
     <div class="collapse mt-2" id="notificationPanel">
-        <div class="card card-body">
-
-            @if (Model.Notifications.Any())
-            {
-                <ul class="list-group">
-                    @foreach (var notification in Model.Notifications)
-                    {
-                        <li class="list-group-item">
-                            @notification.Message
-                        </li>
-                    }
-                </ul>
-            }
-            else
-            {
-                <p class="mb-0">No notifications.</p>
-            }
-
+        <div class="card shadow-sm">
+            <div class="card-body">
+                @if (Model.Notifications.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var notification in Model.Notifications)
+                        {
+                            <div class="list-group-item px-0">
+                                @notification.Message
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="mb-0 text-muted">
+                        No notifications.
+                    </p>
+                }
+            </div>
         </div>
     </div>
 </div>
 
-<button type="button"
-        class="btn btn-primary"
-        onclick="location.href='@Url.Action("Create", "Grant")'">
-    Create Grant
-</button>
+<section class="dashboard-section">
+    <h2 class="section-heading">Edit Grants</h2>
 
-<h3 class="mt-4">Edit Grants</h3>
+    @{
+        var savedGrants = Model.MyGrants
+            .Where(g => g.IsSaved)
+            .ToList();
+    }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Grant Title</th>
-            <th>Description</th>
-            <th>Project Summary</th>
-            <th>Justification</th>
-            <th>Project Impact</th>
-            <th>Multiple Departments</th>
-            <th>College</th>
-            <th>Department Name</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
+    @if (savedGrants.Any())
+    {
+        <div class="table-responsive dashboard-table-container">
+            <table class="table table-striped table-hover align-middle dashboard-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Grant Title</th>
+                        <th>Description</th>
+                        <th>Project Summary</th>
+                        <th>Justification</th>
+                        <th>Project Impact</th>
+                        <th>Multiple Departments</th>
+                        <th>College</th>
+                        <th>Department Name</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
 
-    <tbody>
-        @foreach (var item in Model.MyGrants.Where(g => g.IsSaved == true))
-        {
-            <tr>
-                <td>@item.Title</td>
-                <td>@item.Description</td>
-                <td>@item.ProjectSummary</td>
-                <td>@item.Justification</td>
-                <td>@item.ProjectImpact</td>
-                <td>@item.isMultipleDepartments</td>
-
-                <td>
-                    @(item.College == null ? "None" : item.College.Name)
-                </td>
-
-                <td>
-                    @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
-                </td>
-                @if (item.Statuses.Count() == 0)
-                {
-                    <td>
-                        Not Reviewed
-                    </td>
-                }
-                @foreach (var status in item.Statuses)
-                {
-                    <td>
-                        @Html.DisplayFor(modelItem => status),
-                    </td>
-                }
-
-                <td>
-                    @if (item.IsSaved)
+                <tbody>
+                    @foreach (var item in savedGrants)
                     {
-                        <button type="button" class="btn btn-secondary"
-                                onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">
-                            Edit
-                        </button>
+                        <tr>
+                            <td class="fw-semibold">@item.Title</td>
+                            <td class="text-column">@item.Description</td>
+                            <td class="text-column">@item.ProjectSummary</td>
+                            <td class="text-column">@item.Justification</td>
+                            <td>@item.ProjectImpact</td>
+                            <td>
+                                @(item.isMultipleDepartments ? "Yes" : "No")
+                            </td>
+                            <td>
+                                @(item.College?.Name ?? "None")
+                            </td>
+                            <td>
+                                @{
+                                    var departments = string.Join(
+                                        ", ",
+                                        item.Departments.Select(d => d.DepartmentName)
+                                    );
+                                }
 
-                        <button type="button" class="btn btn-danger"
-                                onclick="location.href='@Url.Action("Delete", "Grant", new { id = item.Id })'">
-                            Delete
-                        </button>
+                                @(string.IsNullOrWhiteSpace(departments)
+                                    ? "None"
+                                    : departments)
+                            </td>
+                            <td class="status-column">
+                                @(item.Statuses.Any()
+                                    ? string.Join(", ", item.Statuses)
+                                    : "Not Reviewed")
+                            </td>
+                            <td class="actions-column">
+                                <div class="d-grid gap-2">
+                                    <a class="btn btn-secondary btn-sm"
+                                       asp-controller="Grant"
+                                       asp-action="Edit"
+                                       asp-route-id="@item.Id">
+                                        Edit
+                                    </a>
+
+                                    <a class="btn btn-danger btn-sm"
+                                       asp-controller="Grant"
+                                       asp-action="Delete"
+                                       asp-route-id="@item.Id">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                     }
-                    @if (!item.IsSaved)
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-table-container">
+            <p class="dashboard-empty-state">
+                You do not currently have any saved grants.
+            </p>
+        </div>
+    }
+</section>
+
+<section class="dashboard-section">
+    <h2 class="section-heading">Submitted Grants</h2>
+
+    @{
+        var submittedGrants = Model.MyGrants
+            .Where(g =>
+                !g.Statuses.Contains(GrantStatus.RejectedARCC) &&
+                !g.Statuses.Contains(GrantStatus.ApprovedARCC) &&
+                !g.Statuses.Contains(GrantStatus.ApprovedByDeptChair) &&
+                !g.Statuses.Contains(GrantStatus.RejectedByDeptChair) &&
+                !g.Statuses.Contains(GrantStatus.ApproveDean) &&
+                !g.Statuses.Contains(GrantStatus.RejectedDean) &&
+                !g.IsSaved)
+            .ToList();
+    }
+
+    @if (submittedGrants.Any())
+    {
+        <div class="table-responsive dashboard-table-container">
+            <table class="table table-striped table-hover align-middle dashboard-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Grant Title</th>
+                        <th>Description</th>
+                        <th>Project Summary</th>
+                        <th>Justification</th>
+                        <th>Project Impact</th>
+                        <th>Multiple Departments</th>
+                        <th>College</th>
+                        <th>Department Name</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in submittedGrants)
                     {
-                        <button type="button" class="btn btn-secondary"
-                                onclick="location.href='@Url.Action("ViewGrant", "Grant", new { id = item.Id })'">
-                            View
-                        </button>
+                        <tr>
+                            <td class="fw-semibold">@item.Title</td>
+                            <td class="text-column">@item.Description</td>
+                            <td class="text-column">@item.ProjectSummary</td>
+                            <td class="text-column">@item.Justification</td>
+                            <td>@item.ProjectImpact</td>
+                            <td>
+                                @(item.isMultipleDepartments ? "Yes" : "No")
+                            </td>
+                            <td>
+                                @(item.College?.Name ?? "None")
+                            </td>
+                            <td>
+                                @{
+                                    var departments = string.Join(
+                                        ", ",
+                                        item.Departments.Select(d => d.DepartmentName)
+                                    );
+                                }
+
+                                @(string.IsNullOrWhiteSpace(departments)
+                                    ? "None"
+                                    : departments)
+                            </td>
+                            <td class="status-column">
+                                @(item.Statuses.Any()
+                                    ? string.Join(", ", item.Statuses)
+                                    : "Not Reviewed")
+                            </td>
+                            <td class="actions-column">
+                                <div class="d-grid">
+                                    <a class="btn btn-secondary btn-sm"
+                                       asp-controller="Grant"
+                                       asp-action="ViewGrant"
+                                       asp-route-id="@item.Id">
+                                        View
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                     }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-table-container">
+            <p class="dashboard-empty-state">
+                You do not currently have any submitted grants.
+            </p>
+        </div>
+    }
+</section>
 
-<h3 class="mt-4">Submitted Grants</h3>
+<section class="dashboard-section">
+    <h2 class="section-heading">Approved Grants</h2>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Grant Title</th>
-            <th>Description</th>
-            <th>Project Summary</th>
-            <th>Justification</th>
-            <th>Project Impact</th>
-            <th>Multiple Departments</th>
-            <th>College</th>
-            <th>Department Name</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
+    @{
+        var approvedGrants = Model.MyGrants
+            .Where(g =>
+                (
+                    g.Statuses.Contains(GrantStatus.ApprovedARCC) ||
+                    g.Statuses.Contains(GrantStatus.ApprovedByDeptChair) ||
+                    g.Statuses.Contains(GrantStatus.ApproveDean)
+                ) &&
+                !g.ReportSubmitted)
+            .ToList();
+    }
 
-    <tbody>
-        @foreach (var item in Model.MyGrants.Where(g => 
-        !g.Statuses.Contains(GrantStatus.RejectedARCC) && 
-        !g.Statuses.Contains(GrantStatus.ApprovedARCC) && 
-        !g.Statuses.Contains(GrantStatus.ApprovedByDeptChair) && 
-        !g.Statuses.Contains(GrantStatus.RejectedByDeptChair) && 
-        !g.Statuses.Contains(GrantStatus.ApproveDean) &&
-        !g.Statuses.Contains(GrantStatus.RejectedDean) &&
-        g.IsSaved == false))
-        {
-            <tr>
-                <td>@item.Title</td>
-                <td>@item.Description</td>
-                <td>@item.ProjectSummary</td>
-                <td>@item.Justification</td>
-                <td>@item.ProjectImpact</td>
-                <td>@item.isMultipleDepartments</td>
+    @if (approvedGrants.Any())
+    {
+        <div class="table-responsive dashboard-table-container">
+            <table class="table table-striped table-hover align-middle dashboard-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Grant Title</th>
+                        <th>Description</th>
+                        <th>Project Summary</th>
+                        <th>Justification</th>
+                        <th>Project Impact</th>
+                        <th>Multiple Departments</th>
+                        <th>College</th>
+                        <th>Department Name</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
 
-                <td>
-                    @(item.College == null ? "None" : item.College.Name)
-                </td>
-
-                <td>
-                    @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
-                </td>
-                @if (item.Statuses.Count() == 0)
-                {
-                    <td>
-                        Not Reviewed
-                    </td>
-                }
-                @foreach (var status in item.Statuses)
-                {
-                    <td>
-                        @Html.DisplayFor(modelItem => status),
-                    </td>
-                }
-
-                <td>
-                    @if (item.IsSaved)
+                <tbody>
+                    @foreach (var item in approvedGrants)
                     {
-                        <button type="button" class="btn btn-secondary"
-                                onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">
-                            Edit
-                        </button>
+                        <tr>
+                            <td class="fw-semibold">@item.Title</td>
+                            <td class="text-column">@item.Description</td>
+                            <td class="text-column">@item.ProjectSummary</td>
+                            <td class="text-column">@item.Justification</td>
+                            <td>@item.ProjectImpact</td>
+                            <td>
+                                @(item.isMultipleDepartments ? "Yes" : "No")
+                            </td>
+                            <td>
+                                @(item.College?.Name ?? "None")
+                            </td>
+                            <td>
+                                @{
+                                    var departments = string.Join(
+                                        ", ",
+                                        item.Departments.Select(d => d.DepartmentName)
+                                    );
+                                }
 
-                        <button type="button" class="btn btn-danger"
-                                onclick="location.href='@Url.Action("Delete", "Grant", new { id = item.Id })'">
-                            Delete
-                        </button>
+                                @(string.IsNullOrWhiteSpace(departments)
+                                    ? "None"
+                                    : departments)
+                            </td>
+                            <td class="status-column">
+                                @(item.Statuses.Any()
+                                    ? string.Join(", ", item.Statuses)
+                                    : "Not Reviewed")
+                            </td>
+                            <td class="actions-column">
+                                <div class="d-grid gap-2">
+                                    <a class="btn btn-secondary btn-sm"
+                                       asp-controller="Grant"
+                                       asp-action="ViewGrant"
+                                       asp-route-id="@item.Id">
+                                        View
+                                    </a>
+
+                                    @if (
+                                        item.Statuses.Contains(GrantStatus.ApprovedARCC) &&
+                                        item.AllocatedFunds > 0 &&
+                                        !item.ReportSubmitted
+                                    )
+                                    {
+                                        <a class="btn btn-warning btn-sm"
+                                           asp-controller="Grant"
+                                           asp-action="SubmitReport"
+                                           asp-route-id="@item.Id">
+                                            Submit Report
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
                     }
-                    @if (!item.IsSaved)
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-table-container">
+            <p class="dashboard-empty-state">
+                You do not currently have any approved grants.
+            </p>
+        </div>
+    }
+</section>
+
+<section class="dashboard-section">
+    <h2 class="section-heading">Rejected Grants</h2>
+
+    @{
+        var rejectedGrants = Model.MyGrants
+            .Where(g =>
+                (
+                    g.Statuses.Contains(GrantStatus.RejectedARCC) ||
+                    g.Statuses.Contains(GrantStatus.RejectedByDeptChair) ||
+                    g.Statuses.Contains(GrantStatus.RejectedDean)
+                ) &&
+                !g.ReportSubmitted)
+            .ToList();
+    }
+
+    @if (rejectedGrants.Any())
+    {
+        <div class="table-responsive dashboard-table-container">
+            <table class="table table-striped table-hover align-middle dashboard-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Grant Title</th>
+                        <th>Description</th>
+                        <th>Project Summary</th>
+                        <th>Justification</th>
+                        <th>Project Impact</th>
+                        <th>Multiple Departments</th>
+                        <th>College</th>
+                        <th>Department Name</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in rejectedGrants)
                     {
-                        <button type="button" class="btn btn-secondary"
-                                onclick="location.href='@Url.Action("ViewGrant", "Grant", new { id = item.Id })'">
-                            View
-                        </button>
+                        <tr>
+                            <td class="fw-semibold">@item.Title</td>
+                            <td class="text-column">@item.Description</td>
+                            <td class="text-column">@item.ProjectSummary</td>
+                            <td class="text-column">@item.Justification</td>
+                            <td>@item.ProjectImpact</td>
+                            <td>
+                                @(item.isMultipleDepartments ? "Yes" : "No")
+                            </td>
+                            <td>
+                                @(item.College?.Name ?? "None")
+                            </td>
+                            <td>
+                                @{
+                                    var departments = string.Join(
+                                        ", ",
+                                        item.Departments.Select(d => d.DepartmentName)
+                                    );
+                                }
+
+                                @(string.IsNullOrWhiteSpace(departments)
+                                    ? "None"
+                                    : departments)
+                            </td>
+                            <td class="status-column">
+                                @(item.Statuses.Any()
+                                    ? string.Join(", ", item.Statuses)
+                                    : "Not Reviewed")
+                            </td>
+                            <td class="actions-column">
+                                <div class="d-grid">
+                                    <a class="btn btn-secondary btn-sm"
+                                       asp-controller="Grant"
+                                       asp-action="ViewGrant"
+                                       asp-route-id="@item.Id">
+                                        View
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                     }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-table-container">
+            <p class="dashboard-empty-state">
+                You do not currently have any rejected grants.
+            </p>
+        </div>
+    }
+</section>
 
+<section class="dashboard-section">
+    <h2 class="section-heading">Finished Reporting</h2>
 
-<h3 class="mt-4">Approved Grants</h3>
+    @{
+        var finishedReportingGrants = Model.MyGrants
+            .Where(g => g.ReportSubmitted)
+            .ToList();
+    }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Grant Title</th>
-            <th>Description</th>
-            <th>Project Summary</th>
-            <th>Justification</th>
-            <th>Project Impact</th>
-            <th>Multiple Departments</th>
-            <th>College</th>
-            <th>Department Name</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
+    @if (finishedReportingGrants.Any())
+    {
+        <div class="table-responsive dashboard-table-container">
+            <table class="table table-striped table-hover align-middle dashboard-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Grant Title</th>
+                        <th>Description</th>
+                        <th>Project Summary</th>
+                        <th>Justification</th>
+                        <th>Project Impact</th>
+                        <th>Multiple Departments</th>
+                        <th>College</th>
+                        <th>Department Name</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
 
-    <tbody>
-        @foreach (var item in Model.MyGrants.Where(g => 
-        (
-            g.Statuses.Contains(GrantStatus.ApprovedARCC) ||
-            g.Statuses.Contains(GrantStatus.ApprovedByDeptChair) ||
-            g.Statuses.Contains(GrantStatus.ApproveDean)
-        ) &&
-        !g.ReportSubmitted
-        ))
-        {
-            <tr>
-                <td>@item.Title</td>
-                <td>@item.Description</td>
-                <td>@item.ProjectSummary</td>
-                <td>@item.Justification</td>
-                <td>@item.ProjectImpact</td>
-                <td>@item.isMultipleDepartments</td>
-
-                <td>
-                    @(item.College == null ? "None" : item.College.Name)
-                </td>
-
-                <td>
-                    @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
-                </td>
-                @if (item.Statuses.Count() == 0)
-                {
-                    <td>
-                        Not Reviewed
-                    </td>
-                }
-                @foreach (var status in item.Statuses)
-                {
-                    <td>
-                        @Html.DisplayFor(modelItem => status),
-                    </td>
-                }
-
-                <td>
-                    @if (!item.IsSaved)
+                <tbody>
+                    @foreach (var item in finishedReportingGrants)
                     {
-                        <button type="button" class="btn btn-secondary"
-                                onclick="location.href='@Url.Action("ViewGrant", "Grant", new { id = item.Id })'">
-                            View
-                        </button>
+                        <tr>
+                            <td class="fw-semibold">@item.Title</td>
+                            <td class="text-column">@item.Description</td>
+                            <td class="text-column">@item.ProjectSummary</td>
+                            <td class="text-column">@item.Justification</td>
+                            <td>@item.ProjectImpact</td>
+                            <td>
+                                @(item.isMultipleDepartments ? "Yes" : "No")
+                            </td>
+                            <td>
+                                @(item.College?.Name ?? "None")
+                            </td>
+                            <td>
+                                @{
+                                    var departments = string.Join(
+                                        ", ",
+                                        item.Departments.Select(d => d.DepartmentName)
+                                    );
+                                }
+
+                                @(string.IsNullOrWhiteSpace(departments)
+                                    ? "None"
+                                    : departments)
+                            </td>
+                            <td class="status-column">
+                                @(item.Statuses.Any()
+                                    ? string.Join(", ", item.Statuses)
+                                    : "Not Reviewed")
+                            </td>
+                            <td class="actions-column">
+                                <div class="d-grid gap-2">
+                                    <a class="btn btn-secondary btn-sm"
+                                       asp-controller="Grant"
+                                       asp-action="ViewGrant"
+                                       asp-route-id="@item.Id">
+                                        View
+                                    </a>
+
+                                    @if (
+                                        item.AllocatedFunds > 0 &&
+                                        item.ReportSubmitted
+                                    )
+                                    {
+                                        <a class="btn btn-warning btn-sm"
+                                           asp-controller="Grant"
+                                           asp-action="ViewReport"
+                                           asp-route-id="@item.Id">
+                                            View Report
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
                     }
-                    @if (item.Statuses.Contains(GrantStatus.ApprovedARCC))
-                    {
-                        @if (item.AllocatedFunds > 0 && !item.ReportSubmitted)
-                        {
-                            <button type="button" class="btn btn-warning"
-                                    onclick="location.href='@Url.Action("SubmitReport", "Grant", new { id = item.Id })'">
-                                Submit Report
-                            </button>
-                        }
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<h3 class="mt-4">Rejected Grants</h3>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Grant Title</th>
-            <th>Description</th>
-            <th>Project Summary</th>
-            <th>Justification</th>
-            <th>Project Impact</th>
-            <th>Multiple Departments</th>
-            <th>College</th>
-            <th>Department Name</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach (var item in Model.MyGrants.Where(g =>
-        (
-            g.Statuses.Contains(GrantStatus.RejectedARCC) ||
-            g.Statuses.Contains(GrantStatus.RejectedByDeptChair) ||
-            g.Statuses.Contains(GrantStatus.RejectedDean)
-        ) &&
-        !g.ReportSubmitted
-        ))
-        {
-            <tr>
-                <td>@item.Title</td>
-                <td>@item.Description</td>
-                <td>@item.ProjectSummary</td>
-                <td>@item.Justification</td>
-                <td>@item.ProjectImpact</td>
-                <td>@item.isMultipleDepartments</td>
-
-                <td>
-                    @(item.College == null ? "None" : item.College.Name)
-                </td>
-
-                <td>
-                    @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
-                </td>
-                @if (item.Statuses.Count() == 0)
-                {
-                    <td>
-                        Not Reviewed
-                    </td>
-                }
-                @foreach (var status in item.Statuses)
-                {
-                    <td>
-                        @Html.DisplayFor(modelItem => status),
-                    </td>
-                }
-
-                <td>
-                    @if (item.IsSaved)
-                    {
-                        <button type="button" class="btn btn-secondary"
-                                onclick="location.href='@Url.Action("Edit", "Grant", new { id = item.Id })'">
-                            Edit
-                        </button>
-
-                        <button type="button" class="btn btn-danger"
-                                onclick="location.href='@Url.Action("Delete", "Grant", new { id = item.Id })'">
-                            Delete
-                        </button>
-                    }
-                    @if (!item.IsSaved)
-                    {
-                        <button type="button" class="btn btn-secondary"
-                                onclick="location.href='@Url.Action("ViewGrant", "Grant", new { id = item.Id })'">
-                            View
-                        </button>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<h3 class="mt-4">Finished Reporting</h3>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Grant Title</th>
-            <th>Description</th>
-            <th>Project Summary</th>
-            <th>Justification</th>
-            <th>Project Impact</th>
-            <th>Multiple Departments</th>
-            <th>College</th>
-            <th>Department Name</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach (var item in Model.MyGrants.Where(g =>
-        g.ReportSubmitted))
-        {
-            <tr>
-                <td>@item.Title</td>
-                <td>@item.Description</td>
-                <td>@item.ProjectSummary</td>
-                <td>@item.Justification</td>
-                <td>@item.ProjectImpact</td>
-                <td>@item.isMultipleDepartments</td>
-
-                <td>
-                    @(item.College == null ? "None" : item.College.Name)
-                </td>
-
-                <td>
-                    @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
-                </td>
-                @if (item.Statuses.Count() == 0)
-                {
-                    <td>
-                        Not Reviewed
-                    </td>
-                }
-                @foreach (var status in item.Statuses)
-                {
-                    <td>
-                        @Html.DisplayFor(modelItem => status),
-                    </td>
-                }
-
-                <td>
-                    @if (!item.IsSaved)
-                    {
-                        <button type="button" class="btn btn-secondary"
-                                onclick="location.href='@Url.Action("ViewGrant", "Grant", new { id = item.Id })'">
-                            View
-                        </button>
-                    }
-                    @if (item.AllocatedFunds > 0 && item.ReportSubmitted)
-                    {
-                        <button type="button" class="btn btn-warning"
-                                onclick="location.href='@Url.Action("ViewReport", "Grant", new { id = item.Id })'">
-                            View Report
-                        </button>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-table-container">
+            <p class="dashboard-empty-state">
+                You do not currently have any completed reports.
+            </p>
+        </div>
+    }
+</section>
 
 @if (Model.IsDeptChair)
 {
-    <br />
-    <br />
-    <h2>Department Grants</h2>
+    <section class="dashboard-section">
+        <h2 class="section-heading">Department Grants</h2>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    Grant Title
-                </th>
-                <th>
-                    Description
-                </th>
-                <th>
-                    Project Summary
-                </th>
-                <th>
-                    Justification
-                </th>
-                <th>
-                    Project Impact
-                </th>
-                <th>
-                    Multiple Departments
-                </th>
-                <th>
-                    College
-                </th>
-                <th>
-                    Department Name
-                </th>
-                <th>
-                    Status
-                </th>
-                <th>
-                    Dept. Review
-                </th>
-                <th>
-                    Actions
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.DepartmentGrants)
-            {
-                <tr>
-                    <td>
-                        @item.Title
-                    </td>
-                    <td>
-                        @item.Description
-                    </td>
-                
-                    <td>
-                        @item.ProjectSummary
-                    </td>
-                
-                    <td>
-                        @item.Justification
-                    </td>
-                
-                    <td>
-                        @item.ProjectImpact
-                    </td>
-                
-                    <td>
-                        @item.isMultipleDepartments
-                    </td>
-               
-                    @if (item.College == null)
-                    {
-                        <td>
-                            None
-                        </td>
-                    }
-                    else
-                    {
-                        <td>
-                            @item.College.Name
-                        </td>
-                    }
-                
-                    <td>
-                        @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
-                    </td>
+        @if (Model.DepartmentGrants.Any())
+        {
+            <div class="table-responsive dashboard-table-container">
+                <table class="table table-striped table-hover align-middle dashboard-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Grant Title</th>
+                            <th>Description</th>
+                            <th>Project Summary</th>
+                            <th>Justification</th>
+                            <th>Project Impact</th>
+                            <th>Multiple Departments</th>
+                            <th>College</th>
+                            <th>Department Name</th>
+                            <th>Status</th>
+                            <th>Department Review</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
 
-                    @if (item.Statuses.Count() == 0)
-                    {
-                        <td>
-                            Not Reviewed
-                        </td>
-                    }
-                    @foreach (var status in item.Statuses)
-                    {
-                        <td>
-                            @Html.DisplayFor(modelItem => status),
-                        </td>
-                    }
+                    <tbody>
+                        @foreach (var item in Model.DepartmentGrants)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@item.Title</td>
+                                <td class="text-column">@item.Description</td>
+                                <td class="text-column">@item.ProjectSummary</td>
+                                <td class="text-column">@item.Justification</td>
+                                <td>@item.ProjectImpact</td>
+                                <td>
+                                    @(item.isMultipleDepartments ? "Yes" : "No")
+                                </td>
+                                <td>
+                                    @(item.College?.Name ?? "None")
+                                </td>
+                                <td>
+                                    @{
+                                        var departments = string.Join(
+                                            ", ",
+                                            item.Departments.Select(d => d.DepartmentName)
+                                        );
+                                    }
 
-                    @if (!item.Statuses.Contains(GrantStatus.RejectedByDeptChair) && !item.Statuses.Contains(GrantStatus.ApprovedByDeptChair))
-                    {
-                        <td>
-                            Not reviewed
-                        </td>
-                    }
-                    else if (item.Statuses.Contains(GrantStatus.ApprovedByDeptChair))
-                    {
-                        <td>
-                            Approved
-                        </td>
-                    }
-                    else if (item.Statuses.Contains(GrantStatus.RejectedByDeptChair))
-                    {
-                        <td>
-                            Rejected
-                        </td>
-                    }
-
-                    <td>
-                        <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("DeptReview", "Grant", new { id = item.Id })'">Review</button>
-                    </td>
-                
-                </tr>
-            }
-        </tbody>
-    </table>
+                                    @(string.IsNullOrWhiteSpace(departments)
+                                        ? "None"
+                                        : departments)
+                                </td>
+                                <td class="status-column">
+                                    @(item.Statuses.Any()
+                                        ? string.Join(", ", item.Statuses)
+                                        : "Not Reviewed")
+                                </td>
+                                <td>
+                                    @if (item.Statuses.Contains(GrantStatus.ApprovedByDeptChair))
+                                    {
+                                        <span class="badge bg-success">
+                                            Approved
+                                        </span>
+                                    }
+                                    else if (item.Statuses.Contains(GrantStatus.RejectedByDeptChair))
+                                    {
+                                        <span class="badge bg-danger">
+                                            Rejected
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Not Reviewed
+                                        </span>
+                                    }
+                                </td>
+                                <td class="actions-column">
+                                    <div class="d-grid">
+                                        <a class="btn btn-secondary btn-sm"
+                                           asp-controller="Grant"
+                                           asp-action="DeptReview"
+                                           asp-route-id="@item.Id">
+                                            Review
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="dashboard-table-container">
+                <p class="dashboard-empty-state">
+                    There are no department grants to review.
+                </p>
+            </div>
+        }
+    </section>
 }
 
 @if (Model.IsCollegeDean)
 {
-    <br />
-    <h2>Grants Requesting College Funding</h2>
+    <section class="dashboard-section">
+        <h2 class="section-heading">
+            Grants Requesting College Funding
+        </h2>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    Grant Title
-                </th>
-                <th>
-                    Description
-                </th>
-                <th>
-                    Project Summary
-                </th>
-                <th>
-                    Justification
-                </th>
-                <th>
-                    Project Impact
-                </th>
-                <th>
-                    Multiple Departments
-                </th>
-                <th>
-                    College
-                </th>
-                <th>
-                    Department Name
-                </th>
-                <th>
-                    Status
-                </th>
-                <th>
-                    College Review
-                </th>
-                <th>
-                    Actions
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.CollegeGrants)
-            {
-                <tr>
-                    <td>
-                        @item.Title
-                    </td>
-                    <td>
-                        @item.Description
-                    </td>
+        @if (Model.CollegeGrants.Any())
+        {
+            <div class="table-responsive dashboard-table-container">
+                <table class="table table-striped table-hover align-middle dashboard-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Grant Title</th>
+                            <th>Description</th>
+                            <th>Project Summary</th>
+                            <th>Justification</th>
+                            <th>Project Impact</th>
+                            <th>Multiple Departments</th>
+                            <th>College</th>
+                            <th>Department Name</th>
+                            <th>Status</th>
+                            <th>College Review</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
 
-                    <td>
-                        @item.ProjectSummary
-                    </td>
+                    <tbody>
+                        @foreach (var item in Model.CollegeGrants)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@item.Title</td>
+                                <td class="text-column">@item.Description</td>
+                                <td class="text-column">@item.ProjectSummary</td>
+                                <td class="text-column">@item.Justification</td>
+                                <td>@item.ProjectImpact</td>
+                                <td>
+                                    @(item.isMultipleDepartments ? "Yes" : "No")
+                                </td>
+                                <td>
+                                    @(item.College?.Name ?? "None")
+                                </td>
+                                <td>
+                                    @{
+                                        var departments = string.Join(
+                                            ", ",
+                                            item.Departments.Select(d => d.DepartmentName)
+                                        );
+                                    }
 
-                    <td>
-                        @item.Justification
-                    </td>
-
-                    <td>
-                        @item.ProjectImpact
-                    </td>
-
-                    <td>
-                        @item.isMultipleDepartments
-                    </td>
-
-                    @if (item.College == null)
-                    {
-                        <td>
-                            None
-                        </td>
-                    }
-                    else
-                    {
-                        <td>
-                            @item.College.Name
-                        </td>
-                    }
-
-                    <td>
-                        @string.Join(", ", item.Departments.Select(d => d.DepartmentName))
-                    </td>
-                    @if (item.Statuses.Count() == 0)
-                    {
-                        <td>
-                            Not Reviewed
-                        </td>
-                    }
-                    @foreach (var status in item.Statuses)
-                    {
-                        <td>
-                            @Html.DisplayFor(modelItem => status), 
-                        </td>
-                    }
-
-                    @if (!item.Statuses.Contains(GrantStatus.RejectedDean) && !item.Statuses.Contains(GrantStatus.ApproveDean))
-                    {
-                        <td>
-                            Not reviewed
-                        </td>
-                    }
-                    else if (item.Statuses.Contains(GrantStatus.ApproveDean))
-                    {
-                        <td>
-                            Approved
-                        </td>
-                    }
-                    else if (item.Statuses.Contains(GrantStatus.RejectedDean))
-                    {
-                        <td>
-                            Rejected
-                        </td>
-                    }
-
-                    <td>
-                        <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("CollegeReview", "Grant", new { id = item.Id })'">Review</button>
-                    </td>
-
-                </tr>
-            }
-        </tbody>
-    </table>
+                                    @(string.IsNullOrWhiteSpace(departments)
+                                        ? "None"
+                                        : departments)
+                                </td>
+                                <td class="status-column">
+                                    @(item.Statuses.Any()
+                                        ? string.Join(", ", item.Statuses)
+                                        : "Not Reviewed")
+                                </td>
+                                <td>
+                                    @if (item.Statuses.Contains(GrantStatus.ApproveDean))
+                                    {
+                                        <span class="badge bg-success">
+                                            Approved
+                                        </span>
+                                    }
+                                    else if (item.Statuses.Contains(GrantStatus.RejectedDean))
+                                    {
+                                        <span class="badge bg-danger">
+                                            Rejected
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Not Reviewed
+                                        </span>
+                                    }
+                                </td>
+                                <td class="actions-column">
+                                    <div class="d-grid">
+                                        <a class="btn btn-secondary btn-sm"
+                                           asp-controller="Grant"
+                                           asp-action="CollegeReview"
+                                           asp-route-id="@item.Id">
+                                            Review
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="dashboard-table-container">
+                <p class="dashboard-empty-state">
+                    There are no grants requesting college funding.
+                </p>
+            </div>
+        }
+    </section>
 }

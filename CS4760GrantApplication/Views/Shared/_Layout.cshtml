@@ -20,73 +20,149 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Grant Applications</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm mb-4">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand fw-semibold me-4"
+                   asp-area=""
+                   asp-controller="Home"
+                   asp-action="Index">
+                    Grant Applications
+                </a>
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div id="mainNavbar" class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link"
+                               asp-area=""
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Home
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                            <a class="nav-link"
+                               asp-area=""
+                               asp-controller="Dashboard"
+                               asp-action="Index">
+                                Dashboard
+                            </a>
                         </li>
 
                         @if (userId.HasValue && userRole == "admin")
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="College" asp-action="Index">Colleges</a>
+                                <a class="nav-link"
+                                   asp-controller="College"
+                                   asp-action="Index">
+                                    Colleges
+                                </a>
                             </li>
+
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Departments" asp-action="Index">Departments</a>
+                                <a class="nav-link"
+                                   asp-area=""
+                                   asp-controller="Departments"
+                                   asp-action="Index">
+                                    Departments
+                                </a>
                             </li>
+
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="ARCC" asp-action="Index">ARCC Committee</a>
+                                <a class="nav-link"
+                                   asp-controller="ARCC"
+                                   asp-action="Index">
+                                    ARCC Committee
+                                </a>
                             </li>
                         }
+
                         @if (userId.HasValue && isCommitteMember)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Review" asp-action="Index">Review Grants</a>
+                                <a class="nav-link"
+                                   asp-controller="Review"
+                                   asp-action="Index">
+                                    Review Grants
+                                </a>
                             </li>
                         }
-                            @if (userId.HasValue && isCommitteeChair)
+
+                        @if (userId.HasValue && isCommitteeChair)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Rubric" asp-action="Create">Rubric Management</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Allocations" asp-action="Index">Allocations</a>
+                                <a class="nav-link"
+                                   asp-area=""
+                                   asp-controller="Rubric"
+                                   asp-action="Create">
+                                    Rubric Management
+                                </a>
                             </li>
 
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Allocations"
+                                   asp-action="Index">
+                                    Allocations
+                                </a>
+                            </li>
                         }
-                        
                     </ul>
 
-                    <ul class="navbar-nav">
-                        @if (Context.Session.GetInt32("UserID").HasValue)
+                    <ul class="navbar-nav align-items-lg-center">
+                        @if (userId.HasValue)
                         {
                             <li class="nav-item">
-                                <span class="nav-link text-muted">@Context.Session.GetString("Name") - @Context.Session.GetString("UserRole")</span>
+                                <span class="navbar-text user-summary">
+                                    @Context.Session.GetString("Name")
+                                    <span class="user-role">
+                                        @Context.Session.GetString("UserRole")
+                                    </span>
+                                </span>
                             </li>
+
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Index">Profile</a>
+                                <a class="nav-link"
+                                   asp-controller="Users"
+                                   asp-action="Index">
+                                    Profile
+                                </a>
                             </li>
+
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Logout">Logout</a>
+                                <a class="nav-link"
+                                   asp-controller="Users"
+                                   asp-action="Logout">
+                                    Logout
+                                </a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Login">Login</a>
+                                <a class="nav-link"
+                                   asp-controller="Users"
+                                   asp-action="Login">
+                                    Login
+                                </a>
                             </li>
+
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Create">Register</a>
+                                <a class="btn btn-primary ms-lg-2"
+                                   asp-controller="Users"
+                                   asp-action="Create">
+                                    Register
+                                </a>
                             </li>
                         }
                     </ul>

@@ -4,219 +4,464 @@
     ViewData["Title"] = "Grant Request";
 }
 
-<h1>Grant Request</h1>
-<div class="text-secondary mb-4">Opened at: @DateTime.Now</div>
+<style>
+    .grant-section-heading {
+        color: var(--bs-primary);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--bs-border-color);
+    }
+
+    textarea.form-control {
+        min-height: 110px;
+        resize: vertical;
+    }
+
+    .grant-form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .grant-form-actions .btn {
+        min-width: 125px;
+    }
+</style>
+
 <div class="row justify-content-center">
-    <div class="col-md-10 col-lg-8 shadow-sm p-4 bg-white rounded border mb-5">
-        <form asp-action="Create" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-xl-9 col-lg-10">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+            <div>
+                <h1 class="mb-1">Grant Request</h1>
 
-            <input asp-for="IsSaved" type="hidden" id="IsSaved" />
-
-            <h4 class="text-primary mt-2 mb-3 border-bottom pb-2">General Information</h4>
-
-            <div class="form-group mb-3">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
+                <p class="text-muted mb-0">
+                    Complete the information below to create a new grant application.
+                </p>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Description" class="control-label"></label>
-                <textarea asp-for="Description" class="form-control"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
+            <small class="text-muted">
+                Opened @DateTime.Now.ToString("MM/dd/yyyy h:mm tt")
+            </small>
+        </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="ProjectSummary" class="control-label"></label>
-                <textarea asp-for="ProjectSummary" class="form-control"></textarea>
-                <span asp-validation-for="ProjectSummary" class="text-danger"></span>
-            </div>
+        <div class="card border-0 shadow-sm mb-5">
+            <div class="card-body p-4 p-lg-5">
+                <form asp-action="Create" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"
+                         role="alert">
+                    </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Justification" class="control-label"></label>
-                <textarea asp-for="Justification" class="form-control"></textarea>
-                <span asp-validation-for="Justification" class="text-danger"></span>
-            </div>
+                    <input asp-for="IsSaved"
+                           type="hidden"
+                           id="IsSaved" />
 
-            <div class="form-group mb-3">
-                <label asp-for="ProjectImpact" class="control-label"></label>
-                <input asp-for="ProjectImpact" class="form-control" />
-                <span asp-validation-for="ProjectImpact" class="text-danger"></span>
-            </div>
+                    <h2 class="h4 grant-section-heading mt-0">
+                        General Information
+                    </h2>
 
-            <div class="form-group mb-3">
-                <label asp-for="ProjectTimeline" class="control-label"></label>
-                <textarea asp-for="ProjectTimeline" class="form-control"></textarea>
-                <span asp-validation-for="ProjectTimeline" class="text-danger"></span>
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="Title"
+                               class="form-label">
+                        </label>
 
-            <div class="form-group mb-3">
-                <label asp-for="SuccessEvaluation" class="control-label"></label>
-                <textarea asp-for="SuccessEvaluation" class="form-control"></textarea>
-                <span asp-validation-for="SuccessEvaluation" class="text-danger"></span>
-            </div>
+                        <input asp-for="Title"
+                               class="form-control" />
 
-            <hr />
+                        <span asp-validation-for="Title"
+                              class="text-danger">
+                        </span>
+                    </div>
 
-            <h3>Budget Worksheet</h3>
-            <h4 class="text-primary mt-4 mb-3 border-bottom pb-2">Budget Items</h4>
+                    <div class="mb-3">
+                        <label asp-for="Description"
+                               class="form-label">
+                        </label>
 
-            <p class="text-muted">
-                Save this grant as a draft first. After saving, open the grant from your dashboard
-                and use the Budget Worksheet button to add budget items.
-            </p>
+                        <textarea asp-for="Description"
+                                  class="form-control">
+                        </textarea>
 
-            <h4 class="text-primary mt-4 mb-3 border-bottom pb-2">Organization Information</h4>
+                        <span asp-validation-for="Description"
+                              class="text-danger">
+                        </span>
+                    </div>
 
-            <div class="form-check mb-3">
-                <input asp-for="isMultipleDepartments" class="form-check-input" />
-                <label asp-for="isMultipleDepartments" class="form-check-label"></label>
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="ProjectSummary"
+                               class="form-label">
+                        </label>
 
-            <div class="form-group mb-3">
-                <label>Departments</label>
+                        <textarea asp-for="ProjectSummary"
+                                  class="form-control">
+                        </textarea>
 
-                <select asp-for="SelectedDepartmentIds"
-                        asp-items="Model.Departments"
-                        class="form-control"
-                        multiple>
-                </select>
-            </div>
+                        <span asp-validation-for="ProjectSummary"
+                              class="text-danger">
+                        </span>
+                    </div>
 
-            <div class="form-group mb-3">
-                <label class="control-label">Project Director</label>
-                <select asp-for="UserId"
-                        asp-items="Model.Users"
-                        class="form-control">
-                    <option value="">-- Select Project Director --</option>
-                </select>
-                <span asp-validation-for="UserId"
-                      class="text-danger"></span>
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="Justification"
+                               class="form-label">
+                        </label>
 
-            <div class="form-group mb-3">
-                <label class="control-label">College</label>
-                <select asp-for="CollegeId"
-                        asp-items="Model.Colleges"
-                        class="form-control">
-                    <option value="">-- Select College --</option>
-                </select>
-                <span asp-validation-for="CollegeId"
-                      class="text-danger"></span>
-            </div>
+                        <textarea asp-for="Justification"
+                                  class="form-control">
+                        </textarea>
 
-            <h4 class="text-primary mt-4 mb-3 border-bottom pb-2">Compliance & Attachments</h4>
+                        <span asp-validation-for="Justification"
+                              class="text-danger">
+                        </span>
+                    </div>
 
-            <div class="form-group mb-3">
-                <label class="control-label">Attachments (up to 3 files)</label>
-                <div class="mb-2">
-                    <input type="file" name="attachments" class="form-control" />
-                </div>
-                <div class="mb-2">
-                    <input type="file" name="attachments" class="form-control" />
-                </div>
-                <div>
-                    <input type="file" name="attachments" class="form-control" />
-                </div>
-                <span class="text-danger">@Html.ValidationMessage("attachments")</span>
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="ProjectImpact"
+                               class="form-label">
+                        </label>
 
-            <div class="form-group mb-3 form-check">
-                <input asp-for="InvolvesHumanOrAnimalSubjects" class="form-check-input" />
-                <label asp-for="InvolvesHumanOrAnimalSubjects" class="form-check-label">
-                    Does this grant involve human or animal subjects?
-                </label>
-            </div>
+                        <input asp-for="ProjectImpact"
+                               class="form-control" />
 
-            <div class="form-group mb-3 form-check">
-                <input asp-for="HasAbroadSupport" class="form-check-input" />
-                <label asp-for="HasAbroadSupport" class="form-check-label">
-                    Does this grant have international support?
-                </label>
-            </div>
+                        <span asp-validation-for="ProjectImpact"
+                              class="text-danger">
+                        </span>
+                    </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Dissemination" class="control-label"></label>
-                <textarea asp-for="Dissemination" class="form-control"></textarea>
-				<span asp-validation-for="Dissemination" class="text-danger"></span>
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="ProjectTimeline"
+                               class="form-label">
+                        </label>
 
-            <div class="form-group mb-3">
-                <label class="control-label">Approval File</label>
-                <input type="file" name="approvalFile" class="form-control" />
-                <span class="text-danger">@Html.ValidationMessage("approvalFile")</span>
-            </div>
+                        <textarea asp-for="ProjectTimeline"
+                                  class="form-control">
+                        </textarea>
 
-            <hr class="mt-4 mb-4" />
+                        <span asp-validation-for="ProjectTimeline"
+                              class="text-danger">
+                        </span>
+                    </div>
 
-            <div class="form-group">
-                <button type="button"
-                        class="btn btn-primary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#acknowledgements-modal">
-                    Submit
-                </button>
+                    <div class="mb-3">
+                        <label asp-for="SuccessEvaluation"
+                               class="form-label">
+                        </label>
 
-                <button type="submit"
-                        class="btn btn-secondary"
-                        onclick="document.getElementById('IsSaved').value='true';">
-                    Save Draft
-                </button>
-            </div>
+                        <textarea asp-for="SuccessEvaluation"
+                                  class="form-control">
+                        </textarea>
 
-            <!-- a modal to contain acknowledgements/signature (to help the application from getting too crowded) -->
-            <div class="modal fade" id="acknowledgements-modal" tabindex="-1" aria-labelledby="acknowledgements-title" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="acknowledgements-title">Acknowledgements</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <span asp-validation-for="SuccessEvaluation"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <h2 class="h4 grant-section-heading">
+                        Budget Worksheet
+                    </h2>
+
+                    <div class="alert alert-info" role="alert">
+                        <div class="fw-semibold mb-1">
+                            Budget items are added after saving.
                         </div>
-                        <div class="modal-body">
-                            <div class="form-check mb-3">
-                                <input asp-for="Acknowledgement1" class="form-check-input" />
-                                <label asp-for="Acknowledgement1" class="form-check-label">Acknowledgement 1</label>
-                            </div>
-                            <div class="form-check mb-3">
-                                <input asp-for="Acknowledgement2" class="form-check-input" />
-                                <label asp-for="Acknowledgement2" class="form-check-label">Acknowledgement 2</label>
-                            </div>
-                            <div class="form-check mb-3">
 
-                                <input asp-for="Acknowledgement3" class="form-check-input" />
-                                <label asp-for="Acknowledgement3" class="form-check-label">Acknowledgement 3</label>
-                            </div>
-                            <div class="form-check mb-3">
-                                <input asp-for="Acknowledgement4" class="form-check-input" />
-                                <label asp-for="Acknowledgement4" class="form-check-label">Acknowledgement 4</label>
-                            </div>
-                            <div class="d-flex gap-3  mb-3">
-                                <div class="form-group">
-                                    <label asp-for="Signature" class="control-label"></label>
-                                    <input asp-for="Signature" class="form-control" />
-                                </div>
-                                <div class="form-group">
-                                    @Html.LabelFor(m => m.SignatureDate, "Date", htmlAttributes: new { @class = "control-label" })
-                                    @Html.EditorFor(m => m.SignatureDate, new { htmlAttributes = new { @class = "form-control", type = "date" } })
-                                    <p class="text-secondary">Today's Date: @DateTime.Now.ToString("MM/dd/yyyy")</p>
-                                </div>
-                            </div>
+                        Save this grant as a draft, open it from your dashboard,
+                        and then select <strong>Budget Worksheet</strong> to add expenses.
+                    </div>
+
+                    <h2 class="h4 grant-section-heading">
+                        Organization Information
+                    </h2>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="isMultipleDepartments"
+                               class="form-check-input" />
+
+                        <label asp-for="isMultipleDepartments"
+                               class="form-check-label">
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Departments
+                        </label>
+
+                        <select asp-for="SelectedDepartmentIds"
+                                asp-items="Model.Departments"
+                                class="form-select"
+                                multiple>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Project Director
+                        </label>
+
+                        <select asp-for="UserId"
+                                asp-items="Model.Users"
+                                class="form-select">
+                            <option value="">
+                                -- Select Project Director --
+                            </option>
+                        </select>
+
+                        <span asp-validation-for="UserId"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            College
+                        </label>
+
+                        <select asp-for="CollegeId"
+                                asp-items="Model.Colleges"
+                                class="form-select">
+                            <option value="">
+                                -- Select College --
+                            </option>
+                        </select>
+
+                        <span asp-validation-for="CollegeId"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <h2 class="h4 grant-section-heading">
+                        Compliance &amp; Attachments
+                    </h2>
+
+                    <div class="mb-4">
+                        <label class="form-label">
+                            Attachments
+                        </label>
+
+                        <div class="form-text mb-2">
+                            You may upload up to three files.
                         </div>
-                    
-                        <div class="modal-footer">
-                            <button type="submit"
-                                    class="btn btn-primary"
-                                    onclick="document.getElementById('IsSaved').value='false';">
-                                Submit
-                            </button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                        <div class="mb-2">
+                            <input type="file"
+                                   name="attachments"
+                                   class="form-control" />
+                        </div>
+
+                        <div class="mb-2">
+                            <input type="file"
+                                   name="attachments"
+                                   class="form-control" />
+                        </div>
+
+                        <div>
+                            <input type="file"
+                                   name="attachments"
+                                   class="form-control" />
+                        </div>
+
+                        <span class="text-danger">
+                            @Html.ValidationMessage("attachments")
+                        </span>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="InvolvesHumanOrAnimalSubjects"
+                               class="form-check-input" />
+
+                        <label asp-for="InvolvesHumanOrAnimalSubjects"
+                               class="form-check-label">
+                            Does this grant involve human or animal subjects?
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="HasAbroadSupport"
+                               class="form-check-input" />
+
+                        <label asp-for="HasAbroadSupport"
+                               class="form-check-label">
+                            Does this grant have international support?
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Dissemination"
+                               class="form-label">
+                        </label>
+
+                        <textarea asp-for="Dissemination"
+                                  class="form-control">
+                        </textarea>
+
+                        <span asp-validation-for="Dissemination"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Approval File
+                        </label>
+
+                        <input type="file"
+                               name="approvalFile"
+                               class="form-control" />
+
+                        <span class="text-danger">
+                            @Html.ValidationMessage("approvalFile")
+                        </span>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="grant-form-actions">
+                        <button type="button"
+                                class="btn btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#acknowledgements-modal">
+                            Submit
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-secondary"
+                                onclick="document.getElementById('IsSaved').value='true';">
+                            Save Draft
+                        </button>
+                    </div>
+
+                    <div class="modal fade"
+                         id="acknowledgements-modal"
+                         tabindex="-1"
+                         aria-labelledby="acknowledgements-title"
+                         aria-hidden="true">
+
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h2 class="modal-title fs-5"
+                                        id="acknowledgements-title">
+                                        Acknowledgements
+                                    </h2>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"
+                                            aria-label="Close">
+                                    </button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <p class="text-muted">
+                                        Review and confirm each acknowledgement before
+                                        submitting the grant.
+                                    </p>
+
+                                    <div class="form-check mb-3">
+                                        <input asp-for="Acknowledgement1"
+                                               class="form-check-input" />
+
+                                        <label asp-for="Acknowledgement1"
+                                               class="form-check-label">
+                                            Acknowledgement 1
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check mb-3">
+                                        <input asp-for="Acknowledgement2"
+                                               class="form-check-input" />
+
+                                        <label asp-for="Acknowledgement2"
+                                               class="form-check-label">
+                                            Acknowledgement 2
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check mb-3">
+                                        <input asp-for="Acknowledgement3"
+                                               class="form-check-input" />
+
+                                        <label asp-for="Acknowledgement3"
+                                               class="form-check-label">
+                                            Acknowledgement 3
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check mb-4">
+                                        <input asp-for="Acknowledgement4"
+                                               class="form-check-input" />
+
+                                        <label asp-for="Acknowledgement4"
+                                               class="form-check-label">
+                                            Acknowledgement 4
+                                        </label>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-md-7">
+                                            <label asp-for="Signature"
+                                                   class="form-label">
+                                            </label>
+
+                                            <input asp-for="Signature"
+                                                   class="form-control" />
+
+                                            <span asp-validation-for="Signature"
+                                                  class="text-danger">
+                                            </span>
+                                        </div>
+
+                                        <div class="col-md-5">
+                                            @Html.LabelFor(
+                                                m => m.SignatureDate,
+                                                "Date",
+                                                htmlAttributes: new
+                                                {
+                                                    @class = "form-label"
+                                                }
+                                            )
+
+                                            @Html.EditorFor(
+                                                m => m.SignatureDate,
+                                                new
+                                                {
+                                                    htmlAttributes = new
+                                                    {
+                                                        @class = "form-control",
+                                                        type = "date"
+                                                    }
+                                                }
+                                            )
+
+                                            <div class="form-text">
+                                                Today's date:
+                                                @DateTime.Now.ToString("MM/dd/yyyy")
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            data-bs-dismiss="modal">
+                                        Close
+                                    </button>
+
+                                    <button type="submit"
+                                            class="btn btn-primary"
+                                            onclick="document.getElementById('IsSaved').value='false';">
+                                        Submit Grant
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
-            
-        </form>
+        </div>
     </div>
 </div>
 

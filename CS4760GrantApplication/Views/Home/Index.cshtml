@@ -1,8 +1,88 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Welcome to the Grant Application project</p>
+<div class="py-5">
+    <div class="row align-items-center g-5">
+        <div class="col-lg-7">
+            <span class="badge bg-primary-subtle text-primary-emphasis mb-3">
+                Grant Management System
+            </span>
+
+            <h1 class="display-4 fw-semibold mb-3">
+                Grant Applications
+            </h1>
+
+            <p class="lead text-muted mb-4">
+                Create, review, approve, and track grant applications through
+                each stage of the funding process.
+            </p>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-primary btn-lg"
+                   asp-controller="Dashboard"
+                   asp-action="Index">
+                    <i class="bi bi-speedometer2 me-2"></i>
+                    Open Dashboard
+                </a>
+
+                <a class="btn btn-outline-secondary btn-lg"
+                   asp-controller="Grant"
+                   asp-action="Create">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Create Grant
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">Grant Workflow</h2>
+
+                    <div class="d-flex gap-3 mb-4">
+                        <div class="fs-3 text-primary">
+                            <i class="bi bi-file-earmark-plus"></i>
+                        </div>
+
+                        <div>
+                            <h3 class="h6 mb-1">Create and submit</h3>
+                            <p class="text-muted mb-0">
+                                Prepare a grant request, add funding information,
+                                and submit it for review.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mb-4">
+                        <div class="fs-3 text-primary">
+                            <i class="bi bi-clipboard-check"></i>
+                        </div>
+
+                        <div>
+                            <h3 class="h6 mb-1">Review and approve</h3>
+                            <p class="text-muted mb-0">
+                                Department chairs, college deans, and ARCC
+                                members review eligible applications.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <div class="fs-3 text-primary">
+                            <i class="bi bi-bar-chart"></i>
+                        </div>
+
+                        <div>
+                            <h3 class="h6 mb-1">Allocate and report</h3>
+                            <p class="text-muted mb-0">
+                                Track funding allocations and complete required
+                                grant reporting.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
