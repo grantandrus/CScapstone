@@ -1,6 +1,8 @@
 ﻿using CS4760GrantApplication.Data;
 using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +23,7 @@ namespace CS4760GrantApplication.Controllers
                 OtherUsers = _context.Users.Where(u => !u.IsCommitteeMember).ToList(),
                 CurrentChairId = _context.Users.Where(u => u.IsCommitteeChair).Select(u => (int?)u.Id).FirstOrDefault(),
                 SubmittedGrants = _context.Grants // Fetch submitted grants
-                    //.Include(g => g.Title)
+                                                  //.Include(g => g.Title)
                     .Include(g => g.User)
                     .Include(g => g.BudgetItems)
                     .Where(g => !g.IsSaved) // Note: !IsSaved is submitted, IsSaved is a draft
@@ -37,7 +39,7 @@ namespace CS4760GrantApplication.Controllers
             if (user != null)
             {
                 user.IsCommitteeMember = false;
-                if(user.IsCommitteeChair)
+                if (user.IsCommitteeChair)
                 {
                     user.IsCommitteeChair = false;
                 }
@@ -63,7 +65,7 @@ namespace CS4760GrantApplication.Controllers
         {
             var currentChair = await _context.Users.FirstOrDefaultAsync(u => u.IsCommitteeChair);
             // if a current chair is found then they must be removed as chair since there can be only one
-            if(currentChair != null)
+            if (currentChair != null)
             {
                 currentChair.IsCommitteeChair = false;
                 // still have the old chair as a committee member by default though (should already be set but just in case)
@@ -71,7 +73,7 @@ namespace CS4760GrantApplication.Controllers
             }
 
             var newChair = await _context.Users.FindAsync(selectedUserId);
-            if(newChair != null)
+            if (newChair != null)
             {
                 newChair.IsCommitteeChair = true;
                 // make sure they are a committee member too
@@ -81,5 +83,31 @@ namespace CS4760GrantApplication.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
+
+        [HttpGet]
+        public IActionResult ARCCReport()
+        {
+            Random rnd = new();
+
+            var lstModel = new List<SimpleReportViewModel>();
+
+            var yes = _context.Grants.Where(g => g.AllocatedFunds > 0).GroupBy(g => g.College).Select(g => new
+            {
+                Name = g.Max(x => x.College!.Name),
+                AllocatedFunds = g.Sum(f => f.AllocatedFunds!)!
+            }).ToList();
+
+            foreach (var item in yes)
+            {
+                lstModel.Add(new SimpleReportViewModel
+                {
+                    DimensionOne = item.Name!,
+                    Quantity = (int)item.AllocatedFunds!
+                });
+            }
+
+            return View(lstModel);
+        }
+
     }
 }
