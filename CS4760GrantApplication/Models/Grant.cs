@@ -65,6 +65,7 @@ namespace CS4760GrantApplication.Models
         public List<Notification> Notifications { get; set; } = new();
         [Precision(18, 2)]
         public decimal? AllocatedFunds { get; set; }
+        public bool IsAllocationCompleted { get; set; }
         public DateTime? AwardDate { get; set; }
         public bool ReportSubmitted { get; set; } = false;
     }

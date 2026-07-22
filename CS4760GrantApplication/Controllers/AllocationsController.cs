@@ -34,21 +34,28 @@ namespace CS4760GrantApplication.Controllers
                 .Include(g => g.BudgetItems)
                 .Include(g => g.User)
                 .Include(g => g.Reviews)
-                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.ApprovedARCC))
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.ApprovedARCC) && !g.IsAllocationCompleted)
                 .ToListAsync();
 
             var rejectedGrants = await _context.Grants
                 .Include(g => g.BudgetItems)
                 .Include(g => g.User)
                 .Include(g => g.Reviews)
-                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.RejectedARCC))
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.IsAllocationCompleted)
                 .ToListAsync();
 
             var undecidedGrants = await _context.Grants
                 .Include(g => g.BudgetItems)
                 .Include(g => g.User)
                 .Include(g => g.Reviews)
-                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && (!g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.Statuses.Contains(GrantStatus.ApprovedARCC)))
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && (!g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.Statuses.Contains(GrantStatus.ApprovedARCC) && !g.IsAllocationCompleted))
+                .ToListAsync();
+
+            var allocatedGrants = await _context.Grants
+                .Include(g => g.BudgetItems)
+                .Include(g => g.User)
+                .Include(g => g.Reviews)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.IsAllocationCompleted)
                 .ToListAsync();
 
             var allocationRules = await _context.AllocationRules
@@ -63,6 +70,7 @@ namespace CS4760GrantApplication.Controllers
                 AcceptedGrants = acceptedGrants,
                 RejectedGrants = rejectedGrants,
                 UndecidedGrants = undecidedGrants,
+                AllocatedGrants = allocatedGrants,
                 Allocation = allocation,
                 Rules = allocationRules
             };
@@ -118,23 +126,30 @@ namespace CS4760GrantApplication.Controllers
                 .Include(g => g.BudgetItems)
                 .Include(g => g.User)
                 .Include(g => g.Reviews)
-                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.ApprovedARCC))
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.ApprovedARCC) && !g.IsAllocationCompleted)
                 .ToListAsync();
 
                 vm.RejectedGrants = await _context.Grants
                     .Include(g => g.BudgetItems)
                     .Include(g => g.User)
                     .Include(g => g.Reviews)
-                    .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.RejectedARCC))
+                    .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.IsAllocationCompleted)
                     .ToListAsync();
 
                 vm.UndecidedGrants = await _context.Grants
                     .Include(g => g.BudgetItems)
                     .Include(g => g.User)
                     .Include(g => g.Reviews)
-                    .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && (!g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.Statuses.Contains(GrantStatus.ApprovedARCC)))
+                    .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && (!g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.Statuses.Contains(GrantStatus.ApprovedARCC) && !g.IsAllocationCompleted))
                     .ToListAsync();
 
+                vm.AllocatedGrants = await _context.Grants
+                    .Include(g => g.BudgetItems)
+                    .Include(g => g.User)
+                    .Include(g => g.Reviews)
+                    .Where(g => (!g.IsSaved) && (g.Reviews.Count() != 0) && (g.IsAllocationCompleted))
+                    .ToListAsync();
+                    
                 return View("Index", vm);
             }
 
@@ -192,7 +207,7 @@ namespace CS4760GrantApplication.Controllers
                 .Where(g =>
                     !g.IsSaved &&
                     g.Reviews.Any() &&
-                    (!g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.Statuses.Contains(GrantStatus.ApprovedARCC)))
+                    (!g.Statuses.Contains(GrantStatus.RejectedARCC) && !g.Statuses.Contains(GrantStatus.ApprovedARCC) && !g.IsAllocationCompleted))
                 .ToListAsync();
 
             foreach (var grant in undecidedGrants)
@@ -318,7 +333,7 @@ namespace CS4760GrantApplication.Controllers
             var grants = await _context.Grants
                 .Include(g => g.BudgetItems)
                 .Include(g => g.Reviews)
-                .Where(g => g.Statuses.Contains(GrantStatus.ApprovedARCC))
+                .Where(g => g.Statuses.Contains(GrantStatus.ApprovedARCC) && g.IsAllocationCompleted == false)
                 .ToListAsync();
 
             var totalAvailable = (await _context.Allocations.FirstOrDefaultAsync())?.AvailableAmount ?? 0;
@@ -473,13 +488,14 @@ namespace CS4760GrantApplication.Controllers
         {
             DataSet ds = new();
             var constr = Configuration.GetConnectionString("DefaultConnection");
-            string sql = "SELECT Grants.Title AS \"Grant Title\", " +
+            string sql =
+                "SELECT Grants.Title AS \"Grant Title\", " +
                 "RIGHT('000000' + CAST(UserId AS VARCHAR(6)), 6) AS \"PI Account Number\", " +
                 "Users.FirstName + ' ' + Users.LastName AS \"PI Name\", " +
-                "'$' + CAST(AllocatedFunds AS VARCHAR(15)) AllocatedFunds " +
+                "'$' + CAST(AllocatedFunds AS VARCHAR(15)) AS \"Allocated Funds\" " +
                 "FROM Grants " +
                 "JOIN Users ON Grants.UserId = Users.Id " +
-                "WHERE AllocatedFunds > 0 " +
+                "WHERE AllocatedFunds > 0 AND IsAllocationCompleted = 1 " +
                 "ORDER BY Grants.Id;";
             using (SqlConnection con = new(constr))
             {
@@ -488,6 +504,29 @@ namespace CS4760GrantApplication.Controllers
             }
 
             return ds;
+        }
+        [HttpPost]
+        [SessionAuthorize]
+        public async Task<IActionResult> CompleteAllocations()
+        {
+            var grants = await _context.Grants
+                .Include(g => g.BudgetItems)
+                .Include(g => g.User)
+                .Include(g => g.Reviews)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.ApprovedARCC) && !g.IsAllocationCompleted)
+                .ToListAsync();
+
+
+            foreach (var grant in grants)
+            {
+                if (grant.AllocatedFunds > 0)
+                {
+                    grant.IsAllocationCompleted = true; 
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
     }

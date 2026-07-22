@@ -424,6 +424,18 @@
 
                     </li>
 
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                data-bs-toggle="pill"
+                                data-bs-target="#allocatedGrants">
+
+                            Completed
+
+                            <span class="badge bg-warning ms-1">
+                                @Model.AllocatedGrants.Count
+                            </span>
+                        </button>
+                    </li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="undecidedGrants" role="tabpanel">
@@ -674,6 +686,134 @@
                         else
                         {
                             <div class="text-secondary" style="font-style:italic;">No accepted grants.</div>
+                        }
+                    </div>
+
+                    <div class="tab-pane fade" id="allocatedGrants" role="tabpanel">
+                        @if (Model.AllocatedGrants.Count() > 0)
+                        {
+                            <h2 style="font-size:1.5rem" class="mt-4 mb-3">Completed Grants</h2>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Grant Title
+                                        </th>
+                                        <th>
+                                            Project Director
+                                        </th>
+                                        <th>
+                                            ARCC Requested Funds
+                                        </th>
+                                        <th>
+                                            Total Requested Funds
+                                        </th>
+                                        <th>
+                                            Aggregate Review Score
+                                        </th>
+                                        <th>
+                                            Notes
+                                        </th>
+                                        <th>
+                                            Allocated Funds
+                                        </th>
+                                        <th>
+                                            View
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.AllocatedGrants)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @item.Title
+                                            </td>
+                                            <td>
+                                                @(item.User.FirstName + " " + item.User.LastName)
+                                            </td>
+                                            <td>
+                                                @{
+                                                    decimal arccTotal = 0;
+                                                }
+                                                @foreach (var budgetItem in item.BudgetItems)
+                                                {
+                                                    @if (budgetItem.FundingSource == "ARCC")
+                                                    {
+
+                                                        arccTotal += budgetItem.Amount;
+                                                        AllRequestedFundsARCC += arccTotal;
+
+                                                    }
+                                                }
+                                                @arccTotal
+                                            </td>
+                                            <td>
+                                                @{
+                                                    decimal total = 0;
+                                                }
+                                                @foreach (var budgetItem in item.BudgetItems)
+                                                {
+                                                    total += budgetItem.Amount;
+                                                }
+                                                @total
+                                            </td>
+                                            @if (item.Reviews.Count() != 0)
+                                            {
+                                                decimal totalScore = 0;
+                                                @foreach (var review in item.Reviews)
+                                                {
+                                                    totalScore += review.AverageScore;
+                                                }
+                                                decimal averageScore = totalScore / item.Reviews.Count();
+                                                <td>
+                                                    @Math.Round(averageScore, 2)
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td>
+                                                    Awaiting Review
+                                                </td>
+                                            }
+                                            <td>
+                                                @if (item.Reviews.Count() != 0)
+                                                {
+                                                    foreach (var review in item.Reviews)
+                                                    {
+                                                        if (review.Notes != null)
+                                                        {
+                                                            <form asp-controller="Allocations"
+                                                                  asp-action="Notes"
+                                                                  asp-route-id="@item.Id"
+                                                                  method="get">
+                                                                <button type="submit" class="btn btn-primary">
+                                                                    View Notes
+                                                                </button>
+                                                            </form>
+                                                            break;
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="text-secondary" style="font-style:italic;">No Notes</div>
+                                                        }
+                                                    }
+                                                }
+                                            </td>
+                                            <td>
+                                                @item.AllocatedFunds
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("View", "Allocations", new { id = item.Id })'">View</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="text-secondary" style="font-style:italic;">No completed grants.</div>
                         }
                     </div>
 
