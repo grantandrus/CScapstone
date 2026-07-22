@@ -64,7 +64,7 @@ namespace CS4760GrantApplicationTest
 
             // Setup the _context and _controller
             var options = new DbContextOptionsBuilder<CS4760GrantApplicationContext>()
-                .UseInMemoryDatabase(databaseName: "ReviewTestingDb")
+                .UseInMemoryDatabase(databaseName: $"ReviewTestingDb_{Guid.NewGuid()}")
                 .Options;
 
             _context = new CS4760GrantApplicationContext(options);
@@ -161,5 +161,41 @@ namespace CS4760GrantApplicationTest
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
+
+        [TestMethod]
+        public async Task DownloadAttachment_ExistingFile_ReturnsFileContentResult()
+        {
+            // Arrange
+            var relativePath = "/review-tests/sample.txt";
+            var physicalPath = Path.Combine(_environment.WebRootPath, "review-tests", "sample.txt");
+            Directory.CreateDirectory(Path.GetDirectoryName(physicalPath)!);
+
+            var expectedBytes = System.Text.Encoding.UTF8.GetBytes("Hello, attachment!");
+            await File.WriteAllBytesAsync(physicalPath, expectedBytes);
+
+            var attachment = new GrantAttachment
+            {
+                FileName = "sample.txt",
+                FilePath = relativePath
+            };
+
+            _context.GrantAttachments.Add(attachment);
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _controller.DownloadAttachment(attachment.Id);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(FileContentResult));
+
+            var fileResult = (FileContentResult)result;
+            CollectionAssert.AreEqual(expectedBytes, fileResult.FileContents);
+            Assert.AreEqual("text/plain", fileResult.ContentType);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(fileResult.FileDownloadName));
+
+            // Cleanup
+            File.Delete(physicalPath);
+        }
+
     }
 }
