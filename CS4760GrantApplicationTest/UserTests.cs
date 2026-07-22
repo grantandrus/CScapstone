@@ -30,7 +30,7 @@ namespace CS4760GrantApplicationTest
 
             // configure the context to use an in-memory database
             var options = new DbContextOptionsBuilder<CS4760GrantApplicationContext>()
-                .UseInMemoryDatabase(databaseName: "TestingDb")
+                .UseInMemoryDatabase(databaseName: $"TestingDb_{Guid.NewGuid()}")
                 .Options;
 
             _context = new CS4760GrantApplicationContext(options);
