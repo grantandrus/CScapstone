@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace CS4760GrantApplicationTest
 
         private CS4760GrantApplicationContext _context;
 
-        private readonly IWebHostEnvironment _environment;
+        private IWebHostEnvironment _environment;
 
         // A dummy test session so that I can hardcode the session gets
         public class TestSession : ISession
@@ -53,14 +54,17 @@ namespace CS4760GrantApplicationTest
         [TestInitialize]
         public void SetUp()
         {
-
             // Setup session so that HttpContext.Session.GetInt32() will return 1
             var session = new TestSession();
             session.SetInt32("UserID", 1);
 
+            var envMock = new Mock<IWebHostEnvironment>();
+            envMock.Setup(e => e.WebRootPath).Returns(Path.GetTempPath());
+            _environment = envMock.Object;
+
             // Setup the _context and _controller
             var options = new DbContextOptionsBuilder<CS4760GrantApplicationContext>()
-                .UseInMemoryDatabase(databaseName: "ReviewTestingDb")
+                .UseInMemoryDatabase(databaseName: $"ReviewTestingDb_{Guid.NewGuid()}")
                 .Options;
 
             _context = new CS4760GrantApplicationContext(options);
@@ -113,7 +117,7 @@ namespace CS4760GrantApplicationTest
             {
                 AverageScore = 97.2M,
                 Notes = "Testing CreateReview",
-                GrantId = 1 
+                GrantId = 1
             };
 
             // Act
@@ -124,7 +128,73 @@ namespace CS4760GrantApplicationTest
             Assert.AreEqual(review.Notes, _context.Reveiws.Where(r => r.Id == 1).Select(r => r.Notes).SingleOrDefault());
             Assert.AreEqual(grant.Id, _context.Reveiws.Where(r => r.Id == 1).Select(r => r.GrantId).SingleOrDefault());
             Assert.AreEqual(user.Id, _context.Reveiws.Where(r => r.Id == 1).Select(r => r.UserId).SingleOrDefault());
+        }
 
+        [TestMethod]
+        public async Task ReviewGrant_InvalidId_ReturnsNotFound()
+        {
+            // Arrange
+            int invalidId = 999;
+
+            // Act
+            var result = await _controller.ReviewGrant(invalidId);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task DownloadAttachment_MissingFile_ReturnsNotFound()
+        {
+            // Arrange
+            var attachment = new GrantAttachment
+            {
+                FilePath = "/uploads/missing-file.pdf"
+            };
+
+            _context.GrantAttachments.Add(attachment);
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _controller.DownloadAttachment(attachment.Id);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task DownloadAttachment_ExistingFile_ReturnsFileContentResult()
+        {
+            // Arrange
+            var relativePath = "/review-tests/sample.txt";
+            var physicalPath = Path.Combine(_environment.WebRootPath, "review-tests", "sample.txt");
+            Directory.CreateDirectory(Path.GetDirectoryName(physicalPath)!);
+
+            var expectedBytes = System.Text.Encoding.UTF8.GetBytes("Hello, attachment!");
+            await File.WriteAllBytesAsync(physicalPath, expectedBytes);
+
+            var attachment = new GrantAttachment
+            {
+                FileName = "sample.txt",
+                FilePath = relativePath
+            };
+
+            _context.GrantAttachments.Add(attachment);
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _controller.DownloadAttachment(attachment.Id);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(FileContentResult));
+
+            var fileResult = (FileContentResult)result;
+            CollectionAssert.AreEqual(expectedBytes, fileResult.FileContents);
+            Assert.AreEqual("text/plain", fileResult.ContentType);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(fileResult.FileDownloadName));
+
+            // Cleanup
+            File.Delete(physicalPath);
         }
 
     }
