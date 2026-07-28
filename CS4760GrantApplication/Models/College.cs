@@ -10,7 +10,7 @@ namespace CS4760GrantApplication.Models
         [StringLength(50)]
         public string Name { get; set; } = string.Empty;
 
-        // project requirements from Sprint 1 allow College to be created without a dean, so this is nullable
+        // Nullable as Colleges do not have a Dean when first created
         public int? DeanId { get; set; }
         public User? Dean { get; set; }
 

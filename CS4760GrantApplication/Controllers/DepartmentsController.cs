@@ -2,7 +2,6 @@
 using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -31,8 +30,6 @@ namespace CS4760GrantApplication.Controllers
         [SessionAuthorize("admin")]
         public IActionResult Create()
         {
-            var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
-            ViewData["Chairs"] = new SelectList(users, "Id", "FullName");
             ViewData["Colleges"] = new SelectList(_context.Colleges.ToList(), "Id", "Name");
             return View();
         }
@@ -50,12 +47,6 @@ namespace CS4760GrantApplication.Controllers
                 department.DepartmentName = newDepartment.DepartmentName;
                 department.Description = newDepartment.Description;
 
-                // if a chair was selected, find that user and assign them to the department
-                if (newDepartment.ChairId.HasValue)
-                {
-                    department.Chair = await _context.Users.FindAsync(newDepartment.ChairId.Value);
-                }
-
                 if (newDepartment.CollegeId != 0)
                 {
                     department.CollegeId = newDepartment.CollegeId;
@@ -64,19 +55,10 @@ namespace CS4760GrantApplication.Controllers
                 _context.Add(department);
                 await _context.SaveChangesAsync();
 
-                var user = _context.Users.Find(newDepartment.ChairId);
-                if (user != null)
-                {
-                    user.IsDepartmentChair = true;
-                    // Redundant but makes sure that user's department is correct
-                    user.DepartmentId = department.Id;
-                    await _context.SaveChangesAsync();
-                }
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Departments");
             }
 
             var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
-            ViewData["Chairs"] = new SelectList(users, "Id", "FullName", newDepartment.ChairId);
             ViewData["Colleges"] = new SelectList(_context.Colleges.ToList(), "Id", "Name", newDepartment.CollegeId);
             return View(newDepartment);
         }
@@ -170,6 +152,7 @@ namespace CS4760GrantApplication.Controllers
                 var deptChair = await _context.Users
                     .FirstOrDefaultAsync(u => u.IsDepartmentChair && u.DepartmentId == id);
 
+                // Make sure Department Chair is not the Chair of a deleted Department
                 if (deptChair != null)
                 {
                     deptChair.IsDepartmentChair = false;
@@ -178,7 +161,7 @@ namespace CS4760GrantApplication.Controllers
                 _context.Departments.Remove(department);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction("Index", "Dashboard");
+            return RedirectToAction("Index", "Departments");
         }
     }
 }
