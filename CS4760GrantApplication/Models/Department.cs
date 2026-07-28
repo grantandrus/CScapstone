@@ -13,6 +13,7 @@ namespace CS4760GrantApplication.Models
         [StringLength(500)]
         public string? Description {  get; set; }
         public List<Grant> Grants { get; set; } = new();
+        // Nullable as Departments do not have a Chair when first created
         public int? ChairId { get; set; }
         public User? Chair { get; set; }
         public int? CollegeId { get; set; }

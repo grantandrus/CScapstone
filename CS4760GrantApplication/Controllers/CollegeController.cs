@@ -2,8 +2,6 @@
 using CS4760GrantApplication.Filters;
 using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -30,8 +28,6 @@ namespace CS4760GrantApplication.Controllers
         [SessionAuthorize("admin")]
         public IActionResult Add()
         {
-            var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
-            ViewData["Deans"] = new SelectList(users, "Id", "FullName");
             return View();
         }
 
@@ -45,28 +41,14 @@ namespace CS4760GrantApplication.Controllers
 
             if (ModelState.IsValid)
             {
-                // if a dean was selected, find that user and assign them to the college
-                if (newCollege.DeanId.HasValue)
-                {
-                    college.Dean = await _context.Users.FindAsync(newCollege.DeanId.Value);
-                    if (college.Dean != null) college.Dean.IsCollegeDean = true;
-                }
                 college.Name = newCollege.Name;
-
-                if (college.Dean != null)
-                {
-                    college.Dean.IsCollegeDean = true;
-                    college.Dean.CollegeId = college.Id;
-                }
 
                 _context.Add(college);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index", "Home");
             }
 
-            var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
-            ViewData["Deans"] = new SelectList(users, "Id", "FullName", newCollege.DeanId);
-            return View(college);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: College/Edit/5
@@ -82,7 +64,7 @@ namespace CS4760GrantApplication.Controllers
             if (college == null)
                 return NotFound();
 
-            var users = _context.Users.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
+            var users = _context.Users.Where(u => u.CollegeId == id).Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }).ToList();
             ViewData["Deans"] = new SelectList(users, "Id", "FullName", college.DeanId);
 
             var viewModel = new CollegeAddViewModel
@@ -121,6 +103,7 @@ namespace CS4760GrantApplication.Controllers
                 if (newDean != null)
                 {
                     newDean.IsCollegeDean = true;
+                    // Redundant but makes sure that user's college is correct
                     newDean.CollegeId = college.Id;
                 }
             }
@@ -147,6 +130,15 @@ namespace CS4760GrantApplication.Controllers
             var college = await _context.Colleges.FindAsync(id);
             if (college != null)
             {
+                var collegeDean = await _context.Users
+                    .FirstOrDefaultAsync(u => u.IsCollegeDean && u.CollegeId == id);
+
+                // Make sure College Dean is not the Deam of a deleted College
+                if (collegeDean != null)
+                {
+                    collegeDean.IsCollegeDean = false;
+                }
+
                 _context.Colleges.Remove(college);
                 await _context.SaveChangesAsync();
             }

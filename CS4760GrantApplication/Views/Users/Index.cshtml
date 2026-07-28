@@ -8,7 +8,9 @@
 <p><b>Email:</b> @Model.Email</p>
 <p><b>Admin?:</b> @(Model.IsAdmin ? "Yes" : "No")</p>
 <p><b>College:</b> @(Model.College?.Name ?? "None")</p>
+<p><b>College Dean?:</b> @(Model.IsCollegeDean ? "Yes" : "No")</p>
 <p><b>Department:</b> @(Model.Department?.DepartmentName ?? "None")</p>
+<p><b>Department Chair?:</b> @(Model.IsDepartmentChair ? "Yes" : "No")</p>
 <p><b>Committee Member?:</b> @(Model.IsCommitteeMember ? "Yes" : "No")</p>
 <p><b>Committee Chair?:</b> @(Model.IsCommitteeChair ? "Yes" : "No")</p>
 

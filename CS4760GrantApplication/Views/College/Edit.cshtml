@@ -8,7 +8,7 @@
 
 <div class="row">
 	<div class="col-md-6">
-		<form asp-action="Edit" enctype="multipart/form-data">
+		<form asp-action="Edit">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
 			<!-- Hidden input for ID -->
@@ -23,7 +23,7 @@
 			<div class="form-group mb-3">
 				<label for="deanId" class="control-label">Dean</label>
 				<select name="deanId" class="form-control" asp-items="ViewBag.Deans">
-					<option value="">Select a Dean</option>
+					<option value="">Select a Dean (Optional)</option>
 				</select>
 			</div>
 
