@@ -1,38 +1,61 @@
-﻿@using System.Linq
-@model List<CS4760GrantApplication.ViewModels.SimpleReportViewModel>
+﻿@model CS4760GrantApplication.ViewModels.ARCCReportViewModel
 @{
-    var XLabels = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Select(x => x.DimensionOne).ToList());
-    var YValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Select(x => x.Quantity).ToList());
-    ViewData["Title"] = "ARCC Report";
+    var CollegeXLabels = Newtonsoft.Json.JsonConvert.SerializeObject(Model.CollegeData.Select(x => x.DimensionOne).ToList());
+    var CollegeYValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.CollegeData.Select(y => y.Quantity).ToList());
+
+    var DepartmentXLabels = Newtonsoft.Json.JsonConvert.SerializeObject(Model.DepartmentData.Select(x => x.DimensionOne).ToList());
+    var DepartmentYValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.DepartmentData.Select(y => y.Quantity).ToList());
+
+    var RejectXLabels = Newtonsoft.Json.JsonConvert.SerializeObject(Model.RejectData.Select(x => x.DimensionOne).ToList());
+    var RejectYValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.RejectData.Select(y => y.Quantity).ToList());
+
+    var TopXLabels = Newtonsoft.Json.JsonConvert.SerializeObject(Model.TopData.Select(x => x.DimensionOne).ToList());
+    var TopYValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.TopData.Select(x => x.Quantity).ToList());
 }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 
 <h1>ARCC Report</h1>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Pie</title>
-</head>
-<body>
-    <div class="box-body">
+<h3 class="mb-3 mt-3 text-center">Total money allocated: $@Model.AllocatedString</h3>
 
-        <div class="chart-container">
-            <canvas id="chart" style="width:100%; height:500px"></canvas>
-        </div>
+<h3 class="text-center mb-2">Allocation by College</h3>
+<div class="box-body">
+    <div class="chart-container">
+        <canvas id="chartCollege" style="width:100%; height:500px"></canvas>
     </div>
-</body>
-</html>
+</div>
+
+<h3 class="text-center mb-2">Allocation by Principle Investigator Department</h3>
+<div class="box-body">
+    <div class="chart-container">
+        <canvas id="chartDepartment" style="width:100%; height:500px"></canvas>
+    </div>
+</div>
+
+<h3 class="text-center mb-2">ARCC Accept vs Reject Rate</h3>
+<div class="box-body">
+    <div class="chart-container">
+        <canvas id="chartReject" style="width:100%; height:500px"></canvas>
+    </div>
+</div>
+
+<h3 class="text-center mb-2">Top 5 Grants Allocated Funds From ARCC</h3>
+<div class="box-body">
+    <div class="chart-container">
+        <canvas id="chartTop" style="width:100%; height:500px"></canvas>
+    </div>
+</div>
+
 
 <script type="text/javascript">
     $(function() {
-        var chartName = "chart";
+        var chartName = "chartCollege";
         var ctx = document.getElementById(chartName).getContext('2d');
         var data = {
-            labels: @Html.Raw(XLabels),
+            labels: @Html.Raw(CollegeXLabels),
             datasets: [{
-                label: "Allocated Funds by College",
+                label: "Allocation by College",
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
@@ -62,7 +85,7 @@
                     'rgba(255, 0, 255)'
                 ],
                 borderWidth: 1,
-                data: @Html.Raw(YValues)
+                data: @Html.Raw(CollegeYValues)
         }]
         };
 
@@ -98,4 +121,223 @@
 
         });
     });
-</script>  
+
+    $(function() {
+        var chartName = "chartDepartment";
+        var ctx = document.getElementById(chartName).getContext('2d');
+        var data = {
+            labels: @Html.Raw(DepartmentXLabels),
+            datasets: [{
+                label: "Allocation by Principle Investigator Department",
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(255, 0, 0)',
+                    'rgba(0, 255, 0)',
+                    'rgba(0, 0, 255)',
+                    'rgba(192, 192, 192)',
+                    'rgba(255, 255, 0)',
+                    'rgba(255, 0, 255)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 0, 0)',
+                    'rgba(0, 255, 0)',
+                    'rgba(0, 0, 255)',
+                    'rgba(192, 192, 192)',
+                    'rgba(255, 255, 0)',
+                    'rgba(255, 0, 255)'
+                ],
+                borderWidth: 1,
+                data: @Html.Raw(DepartmentYValues)
+            }]
+        };
+
+        var options = {
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        min: 0,
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                        display: true,
+                        color: "rgba(255,99,164,0.2)"
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        min: 0,
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                        display: false
+                    }
+                }]
+            }
+        };
+
+        var myChart = new Chart(ctx, {
+            options: options,
+            data: data,
+            type: 'pie'
+
+        });
+    });
+
+    $(function() {
+        var chartName = "chartReject";
+        var ctx = document.getElementById(chartName).getContext('2d');
+        var data = {
+            labels: @Html.Raw(RejectXLabels),
+            datasets: [{
+                label: "ARCC Accept vs Reject Rate",
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(255, 0, 0)',
+                    'rgba(0, 255, 0)',
+                    'rgba(0, 0, 255)',
+                    'rgba(192, 192, 192)',
+                    'rgba(255, 255, 0)',
+                    'rgba(255, 0, 255)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 0, 0)',
+                    'rgba(0, 255, 0)',
+                    'rgba(0, 0, 255)',
+                    'rgba(192, 192, 192)',
+                    'rgba(255, 255, 0)',
+                    'rgba(255, 0, 255)'
+                ],
+                borderWidth: 1,
+                data: @Html.Raw(RejectYValues)
+        }]
+        };
+
+        var options = {
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        min: 0,
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                        display: true,
+                        color: "rgba(255,99,164,0.2)"
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        min: 0,
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                        display: false
+                    }
+                }]
+            }
+        };
+
+        var myChart = new Chart(ctx, {
+            options: options,
+            data: data,
+            type: 'pie'
+
+        });
+    });
+
+    $(function() {
+        var chartName = "chartTop";
+        var ctx = document.getElementById(chartName).getContext('2d');
+        var data = {
+            labels: @Html.Raw(TopXLabels),
+            datasets: [{
+                label: "Top 5 Grants Allocated Funds From ARCC",
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(255, 0, 0)',
+                    'rgba(0, 255, 0)',
+                    'rgba(0, 0, 255)',
+                    'rgba(192, 192, 192)',
+                    'rgba(255, 255, 0)',
+                    'rgba(255, 0, 255)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 0, 0)',
+                    'rgba(0, 255, 0)',
+                    'rgba(0, 0, 255)',
+                    'rgba(192, 192, 192)',
+                    'rgba(255, 255, 0)',
+                    'rgba(255, 0, 255)'
+                ],
+                borderWidth: 1,
+                data: @Html.Raw(TopYValues)
+        }]
+        };
+
+        var options = {
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        min: 0,
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                        display: true,
+                        color: "rgba(255,99,164,0.2)"
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        min: 0,
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                        display: false
+                    }
+                }]
+            }
+        };
+
+        var myChart = new Chart(ctx, {
+            options: options,
+            data: data,
+            type: 'bar'
+
+        });
+    });
+</script>
