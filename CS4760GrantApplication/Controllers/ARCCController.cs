@@ -2,7 +2,9 @@
 using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -87,26 +89,69 @@ namespace CS4760GrantApplication.Controllers
         [HttpGet]
         public IActionResult ARCCReport()
         {
-            Random rnd = new();
 
-            var lstModel = new List<SimpleReportViewModel>();
-
-            var yes = _context.Grants.Where(g => g.AllocatedFunds > 0).GroupBy(g => g.College).Select(g => new
+            var collegeModel = _context.Grants.Where(g => g.AllocatedFunds > 0).GroupBy(g => g.CollegeId).Select(g => new
             {
-                Name = g.Max(x => x.College!.Name),
+                CollegeId = g.Key,
                 AllocatedFunds = g.Sum(f => f.AllocatedFunds!)!
-            }).ToList();
-
-            foreach (var item in yes)
+            }).ToList().Select(item => new SimpleReportViewModel
             {
-                lstModel.Add(new SimpleReportViewModel
-                {
-                    DimensionOne = item.Name!,
-                    Quantity = (int)item.AllocatedFunds!
-                });
-            }
+                DimensionOne = _context.Colleges
+                .Where(c => c.Id == item.CollegeId)
+                .Select(c => c.Name)
+                .FirstOrDefault() ?? "Unknown",
+                Quantity = (int)(item.AllocatedFunds ?? 0)
+            })
+            .ToList();
 
-            return View(lstModel);
+            var departmentModel = _context.Grants.Include(g => g.User).Where(g => g.AllocatedFunds > 0 && g.User!.Department != null).GroupBy(g => g.User!.DepartmentId).Select(g => new
+            {
+                DepartmentId = g.Key,
+                AllocatedFunds = g.Sum(f => f.AllocatedFunds!)!
+            }).ToList().Select(item => new SimpleReportViewModel
+            {
+                DimensionOne = _context.Departments
+                .Where(d => d.Id == item.DepartmentId)
+                .Select(d => d.DepartmentName)
+                .FirstOrDefault() ?? "Unknown",
+                Quantity = (int)(item.AllocatedFunds ?? 0)
+            })
+            .ToList();
+
+            int acceptedGrants = _context.Grants
+                .Include(g => g.BudgetItems)
+                .Include(g => g.User)
+                .Include(g => g.Reviews)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.ApprovedARCC))
+                .Count();
+
+            int rejectedGrants = _context.Grants
+                .Include(g => g.BudgetItems)
+                .Include(g => g.User)
+                .Include(g => g.Reviews)
+                .Where(g => !g.IsSaved && g.Reviews.Count() != 0 && g.Statuses.Contains(GrantStatus.RejectedARCC))
+                .Count();
+
+            var rejectModel = new List<SimpleReportViewModel>
+            {
+                new SimpleReportViewModel { DimensionOne = "Accepted", Quantity = acceptedGrants },
+                new SimpleReportViewModel { DimensionOne = "Rejected", Quantity = rejectedGrants }
+            };
+
+            decimal totalNum = (decimal)_context.Grants.Where(g => g.AllocatedFunds > 0).Sum(g => g.AllocatedFunds)!;
+
+            string totalString = totalNum.ToString("#,#.00");
+
+            var vm = new ARCCReportViewModel
+            {
+                CollegeData = collegeModel,
+                DepartmentData = departmentModel,
+                RejectData = rejectModel,
+                TotalAllocated = totalNum,
+                AllocatedString = totalString
+            };
+
+            return View(vm);
         }
 
     }
