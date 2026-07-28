@@ -2,6 +2,7 @@
 using CS4760GrantApplication.Models;
 using CS4760GrantApplication.ViewModels;
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -87,7 +88,7 @@ namespace CS4760GrantApplication.Controllers
         }
 
         [HttpGet]
-        public IActionResult ARCCReport()
+        public async Task<IActionResult> ARCCReport()
         {
 
             var collegeModel = _context.Grants.Where(g => g.AllocatedFunds > 0).GroupBy(g => g.CollegeId).Select(g => new
@@ -138,6 +139,24 @@ namespace CS4760GrantApplication.Controllers
                 new SimpleReportViewModel { DimensionOne = "Rejected", Quantity = rejectedGrants }
             };
 
+            var topModel = new List<SimpleReportViewModel>();
+
+            var topGrants = await _context.Grants
+               .Include(g => g.BudgetItems)
+               .Where(g => g.IsAllocationCompleted == true && g.BudgetItems.Any(b => b.FundingSource == "ARCC"))
+               .OrderByDescending(g => g.AllocatedFunds)
+               .Take(5)
+               .ToListAsync();
+
+            foreach (var grant in topGrants)
+            {
+                topModel.Add(new SimpleReportViewModel
+                {
+                    DimensionOne = grant.Title + " (ID: " + grant.Id + ")",
+                    Quantity = (int)grant.AllocatedFunds!
+                });
+            }
+
             decimal totalNum = (decimal)_context.Grants.Where(g => g.AllocatedFunds > 0).Sum(g => g.AllocatedFunds)!;
 
             string totalString = totalNum.ToString("#,#.00");
@@ -147,8 +166,9 @@ namespace CS4760GrantApplication.Controllers
                 CollegeData = collegeModel,
                 DepartmentData = departmentModel,
                 RejectData = rejectModel,
+                TopData = topModel,
                 TotalAllocated = totalNum,
-                AllocatedString = totalString
+                AllocatedString = totalString,
             };
 
             return View(vm);
