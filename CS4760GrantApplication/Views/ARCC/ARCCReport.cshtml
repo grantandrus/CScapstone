@@ -47,8 +47,220 @@
     </div>
 </div>
 
+<input type="text"
+       id="searchBar"
+       class="form-control mb-3"
+       placeholder="Search..." />
+
+<div class="bg-warning-subtle" style="margin-bottom:20px;">
+    <span class="bg-opacity-75">Use &lt;### or &gt;### to filter Allocated Funds</span>
+</div>
+
+<div class="btn-group mb-3">
+
+    <button type="button"
+            class="btn btn-primary filter-btn active"
+            data-field="title">
+        Title
+    </button>
+
+    <button type="button"
+            class="btn btn-primary filter-btn active"
+            data-field="pi">
+        Name
+    </button>
+
+    <button type="button"
+            class="btn btn-primary filter-btn active"
+            data-field="status">
+        Status
+    </button>
+
+    <button type="button"
+            class="btn btn-primary filter-btn active"
+            data-field="department">
+        Department
+    </button>
+
+    <button type="button"
+            class="btn btn-primary filter-btn active"
+            data-field="college">
+        College
+    </button>
+
+    <button type="button"
+            class="btn btn-secondary filter-btn"
+            data-field="allocatedfunds">
+        Allocated Funds
+    </button>
+
+</div>
+
+<table class="table table-striped" id="grantTable">
+
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Allocated Funds</th>
+            <th>Department</th>
+            <th>College</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var grant in Model.AllocatedGrants)
+        {
+            <tr data-title="@grant.Title"
+                data-pi="@($"{grant.User.FirstName} {grant.User.LastName}")"
+                data-status="@grant.Status"
+                data-allocatedfunds="@grant.AllocatedFunds"
+                data-department="@grant.Departments.FirstOrDefault()?.DepartmentName"
+                data-college="@grant.College.Name">
+
+                <td>@grant.Title</td>
+                <td>@grant.User.FirstName @grant.User.LastName</td>
+                <td>@grant.Status</td>
+                <td>@grant.AllocatedFunds</td>
+                <td>@grant.Departments.FirstOrDefault()?.DepartmentName</td>
+                <td>@grant.College.Name</td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+
+
 
 <script type="text/javascript">
+    const searchBar = document.getElementById("searchBar");
+    const rows = document.querySelectorAll("#grantTable tbody tr");
+    const filterButtons = document.querySelectorAll(".filter-btn");
+
+    // Toggle buttons
+    filterButtons.forEach(button => {
+
+        button.addEventListener("click", function () {
+
+            const isAllocated = this.dataset.field === "allocatedfunds";
+
+            if (isAllocated) {
+
+                // Turn off every other filter
+                filterButtons.forEach(btn => {
+
+                    if (btn.dataset.field !== "allocatedfunds") {
+
+                        btn.classList.remove("active");
+                        btn.classList.remove("btn-primary");
+                        btn.classList.add("btn-outline-primary");
+
+                    }
+
+                });
+
+                // Toggle Allocated Funds
+                this.classList.toggle("active");
+                this.classList.toggle("btn-secondary");
+                this.classList.toggle("btn-outline-secondary");
+
+            }
+            else {
+
+                // If Allocated Funds is active, turn it off
+                const allocatedButton =
+                    document.querySelector('[data-field="allocatedfunds"]');
+
+                allocatedButton.classList.remove("active");
+                allocatedButton.classList.remove("btn-secondary");
+                allocatedButton.classList.add("btn-outline-secondary");
+
+                // Toggle the clicked button
+                this.classList.toggle("active");
+                this.classList.toggle("btn-primary");
+                this.classList.toggle("btn-outline-primary");
+
+            }
+
+            filterTable();
+
+        });
+
+    });
+
+    searchBar.addEventListener("input", filterTable);
+
+    function filterTable() {
+
+        const filter = searchBar.value.trim().toLowerCase();
+
+        rows.forEach(row => {
+
+            let found = false;
+
+            filterButtons.forEach(button => {
+
+                if (!button.classList.contains("active"))
+                    return;
+
+                const field = button.dataset.field;
+
+                // Lookup table
+                const searchFields = {
+
+                    title: () => row.dataset.title ?? "",
+
+                    pi: () => row.dataset.pi ?? "",
+
+                    status: () => row.dataset.status ?? "",
+
+                    department: () => row.dataset.department ?? "",
+
+                    college: () => row.dataset.college ?? "",
+
+                    allocatedfunds: () => parseFloat(row.dataset.allocatedfunds ?? "0")
+
+                };
+
+                if (!searchFields[field])
+                    return;
+
+                const value = searchFields[field]();
+
+                if (field === "allocatedfunds") {
+
+                    const amount = Number(value);
+
+                    if (filter.startsWith(">")) {
+                        found = amount > Number(filter.substring(1));
+                    }
+                    else if (filter.startsWith("<")) {
+                        found = amount < Number(filter.substring(1));
+                    }
+                    else {
+                        found = amount.toString().includes(filter);
+                    }
+
+                }
+                else {
+
+                    found = value.toLowerCase().includes(filter);
+                }
+
+            });
+
+            row.style.display = (filter === "" || found)
+                ? ""
+                : "none";
+
+        });
+
+    }
+
     $(function() {
         var chartName = "chartCollege";
         var ctx = document.getElementById(chartName).getContext('2d');
