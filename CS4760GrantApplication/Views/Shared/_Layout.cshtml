@@ -78,13 +78,6 @@
                                 </a>
                             </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="ARCC"
-                                   asp-action="Index">
-                                    ARCC Committee
-                                </a>
-                            </li>
                         }
 
                         @if (userId.HasValue && isCommitteMember)
@@ -100,6 +93,15 @@
 
                         @if (userId.HasValue && isCommitteeChair)
                         {
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="ARCC"
+                                   asp-action="Index">
+                                    ARCC Committee
+                                </a>
+                            </li>
+
                             <li class="nav-item">
                                 <a class="nav-link"
                                    asp-area=""
