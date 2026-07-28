@@ -157,6 +157,16 @@ namespace CS4760GrantApplication.Controllers
                 });
             }
 
+            var allocatedGrants = await _context.Grants
+                .Include(g => g.Departments)
+                .Include(g => g.Attachments)
+                .Include(g => g.BudgetItems)
+                .Include(g => g.Reviews)
+                .Include(g => g.User)
+                .Include(g => g.College)
+                .Where(g => g.IsAllocationCompleted)
+                .ToListAsync();
+
             decimal totalNum = (decimal)_context.Grants.Where(g => g.AllocatedFunds > 0).Sum(g => g.AllocatedFunds)!;
 
             string totalString = totalNum.ToString("#,#.00");
@@ -169,6 +179,7 @@ namespace CS4760GrantApplication.Controllers
                 TopData = topModel,
                 TotalAllocated = totalNum,
                 AllocatedString = totalString,
+                AllocatedGrants = allocatedGrants
             };
 
             return View(vm);
